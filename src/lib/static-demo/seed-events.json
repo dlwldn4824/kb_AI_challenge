@@ -1,0 +1,1392 @@
+[
+  {
+    "seq": 1,
+    "caseId": "RG-2026-081-0142",
+    "type": "draft_created",
+    "actor": "system",
+    "ts": "2026-07-23T12:49:00+09:00",
+    "payload": {
+      "product": "KB장병내일준비적금",
+      "inquiry": "비과세 저축한도 20→30만원 변경 · 급여공제",
+      "receivedAt": "2026-07-23T12:51:00+09:00",
+      "model": "KB-FAQ-2026-06",
+      "modelVersion": "v3.4.2",
+      "confidence": 0.6,
+      "sentences": [
+        {
+          "idx": 0,
+          "text": "한 은행의 월 저축한도는 최고 30만원이며, 매월 30만원 이하 금액을 만기일 전일까지 저축 가능합니다.",
+          "flagStart": 25,
+          "flagEnd": 35
+        },
+        {
+          "idx": 1,
+          "text": "위 계좌는 1회에 한하여 비과세저축 한도 변경이 가능합니다.",
+          "flagStart": 6,
+          "flagEnd": 13
+        },
+        {
+          "idx": 2,
+          "text": "25년 1월 1일 전에 가입한 계좌만 변경이 가능합니다.",
+          "flagStart": 0,
+          "flagEnd": 19
+        },
+        {
+          "idx": 3,
+          "text": "조기전역 · 신분전환 · 금융소득종합과세 대상의 경우 비대면 해지가 불가합니다.",
+          "flagStart": 0,
+          "flagEnd": 25
+        },
+        {
+          "idx": 4,
+          "text": "해지 시 제출 서류는 3개월 이내 발급분이어야 합니다.",
+          "flagStart": 12,
+          "flagEnd": 22
+        }
+      ]
+    }
+  },
+  {
+    "seq": 2,
+    "caseId": "RG-2026-081-0142",
+    "type": "signals_detected",
+    "actor": "system",
+    "ts": "2026-07-23T12:49:00+09:00",
+    "payload": {
+      "signals": [
+        {
+          "sentenceIdx": 0,
+          "type": "numeric_change",
+          "tier": "S",
+          "score": 3,
+          "label": "금액·금리 수치",
+          "evidence": "매월 30만원 이하"
+        },
+        {
+          "sentenceIdx": 1,
+          "type": "exemption_condition",
+          "tier": "S",
+          "score": 3,
+          "label": "면제·부과 조건",
+          "evidence": "1회에 한하여"
+        },
+        {
+          "sentenceIdx": 2,
+          "type": "deadline_eligibility",
+          "tier": "A",
+          "score": 2,
+          "label": "기한·자격 요건",
+          "evidence": "25년 1월 1일 전에 가입한 계좌"
+        },
+        {
+          "sentenceIdx": 3,
+          "type": "disadvantage_omission",
+          "tier": "A",
+          "score": 2,
+          "label": "불이익 사항 누락",
+          "evidence": "조기전역 · 신분전환 · 금융소득종합과세 대상"
+        },
+        {
+          "sentenceIdx": 4,
+          "type": "procedure_document",
+          "tier": "B",
+          "score": 1,
+          "label": "절차·서류 안내",
+          "evidence": "3개월 이내 발급분"
+        }
+      ],
+      "r": 11
+    }
+  },
+  {
+    "seq": 3,
+    "caseId": "RG-2026-081-0139",
+    "type": "draft_created",
+    "actor": "system",
+    "ts": "2026-07-23T14:05:00+09:00",
+    "payload": {
+      "product": "KB장병내일준비적금",
+      "inquiry": "만기 비대면 해지 조건 · 자격 제외 대상",
+      "receivedAt": "2026-07-23T14:05:00+09:00",
+      "model": "KB-FAQ-2026-06",
+      "modelVersion": "v3.4.2",
+      "confidence": 0.62,
+      "sentences": [
+        {
+          "idx": 0,
+          "text": "만기 시 원리금은 최고 55만원 한도 내에서 지급됩니다.",
+          "flagStart": 10,
+          "flagEnd": 17
+        },
+        {
+          "idx": 1,
+          "text": "이자소득은 1인 2계좌에 한하여 비과세 혜택이 적용됩니다.",
+          "flagStart": 14,
+          "flagEnd": 17
+        },
+        {
+          "idx": 2,
+          "text": "조기전역이나 신분전환에 해당하면 비대면 해지가 불가합니다.",
+          "flagStart": 18,
+          "flagEnd": 31
+        },
+        {
+          "idx": 3,
+          "text": "만기일은 가입 시 안내된 일자와 같습니다.",
+          "flagStart": null,
+          "flagEnd": null
+        }
+      ]
+    }
+  },
+  {
+    "seq": 4,
+    "caseId": "RG-2026-081-0139",
+    "type": "signals_detected",
+    "actor": "system",
+    "ts": "2026-07-23T14:05:00+09:00",
+    "payload": {
+      "signals": [
+        {
+          "sentenceIdx": 0,
+          "type": "numeric_change",
+          "tier": "S",
+          "score": 3,
+          "label": "금액·금리 수치",
+          "evidence": "최고 55만원"
+        },
+        {
+          "sentenceIdx": 1,
+          "type": "exemption_condition",
+          "tier": "S",
+          "score": 3,
+          "label": "면제·부과 조건",
+          "evidence": "한하여"
+        },
+        {
+          "sentenceIdx": 2,
+          "type": "disadvantage_omission",
+          "tier": "A",
+          "score": 2,
+          "label": "불이익 사항 누락",
+          "evidence": "비대면 해지가 불가합니다"
+        }
+      ],
+      "r": 8
+    }
+  },
+  {
+    "seq": 5,
+    "caseId": "RG-2026-081-0128",
+    "type": "draft_created",
+    "actor": "system",
+    "ts": "2026-07-23T13:41:00+09:00",
+    "payload": {
+      "product": "주택청약종합저축",
+      "inquiry": "연간 소득공제 한도 · 무주택 요건",
+      "receivedAt": "2026-07-23T13:41:00+09:00",
+      "model": "KB-FAQ-2026-06",
+      "modelVersion": "v3.4.2",
+      "confidence": 0.58,
+      "sentences": [
+        {
+          "idx": 0,
+          "text": "연간 납입액 300만원까지 소득공제가 적용됩니다.",
+          "flagStart": 7,
+          "flagEnd": 14
+        },
+        {
+          "idx": 1,
+          "text": "무주택 세대주 요건을 충족한 가입자가 대상입니다.",
+          "flagStart": 0,
+          "flagEnd": 10
+        },
+        {
+          "idx": 2,
+          "text": "중도 해지 시 소득공제 받은 금액이 추징될 수 있습니다.",
+          "flagStart": 0,
+          "flagEnd": 5
+        }
+      ]
+    }
+  },
+  {
+    "seq": 6,
+    "caseId": "RG-2026-081-0128",
+    "type": "signals_detected",
+    "actor": "system",
+    "ts": "2026-07-23T13:41:00+09:00",
+    "payload": {
+      "signals": [
+        {
+          "sentenceIdx": 0,
+          "type": "numeric_change",
+          "tier": "S",
+          "score": 3,
+          "label": "금액·금리 수치",
+          "evidence": "300만원까지"
+        },
+        {
+          "sentenceIdx": 1,
+          "type": "deadline_eligibility",
+          "tier": "A",
+          "score": 2,
+          "label": "기한·자격 요건",
+          "evidence": "무주택 세대주 요건"
+        },
+        {
+          "sentenceIdx": 2,
+          "type": "disadvantage_omission",
+          "tier": "A",
+          "score": 2,
+          "label": "불이익 사항 누락",
+          "evidence": "중도 해지"
+        }
+      ],
+      "r": 7
+    }
+  },
+  {
+    "seq": 7,
+    "caseId": "RG-2026-081-0121",
+    "type": "draft_created",
+    "actor": "system",
+    "ts": "2026-07-23T13:20:00+09:00",
+    "payload": {
+      "product": "ELS 제12,340회차",
+      "inquiry": "조기상환 평가일 · 낙인 조건",
+      "receivedAt": "2026-07-23T13:20:00+09:00",
+      "model": "KB-FAQ-2026-06",
+      "modelVersion": "v3.4.2",
+      "confidence": 0.55,
+      "sentences": [
+        {
+          "idx": 0,
+          "text": "1차 조기상환 평가일의 기준가격은 최초기준가격의 90% 이상입니다.",
+          "flagStart": 27,
+          "flagEnd": 33
+        },
+        {
+          "idx": 1,
+          "text": "평가일에 조건을 충족하면 반드시 조기상환됩니다.",
+          "flagStart": 14,
+          "flagEnd": 25
+        },
+        {
+          "idx": 2,
+          "text": "낙인 발생 여부는 기초자산 종가 기준으로 판정합니다.",
+          "flagStart": null,
+          "flagEnd": null
+        }
+      ]
+    }
+  },
+  {
+    "seq": 8,
+    "caseId": "RG-2026-081-0121",
+    "type": "signals_detected",
+    "actor": "system",
+    "ts": "2026-07-23T13:20:00+09:00",
+    "payload": {
+      "signals": [
+        {
+          "sentenceIdx": 0,
+          "type": "numeric_change",
+          "tier": "S",
+          "score": 3,
+          "label": "금액·금리 수치",
+          "evidence": "90% 이상"
+        },
+        {
+          "sentenceIdx": 1,
+          "type": "overcertainty",
+          "tier": "S",
+          "score": 3,
+          "label": "확정성 과장",
+          "evidence": "반드시 조기상환됩니다"
+        }
+      ],
+      "r": 6
+    }
+  },
+  {
+    "seq": 9,
+    "caseId": "RG-2026-081-0121",
+    "type": "review_started",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T13:22:00+09:00",
+    "payload": {}
+  },
+  {
+    "seq": 10,
+    "caseId": "RG-2026-081-0104",
+    "type": "draft_created",
+    "actor": "system",
+    "ts": "2026-07-23T12:38:00+09:00",
+    "payload": {
+      "product": "KB국민카드 프리미엄",
+      "inquiry": "연회비 면제 조건",
+      "receivedAt": "2026-07-23T12:38:00+09:00",
+      "model": "KB-FAQ-2026-06",
+      "modelVersion": "v3.4.2",
+      "confidence": 0.64,
+      "sentences": [
+        {
+          "idx": 0,
+          "text": "직전 1년간 이용실적 기준을 충족한 회원이 대상입니다.",
+          "flagStart": 24,
+          "flagEnd": 26
+        },
+        {
+          "idx": 1,
+          "text": "실적 기준에 미달하면 연회비가 청구되며 해지 시에도 환급되지 않습니다.",
+          "flagStart": 22,
+          "flagEnd": 24
+        },
+        {
+          "idx": 2,
+          "text": "실적 확인 결과는 별도 신청서 제출 없이 조회할 수 있습니다.",
+          "flagStart": 13,
+          "flagEnd": 16
+        }
+      ]
+    }
+  },
+  {
+    "seq": 11,
+    "caseId": "RG-2026-081-0104",
+    "type": "signals_detected",
+    "actor": "system",
+    "ts": "2026-07-23T12:38:00+09:00",
+    "payload": {
+      "signals": [
+        {
+          "sentenceIdx": 0,
+          "type": "deadline_eligibility",
+          "tier": "A",
+          "score": 2,
+          "label": "기한·자격 요건",
+          "evidence": "대상"
+        },
+        {
+          "sentenceIdx": 1,
+          "type": "disadvantage_omission",
+          "tier": "A",
+          "score": 2,
+          "label": "불이익 사항 누락",
+          "evidence": "해지"
+        },
+        {
+          "sentenceIdx": 2,
+          "type": "procedure_document",
+          "tier": "B",
+          "score": 1,
+          "label": "절차·서류 안내",
+          "evidence": "신청서"
+        }
+      ],
+      "r": 5
+    }
+  },
+  {
+    "seq": 12,
+    "caseId": "RG-2026-081-0117",
+    "type": "draft_created",
+    "actor": "system",
+    "ts": "2026-07-23T13:02:00+09:00",
+    "payload": {
+      "product": "KB더블모아예금",
+      "inquiry": "중도해지 이율 · 만기 후 이율",
+      "receivedAt": "2026-07-23T13:02:00+09:00",
+      "model": "KB-FAQ-2026-06",
+      "modelVersion": "v3.4.2",
+      "confidence": 0.61,
+      "sentences": [
+        {
+          "idx": 0,
+          "text": "중도에 찾으시는 경우 기본이율의 30%가 적용됩니다.",
+          "flagStart": 18,
+          "flagEnd": 21
+        },
+        {
+          "idx": 1,
+          "text": "만기 후 이율은 만기일 다음 날부터 적용됩니다.",
+          "flagStart": null,
+          "flagEnd": null
+        },
+        {
+          "idx": 2,
+          "text": "이율 적용 내역 확인을 위해서는 통장 사본 제출이 필요합니다.",
+          "flagStart": 24,
+          "flagEnd": 26
+        }
+      ]
+    }
+  },
+  {
+    "seq": 13,
+    "caseId": "RG-2026-081-0117",
+    "type": "signals_detected",
+    "actor": "system",
+    "ts": "2026-07-23T13:02:00+09:00",
+    "payload": {
+      "signals": [
+        {
+          "sentenceIdx": 0,
+          "type": "numeric_change",
+          "tier": "S",
+          "score": 3,
+          "label": "금액·금리 수치",
+          "evidence": "30%"
+        },
+        {
+          "sentenceIdx": 2,
+          "type": "procedure_document",
+          "tier": "B",
+          "score": 1,
+          "label": "절차·서류 안내",
+          "evidence": "제출"
+        }
+      ],
+      "r": 4
+    }
+  },
+  {
+    "seq": 14,
+    "caseId": "RG-2026-081-0098",
+    "type": "draft_created",
+    "actor": "system",
+    "ts": "2026-07-23T12:11:00+09:00",
+    "payload": {
+      "product": "KB주택담보대출",
+      "inquiry": "중도상환수수료 면제 조건",
+      "receivedAt": "2026-07-23T12:11:00+09:00",
+      "model": "KB-FAQ-2026-06",
+      "modelVersion": "v3.4.2",
+      "confidence": 0.66,
+      "sentences": [
+        {
+          "idx": 0,
+          "text": "대출 실행일부터 3년이 지난 이후 상환하는 경우가 대상입니다.",
+          "flagStart": 28,
+          "flagEnd": 30
+        },
+        {
+          "idx": 1,
+          "text": "상환 예정일 전에 증빙 서류를 제출해 주셔야 합니다.",
+          "flagStart": 10,
+          "flagEnd": 15
+        },
+        {
+          "idx": 2,
+          "text": "수수료율은 상환 시점에 따라 달라집니다.",
+          "flagStart": null,
+          "flagEnd": null
+        }
+      ]
+    }
+  },
+  {
+    "seq": 15,
+    "caseId": "RG-2026-081-0098",
+    "type": "signals_detected",
+    "actor": "system",
+    "ts": "2026-07-23T12:11:00+09:00",
+    "payload": {
+      "signals": [
+        {
+          "sentenceIdx": 0,
+          "type": "deadline_eligibility",
+          "tier": "A",
+          "score": 2,
+          "label": "기한·자격 요건",
+          "evidence": "대상"
+        },
+        {
+          "sentenceIdx": 1,
+          "type": "procedure_document",
+          "tier": "B",
+          "score": 1,
+          "label": "절차·서류 안내",
+          "evidence": "증빙 서류"
+        }
+      ],
+      "r": 3
+    }
+  },
+  {
+    "seq": 16,
+    "caseId": "RG-2026-081-0098",
+    "type": "review_started",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T12:13:00+09:00",
+    "payload": {}
+  },
+  {
+    "seq": 17,
+    "caseId": "RG-2026-081-0098",
+    "type": "sentence_kept",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T12:14:00+09:00",
+    "payload": {
+      "sentenceIdx": 0
+    }
+  },
+  {
+    "seq": 18,
+    "caseId": "RG-2026-081-0098",
+    "type": "sentence_kept",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T12:14:00+09:00",
+    "payload": {
+      "sentenceIdx": 1
+    }
+  },
+  {
+    "seq": 19,
+    "caseId": "RG-2026-081-0098",
+    "type": "approved",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T12:16:00+09:00",
+    "payload": {
+      "versionId": "18c47f3f7f6a",
+      "contentDigest": "18c47f3f7f6a983d19621da61a8070a1cbf26fe375db02caa09fa8b9fb1fd46c",
+      "approver": "EMP-4471",
+      "team": "고객센터 1팀",
+      "reason": "none",
+      "modelVersion": "v3.4.2",
+      "sealedAt": "2026-07-23T12:16:00+09:00",
+      "seal": "c6ceafedb8bd1f8ff82cb02bc4e65bbb6a40bbd1a882bd6921e2d9ebb0073008"
+    }
+  },
+  {
+    "seq": 20,
+    "caseId": "RG-2026-081-0091",
+    "type": "draft_created",
+    "actor": "system",
+    "ts": "2026-07-23T11:54:00+09:00",
+    "payload": {
+      "product": "청년희망적금",
+      "inquiry": "우대금리 적용 요건",
+      "receivedAt": "2026-07-23T11:54:00+09:00",
+      "model": "KB-FAQ-2026-06",
+      "modelVersion": "v3.4.2",
+      "confidence": 0.69,
+      "sentences": [
+        {
+          "idx": 0,
+          "text": "우대금리는 급여이체 실적 요건을 충족한 경우에 적용됩니다.",
+          "flagStart": 11,
+          "flagEnd": 16
+        },
+        {
+          "idx": 1,
+          "text": "적용 여부는 매월 말일 기준으로 산정합니다.",
+          "flagStart": null,
+          "flagEnd": null
+        }
+      ]
+    }
+  },
+  {
+    "seq": 21,
+    "caseId": "RG-2026-081-0091",
+    "type": "signals_detected",
+    "actor": "system",
+    "ts": "2026-07-23T11:54:00+09:00",
+    "payload": {
+      "signals": [
+        {
+          "sentenceIdx": 0,
+          "type": "deadline_eligibility",
+          "tier": "A",
+          "score": 2,
+          "label": "기한·자격 요건",
+          "evidence": "실적 요건"
+        }
+      ],
+      "r": 2
+    }
+  },
+  {
+    "seq": 22,
+    "caseId": "RG-2026-081-0091",
+    "type": "review_started",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T11:56:00+09:00",
+    "payload": {}
+  },
+  {
+    "seq": 23,
+    "caseId": "RG-2026-081-0091",
+    "type": "sentence_kept",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T11:57:00+09:00",
+    "payload": {
+      "sentenceIdx": 0
+    }
+  },
+  {
+    "seq": 24,
+    "caseId": "RG-2026-081-0091",
+    "type": "approved",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T11:59:00+09:00",
+    "payload": {
+      "versionId": "790823104697",
+      "contentDigest": "79082310469730f9982bba5a22953271f404e381c2f09c1f8249e5c63cdd3d66",
+      "approver": "EMP-4471",
+      "team": "고객센터 1팀",
+      "reason": "none",
+      "modelVersion": "v3.4.2",
+      "sealedAt": "2026-07-23T11:59:00+09:00",
+      "seal": "9062920b98363027650171456a4896d01d6e346a35b3ddc5a7664216d91b36c1"
+    }
+  },
+  {
+    "seq": 25,
+    "caseId": "RG-2026-081-0083",
+    "type": "draft_created",
+    "actor": "system",
+    "ts": "2026-07-23T11:30:00+09:00",
+    "payload": {
+      "product": "KB Star 정기예금",
+      "inquiry": "금리 조회",
+      "receivedAt": "2026-07-23T11:30:00+09:00",
+      "model": "KB-FAQ-2026-06",
+      "modelVersion": "v3.4.2",
+      "confidence": 0.91,
+      "sentences": [
+        {
+          "idx": 0,
+          "text": "KB Star 정기예금의 기본금리는 영업점 게시 이율을 따릅니다.",
+          "flagStart": null,
+          "flagEnd": null
+        },
+        {
+          "idx": 1,
+          "text": "우대조건 없이 가입하셔도 기본금리는 동일하게 적용됩니다.",
+          "flagStart": null,
+          "flagEnd": null
+        }
+      ]
+    }
+  },
+  {
+    "seq": 26,
+    "caseId": "RG-2026-081-0083",
+    "type": "signals_detected",
+    "actor": "system",
+    "ts": "2026-07-23T11:30:00+09:00",
+    "payload": {
+      "signals": [],
+      "r": 0,
+      "sampled": true
+    }
+  },
+  {
+    "seq": 27,
+    "caseId": "RG-2026-081-0077",
+    "type": "draft_created",
+    "actor": "system",
+    "ts": "2026-07-23T11:02:00+09:00",
+    "payload": {
+      "product": "입출금통장",
+      "inquiry": "이체한도 변경 절차",
+      "receivedAt": "2026-07-23T11:02:00+09:00",
+      "model": "KB-FAQ-2026-06",
+      "modelVersion": "v3.4.2",
+      "confidence": 0.93,
+      "sentences": [
+        {
+          "idx": 0,
+          "text": "이체한도 변경은 인터넷뱅킹 또는 영업점에서 처리하실 수 있습니다.",
+          "flagStart": null,
+          "flagEnd": null
+        },
+        {
+          "idx": 1,
+          "text": "변경된 한도는 당일부터 적용됩니다.",
+          "flagStart": null,
+          "flagEnd": null
+        }
+      ]
+    }
+  },
+  {
+    "seq": 28,
+    "caseId": "RG-2026-081-0077",
+    "type": "signals_detected",
+    "actor": "system",
+    "ts": "2026-07-23T11:02:00+09:00",
+    "payload": {
+      "signals": [],
+      "r": 0,
+      "sampled": true
+    }
+  },
+  {
+    "seq": 29,
+    "caseId": "RG-2026-081-0135",
+    "type": "draft_created",
+    "actor": "system",
+    "ts": "2026-07-23T10:47:00+09:00",
+    "payload": {
+      "product": "KB국민은행 신용대출",
+      "inquiry": "금리인하요구권 신청 서류",
+      "receivedAt": "2026-07-23T10:47:00+09:00",
+      "model": "KB-FAQ-2026-06",
+      "modelVersion": "v3.4.2",
+      "confidence": 0.72,
+      "sentences": [
+        {
+          "idx": 0,
+          "text": "금리인하요구권은 영업점 또는 인터넷뱅킹으로 접수하실 수 있습니다.",
+          "flagStart": null,
+          "flagEnd": null
+        },
+        {
+          "idx": 1,
+          "text": "재직 및 소득 증빙 서류를 함께 접수해 주시기 바랍니다.",
+          "flagStart": 8,
+          "flagEnd": 13
+        }
+      ]
+    }
+  },
+  {
+    "seq": 30,
+    "caseId": "RG-2026-081-0135",
+    "type": "signals_detected",
+    "actor": "system",
+    "ts": "2026-07-23T10:47:00+09:00",
+    "payload": {
+      "signals": [
+        {
+          "sentenceIdx": 1,
+          "type": "procedure_document",
+          "tier": "B",
+          "score": 1,
+          "label": "절차·서류 안내",
+          "evidence": "증빙 서류"
+        }
+      ],
+      "r": 1
+    }
+  },
+  {
+    "seq": 31,
+    "caseId": "RG-2026-081-0135",
+    "type": "review_started",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T10:49:00+09:00",
+    "payload": {}
+  },
+  {
+    "seq": 32,
+    "caseId": "RG-2026-081-0135",
+    "type": "sentence_kept",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T10:50:00+09:00",
+    "payload": {
+      "sentenceIdx": 1
+    }
+  },
+  {
+    "seq": 33,
+    "caseId": "RG-2026-081-0135",
+    "type": "approved",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T10:52:00+09:00",
+    "payload": {
+      "versionId": "71552fe7156b",
+      "contentDigest": "71552fe7156b3807f319d7ea1ffbde9bbf4d10b6df5f4e4a39eb572414e7c816",
+      "approver": "EMP-4471",
+      "team": "고객센터 1팀",
+      "reason": "none",
+      "modelVersion": "v3.4.2",
+      "sealedAt": "2026-07-23T10:52:00+09:00",
+      "seal": "e9522b754cb2d3853c47ed521d715c5ad92b569e5d14b7a4395840e6fcf298bb"
+    }
+  },
+  {
+    "seq": 34,
+    "caseId": "RG-2026-081-0135",
+    "type": "dispatch_attempted",
+    "actor": "system",
+    "ts": "2026-07-23T10:53:00+09:00",
+    "payload": {
+      "contentDigest": "0c1e5977028272b2e31ccaea1dd5976d90fe103d48406d44badd26fdbc8047fb",
+      "via": "api",
+      "content": "금리인하요구권은 영업점 또는 인터넷뱅킹으로 접수하실 수 있습니다.\n재직 및 소득 증빙 서류 없이도 즉시 처리됩니다."
+    }
+  },
+  {
+    "seq": 35,
+    "caseId": "RG-2026-081-0135",
+    "type": "dispatch_blocked",
+    "actor": "system",
+    "ts": "2026-07-23T10:53:00+09:00",
+    "payload": {
+      "reason": "digest_mismatch",
+      "expectedDigest": "71552fe7156b3807f319d7ea1ffbde9bbf4d10b6df5f4e4a39eb572414e7c816",
+      "actualDigest": "0c1e5977028272b2e31ccaea1dd5976d90fe103d48406d44badd26fdbc8047fb"
+    }
+  },
+  {
+    "seq": 36,
+    "caseId": "RG-2026-081-0072",
+    "type": "draft_created",
+    "actor": "system",
+    "ts": "2026-07-23T11:41:00+09:00",
+    "payload": {
+      "product": "KB국민카드 체크카드",
+      "inquiry": "카드 재발급 진행 상황",
+      "receivedAt": "2026-07-23T11:41:00+09:00",
+      "model": "KB-FAQ-2026-06",
+      "modelVersion": "v3.4.2",
+      "confidence": 0.95,
+      "sentences": [
+        {
+          "idx": 0,
+          "text": "요청하신 체크카드 재발급은 정상 접수되었습니다.",
+          "flagStart": null,
+          "flagEnd": null
+        },
+        {
+          "idx": 1,
+          "text": "배송 진행 상황은 스타뱅킹 앱에서 확인하실 수 있습니다.",
+          "flagStart": null,
+          "flagEnd": null
+        }
+      ]
+    }
+  },
+  {
+    "seq": 37,
+    "caseId": "RG-2026-081-0072",
+    "type": "signals_detected",
+    "actor": "system",
+    "ts": "2026-07-23T11:41:00+09:00",
+    "payload": {
+      "signals": [],
+      "r": 0
+    }
+  },
+  {
+    "seq": 38,
+    "caseId": "RG-2026-081-0072",
+    "type": "review_started",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T11:43:00+09:00",
+    "payload": {}
+  },
+  {
+    "seq": 39,
+    "caseId": "RG-2026-081-0072",
+    "type": "approved",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T11:46:00+09:00",
+    "payload": {
+      "versionId": "458c70e7f0d1",
+      "contentDigest": "458c70e7f0d1f02ca238c73058ae94b50cf58573c8cce611516489ad08da01bd",
+      "approver": "EMP-4471",
+      "team": "고객센터 1팀",
+      "reason": "none",
+      "modelVersion": "v3.4.2",
+      "sealedAt": "2026-07-23T11:46:00+09:00",
+      "seal": "c73f1d966ccec166eab4377ca0583794ed881134f06a154598b19f789652f035"
+    }
+  },
+  {
+    "seq": 40,
+    "caseId": "RG-2026-081-0072",
+    "type": "dispatch_attempted",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T11:47:00+09:00",
+    "payload": {
+      "contentDigest": "458c70e7f0d1f02ca238c73058ae94b50cf58573c8cce611516489ad08da01bd",
+      "via": "ui",
+      "content": "요청하신 체크카드 재발급은 정상 접수되었습니다.\n배송 진행 상황은 스타뱅킹 앱에서 확인하실 수 있습니다."
+    }
+  },
+  {
+    "seq": 41,
+    "caseId": "RG-2026-081-0072",
+    "type": "dispatched",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T11:47:00+09:00",
+    "payload": {
+      "contentDigest": "458c70e7f0d1f02ca238c73058ae94b50cf58573c8cce611516489ad08da01bd",
+      "versionId": "458c70e7f0d1",
+      "dispatchedAt": "2026-07-23T11:47:00+09:00"
+    }
+  },
+  {
+    "seq": 42,
+    "caseId": "RG-2026-081-0068",
+    "type": "draft_created",
+    "actor": "system",
+    "ts": "2026-07-23T11:18:00+09:00",
+    "payload": {
+      "product": "KB스타뱅킹",
+      "inquiry": "간편비밀번호 재설정 방법",
+      "receivedAt": "2026-07-23T11:18:00+09:00",
+      "model": "KB-FAQ-2026-06",
+      "modelVersion": "v3.4.2",
+      "confidence": 0.94,
+      "sentences": [
+        {
+          "idx": 0,
+          "text": "간편비밀번호는 앱 로그인 후 설정 메뉴에서 다시 지정하실 수 있습니다.",
+          "flagStart": null,
+          "flagEnd": null
+        },
+        {
+          "idx": 1,
+          "text": "지정이 끝나면 기존 비밀번호는 사용되지 않습니다.",
+          "flagStart": null,
+          "flagEnd": null
+        }
+      ]
+    }
+  },
+  {
+    "seq": 43,
+    "caseId": "RG-2026-081-0068",
+    "type": "signals_detected",
+    "actor": "system",
+    "ts": "2026-07-23T11:18:00+09:00",
+    "payload": {
+      "signals": [],
+      "r": 0
+    }
+  },
+  {
+    "seq": 44,
+    "caseId": "RG-2026-081-0068",
+    "type": "review_started",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T11:20:00+09:00",
+    "payload": {}
+  },
+  {
+    "seq": 45,
+    "caseId": "RG-2026-081-0068",
+    "type": "approved",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T11:23:00+09:00",
+    "payload": {
+      "versionId": "fd447cbdb794",
+      "contentDigest": "fd447cbdb794b66c2a3ee041fc9d7f5d10ff36510d99b338078a5306bf4fc892",
+      "approver": "EMP-4471",
+      "team": "고객센터 1팀",
+      "reason": "none",
+      "modelVersion": "v3.4.2",
+      "sealedAt": "2026-07-23T11:23:00+09:00",
+      "seal": "49d5b81e0f691c12d5862309efe474bb878a53f1b5074b0ffd9d6d7af001187c"
+    }
+  },
+  {
+    "seq": 46,
+    "caseId": "RG-2026-081-0068",
+    "type": "dispatch_attempted",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T11:24:00+09:00",
+    "payload": {
+      "contentDigest": "fd447cbdb794b66c2a3ee041fc9d7f5d10ff36510d99b338078a5306bf4fc892",
+      "via": "ui",
+      "content": "간편비밀번호는 앱 로그인 후 설정 메뉴에서 다시 지정하실 수 있습니다.\n지정이 끝나면 기존 비밀번호는 사용되지 않습니다."
+    }
+  },
+  {
+    "seq": 47,
+    "caseId": "RG-2026-081-0068",
+    "type": "dispatched",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T11:24:00+09:00",
+    "payload": {
+      "contentDigest": "fd447cbdb794b66c2a3ee041fc9d7f5d10ff36510d99b338078a5306bf4fc892",
+      "versionId": "fd447cbdb794",
+      "dispatchedAt": "2026-07-23T11:24:00+09:00"
+    }
+  },
+  {
+    "seq": 48,
+    "caseId": "RG-2026-081-0064",
+    "type": "draft_created",
+    "actor": "system",
+    "ts": "2026-07-23T10:59:00+09:00",
+    "payload": {
+      "product": "KB국민은행 영업점",
+      "inquiry": "영업시간 안내",
+      "receivedAt": "2026-07-23T10:59:00+09:00",
+      "model": "KB-FAQ-2026-06",
+      "modelVersion": "v3.4.2",
+      "confidence": 0.96,
+      "sentences": [
+        {
+          "idx": 0,
+          "text": "영업점 창구 업무 시간은 평일 09:00부터 16:00까지입니다.",
+          "flagStart": null,
+          "flagEnd": null
+        },
+        {
+          "idx": 1,
+          "text": "점심시간에도 창구는 정상 운영합니다.",
+          "flagStart": null,
+          "flagEnd": null
+        }
+      ]
+    }
+  },
+  {
+    "seq": 49,
+    "caseId": "RG-2026-081-0064",
+    "type": "signals_detected",
+    "actor": "system",
+    "ts": "2026-07-23T10:59:00+09:00",
+    "payload": {
+      "signals": [],
+      "r": 0
+    }
+  },
+  {
+    "seq": 50,
+    "caseId": "RG-2026-081-0064",
+    "type": "review_started",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T11:01:00+09:00",
+    "payload": {}
+  },
+  {
+    "seq": 51,
+    "caseId": "RG-2026-081-0064",
+    "type": "approved",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T11:04:00+09:00",
+    "payload": {
+      "versionId": "3970776826cf",
+      "contentDigest": "3970776826cf632403a2a7bfc6028bf1483d9266042b4b3ca85942384b7573c2",
+      "approver": "EMP-4471",
+      "team": "고객센터 1팀",
+      "reason": "none",
+      "modelVersion": "v3.4.2",
+      "sealedAt": "2026-07-23T11:04:00+09:00",
+      "seal": "7c8bfa4440f5a24e782e75a28bd3350f687acced8ccb348f3adb83c8b37ecdee"
+    }
+  },
+  {
+    "seq": 52,
+    "caseId": "RG-2026-081-0064",
+    "type": "dispatch_attempted",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T11:05:00+09:00",
+    "payload": {
+      "contentDigest": "3970776826cf632403a2a7bfc6028bf1483d9266042b4b3ca85942384b7573c2",
+      "via": "ui",
+      "content": "영업점 창구 업무 시간은 평일 09:00부터 16:00까지입니다.\n점심시간에도 창구는 정상 운영합니다."
+    }
+  },
+  {
+    "seq": 53,
+    "caseId": "RG-2026-081-0064",
+    "type": "dispatched",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T11:05:00+09:00",
+    "payload": {
+      "contentDigest": "3970776826cf632403a2a7bfc6028bf1483d9266042b4b3ca85942384b7573c2",
+      "versionId": "3970776826cf",
+      "dispatchedAt": "2026-07-23T11:05:00+09:00"
+    }
+  },
+  {
+    "seq": 54,
+    "caseId": "RG-2026-081-0059",
+    "type": "draft_created",
+    "actor": "system",
+    "ts": "2026-07-23T10:33:00+09:00",
+    "payload": {
+      "product": "KB국민은행 외화예금",
+      "inquiry": "환율 우대 적용 문의",
+      "receivedAt": "2026-07-23T10:33:00+09:00",
+      "model": "KB-FAQ-2026-06",
+      "modelVersion": "v3.4.2",
+      "confidence": 0.9,
+      "sentences": [
+        {
+          "idx": 0,
+          "text": "환율 우대는 스타뱅킹에서 환전을 신청하시면 자동으로 적용됩니다.",
+          "flagStart": null,
+          "flagEnd": null
+        },
+        {
+          "idx": 1,
+          "text": "적용된 환율은 거래 내역에서 확인하실 수 있습니다.",
+          "flagStart": null,
+          "flagEnd": null
+        }
+      ]
+    }
+  },
+  {
+    "seq": 55,
+    "caseId": "RG-2026-081-0059",
+    "type": "signals_detected",
+    "actor": "system",
+    "ts": "2026-07-23T10:33:00+09:00",
+    "payload": {
+      "signals": [],
+      "r": 0
+    }
+  },
+  {
+    "seq": 56,
+    "caseId": "RG-2026-081-0059",
+    "type": "review_started",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T10:35:00+09:00",
+    "payload": {}
+  },
+  {
+    "seq": 57,
+    "caseId": "RG-2026-081-0059",
+    "type": "approved",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T10:38:00+09:00",
+    "payload": {
+      "versionId": "392dd2585650",
+      "contentDigest": "392dd2585650be3af2ee6549ee4f58f482b5bfe7f001eb728e4df08228ad9826",
+      "approver": "EMP-4471",
+      "team": "고객센터 1팀",
+      "reason": "none",
+      "modelVersion": "v3.4.2",
+      "sealedAt": "2026-07-23T10:38:00+09:00",
+      "seal": "c59bfa6db2f096eebf26e77f1e0fe504aa7bf844aa8a6eefc532db322bf2723a"
+    }
+  },
+  {
+    "seq": 58,
+    "caseId": "RG-2026-081-0059",
+    "type": "dispatch_attempted",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T10:39:00+09:00",
+    "payload": {
+      "contentDigest": "392dd2585650be3af2ee6549ee4f58f482b5bfe7f001eb728e4df08228ad9826",
+      "via": "ui",
+      "content": "환율 우대는 스타뱅킹에서 환전을 신청하시면 자동으로 적용됩니다.\n적용된 환율은 거래 내역에서 확인하실 수 있습니다."
+    }
+  },
+  {
+    "seq": 59,
+    "caseId": "RG-2026-081-0059",
+    "type": "dispatched",
+    "actor": "EMP-4471",
+    "ts": "2026-07-23T10:39:00+09:00",
+    "payload": {
+      "contentDigest": "392dd2585650be3af2ee6549ee4f58f482b5bfe7f001eb728e4df08228ad9826",
+      "versionId": "392dd2585650",
+      "dispatchedAt": "2026-07-23T10:39:00+09:00"
+    }
+  },
+  {
+    "seq": 60,
+    "caseId": "RG-2026-081-0055",
+    "type": "draft_created",
+    "actor": "system",
+    "ts": "2026-07-23T10:12:00+09:00",
+    "payload": {
+      "product": "주택청약종합저축",
+      "inquiry": "납입 회차 조회",
+      "receivedAt": "2026-07-23T10:12:00+09:00",
+      "model": "KB-FAQ-2026-06",
+      "modelVersion": "v3.4.2",
+      "confidence": 0.92,
+      "sentences": [
+        {
+          "idx": 0,
+          "text": "납입 회차는 스타뱅킹 상품 상세 화면에서 조회하실 수 있습니다.",
+          "flagStart": null,
+          "flagEnd": null
+        },
+        {
+          "idx": 1,
+          "text": "창구를 방문하지 않아도 조회가 가능합니다.",
+          "flagStart": null,
+          "flagEnd": null
+        }
+      ]
+    }
+  },
+  {
+    "seq": 61,
+    "caseId": "RG-2026-081-0055",
+    "type": "signals_detected",
+    "actor": "system",
+    "ts": "2026-07-23T10:12:00+09:00",
+    "payload": {
+      "signals": [],
+      "r": 0
+    }
+  },
+  {
+    "seq": 62,
+    "caseId": "RG-2026-081-0048",
+    "type": "draft_created",
+    "actor": "system",
+    "ts": "2026-07-23T09:58:00+09:00",
+    "payload": {
+      "product": "KB국민은행 자동이체",
+      "inquiry": "자동이체 일자 변경",
+      "receivedAt": "2026-07-23T09:58:00+09:00",
+      "model": "KB-FAQ-2026-06",
+      "modelVersion": "v3.4.2",
+      "confidence": 0.93,
+      "sentences": [
+        {
+          "idx": 0,
+          "text": "자동이체 출금일은 스타뱅킹 자동이체 관리 메뉴에서 변경하실 수 있습니다.",
+          "flagStart": null,
+          "flagEnd": null
+        },
+        {
+          "idx": 1,
+          "text": "변경 내용은 다음 출금일부터 반영됩니다.",
+          "flagStart": null,
+          "flagEnd": null
+        }
+      ]
+    }
+  },
+  {
+    "seq": 63,
+    "caseId": "RG-2026-081-0048",
+    "type": "signals_detected",
+    "actor": "system",
+    "ts": "2026-07-23T09:58:00+09:00",
+    "payload": {
+      "signals": [],
+      "r": 0
+    }
+  },
+  {
+    "seq": 64,
+    "caseId": "RG-2026-081-0042",
+    "type": "draft_created",
+    "actor": "system",
+    "ts": "2026-07-23T09:35:00+09:00",
+    "payload": {
+      "product": "KB국민카드",
+      "inquiry": "포인트리 사용처 안내",
+      "receivedAt": "2026-07-23T09:35:00+09:00",
+      "model": "KB-FAQ-2026-06",
+      "modelVersion": "v3.4.2",
+      "confidence": 0.94,
+      "sentences": [
+        {
+          "idx": 0,
+          "text": "포인트리는 카드 대금 결제와 제휴 가맹점 결제에 사용하실 수 있습니다.",
+          "flagStart": null,
+          "flagEnd": null
+        },
+        {
+          "idx": 1,
+          "text": "보유 포인트리는 앱 메인 화면에서 확인하실 수 있습니다.",
+          "flagStart": null,
+          "flagEnd": null
+        }
+      ]
+    }
+  },
+  {
+    "seq": 65,
+    "caseId": "RG-2026-081-0042",
+    "type": "signals_detected",
+    "actor": "system",
+    "ts": "2026-07-23T09:35:00+09:00",
+    "payload": {
+      "signals": [],
+      "r": 0
+    }
+  },
+  {
+    "seq": 66,
+    "caseId": "RG-2026-081-0037",
+    "type": "draft_created",
+    "actor": "system",
+    "ts": "2026-07-23T09:14:00+09:00",
+    "payload": {
+      "product": "KB스타뱅킹",
+      "inquiry": "알림 설정 변경",
+      "receivedAt": "2026-07-23T09:14:00+09:00",
+      "model": "KB-FAQ-2026-06",
+      "modelVersion": "v3.4.2",
+      "confidence": 0.95,
+      "sentences": [
+        {
+          "idx": 0,
+          "text": "입출금 알림은 앱 알림 설정 메뉴에서 켜고 끄실 수 있습니다.",
+          "flagStart": null,
+          "flagEnd": null
+        },
+        {
+          "idx": 1,
+          "text": "설정은 기기별로 따로 저장됩니다.",
+          "flagStart": null,
+          "flagEnd": null
+        }
+      ]
+    }
+  },
+  {
+    "seq": 67,
+    "caseId": "RG-2026-081-0037",
+    "type": "signals_detected",
+    "actor": "system",
+    "ts": "2026-07-23T09:14:00+09:00",
+    "payload": {
+      "signals": [],
+      "r": 0
+    }
+  },
+  {
+    "seq": 68,
+    "caseId": "RG-2026-081-0031",
+    "type": "draft_created",
+    "actor": "system",
+    "ts": "2026-07-23T08:52:00+09:00",
+    "payload": {
+      "product": "KB국민은행 통장",
+      "inquiry": "통장 사본 발급 방법",
+      "receivedAt": "2026-07-23T08:52:00+09:00",
+      "model": "KB-FAQ-2026-06",
+      "modelVersion": "v3.4.2",
+      "confidence": 0.93,
+      "sentences": [
+        {
+          "idx": 0,
+          "text": "통장 사본은 스타뱅킹에서 내려받으실 수 있습니다.",
+          "flagStart": null,
+          "flagEnd": null
+        },
+        {
+          "idx": 1,
+          "text": "영업점을 방문하시면 창구에서도 받으실 수 있습니다.",
+          "flagStart": null,
+          "flagEnd": null
+        }
+      ]
+    }
+  },
+  {
+    "seq": 69,
+    "caseId": "RG-2026-081-0031",
+    "type": "signals_detected",
+    "actor": "system",
+    "ts": "2026-07-23T08:52:00+09:00",
+    "payload": {
+      "signals": [],
+      "r": 0
+    }
+  }
+]
