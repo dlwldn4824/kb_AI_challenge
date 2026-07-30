@@ -58,7 +58,7 @@ export function QueueConsole({ data }: { data: QueueView }) {
             );
           })}
           <span className="ml-auto text-[13px] leading-[1.6] text-muted">
-            개입 필요 <span className="tabular font-semibold text-ink">{queue.length}</span>건
+            현재 목록 <span className="tabular font-semibold text-ink">{queue.length}</span>건
             {samples.length > 0 && (
               <>
                 <span className="px-[8px] text-faint">·</span>

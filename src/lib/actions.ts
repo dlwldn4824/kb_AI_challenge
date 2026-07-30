@@ -67,7 +67,7 @@ export function keepSentence(caseId: string, idx: number, at?: string): CaseStat
     caseId,
     type: 'sentence_kept',
     actor: ACTOR_ID,
-    ts: at ?? eventTs(caseId, 'sentence_kept'),
+    ts: at ?? eventTs(caseId, 'sentence_kept', idx),
     payload: { sentenceIdx: idx },
   });
   invalidateApprovalIfNeeded(caseId, before, at);

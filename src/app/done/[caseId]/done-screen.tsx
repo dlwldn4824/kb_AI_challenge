@@ -47,7 +47,7 @@ export function DoneScreen({ view }: { view: RegistryView }) {
           <span key="id" className="font-mono">
             {view.caseId}
           </span>,
-          view.approval ? (view.approval.sealValid ? '봉인 유효' : '봉인 무효') : '봉인 없음',
+          sealLabel(view.approval?.sealValid ?? null, blocked !== null),
           <span key="ts">
             현재 시각 <span className="tabular font-mono">{DISPLAY.chromeTimestamp}</span>
           </span>,
@@ -175,7 +175,7 @@ export function DoneScreen({ view }: { view: RegistryView }) {
             </p>
 
             <p className="ko mt-[16px] border-t border-line pt-[12px] text-[13px] leading-[1.6] text-muted">
-              오늘 발행 <TodayNumber value={STATS.draftsToday.toLocaleString()} />
+              오늘 초안 <TodayNumber value={STATS.draftsToday.toLocaleString()} />
               <span className="px-[8px] text-faint">·</span>
               사람 개입 <TodayNumber value={String(STATS.interventionNeeded)} />
               <span className="px-[8px] text-faint">·</span>
@@ -366,6 +366,16 @@ function SealField({ label, value, mono }: { label: string; value: string; mono?
       </p>
     </div>
   );
+}
+
+/**
+ * 봉인 상태 표기.
+ * 차단 케이스는 봉인 자체는 멀쩡하고 발송만 막힌 것이라 두 사실을 함께 적는다.
+ */
+function sealLabel(sealValid: boolean | null, blocked: boolean): string {
+  if (sealValid === null) return '봉인 없음';
+  const seal = sealValid ? '봉인 유효' : '봉인 무효';
+  return blocked ? `${seal} · 발송 차단` : seal;
 }
 
 /** ISO8601(KST) → `YYYY-MM-DD HH:MM:SS` */
