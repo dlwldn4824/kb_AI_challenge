@@ -23,21 +23,31 @@ export function IPhoneFrame({
   time?: string;
   children: ReactNode;
 }) {
-  const pt = (value: number) => value * scale;
+  // 논리 pt 는 1:1 로 그리고, 축소는 프레임 전체에 transform 으로 건다.
+  // 그래야 베젤·다이내믹 아일랜드·내부 콘텐츠가 같은 비율로 줄어든다.
+  const pt = (value: number) => value;
   const bezel = pt(4.5);
   const screenWidth = pt(IPHONE_PT.width);
   const screenHeight = pt(IPHONE_PT.height);
+  const outerWidth = screenWidth + bezel * 2;
+  const outerHeight = screenHeight + bezel * 2;
   const glyph = statusBarTone === 'light' ? '#FFFFFF' : '#1B1B1D';
 
   return (
     <div
-      className="relative shrink-0 bg-[#1B1B1D]"
+      className="shrink-0"
+      style={{ width: outerWidth * scale, height: outerHeight * scale }}
+    >
+    <div
+      className="relative bg-[#1B1B1D]"
       style={{
-        width: screenWidth + bezel * 2,
-        height: screenHeight + bezel * 2,
+        width: outerWidth,
+        height: outerHeight,
         padding: bezel,
         borderRadius: pt(55) + bezel,
         boxShadow: '0 0 0 1px rgba(138,138,142,.4), 0 2px 12px rgba(38,40,44,.10)',
+        transform: `scale(${scale})`,
+        transformOrigin: 'top left',
       }}
     >
       <div
@@ -96,6 +106,7 @@ export function IPhoneFrame({
           }}
         />
       </div>
+    </div>
     </div>
   );
 }

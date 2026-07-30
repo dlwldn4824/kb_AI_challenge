@@ -64,13 +64,17 @@ export function CustomerPane(props: CustomerPaneProps) {
       </div>
 
       {!props.delivered && (
-        <p className="ko mt-[16px] rounded-[6px] border-l-[3px] border-danger bg-danger-bg px-[14px] py-[10px] text-[13px] leading-[1.6] text-ink">
+        <p className="ko mt-[16px] border-l-[3px] border-danger pl-[14px] text-[13px] leading-[1.6] text-ink">
           고객 채널에는 아무것도 전달되지 않았습니다. 아래는 고객이 실제로 본 화면입니다.
         </p>
       )}
 
       <div className="flex items-start gap-[20px] pt-[16px]">
-        <IPhoneFrame homeIndicatorTone="dark" time={props.statusTime}>
+        <IPhoneFrame
+          scale={props.delivered ? 0.88 : 0.82}
+          homeIndicatorTone="dark"
+          time={props.statusTime}
+        >
           {/* 상단: 상태바 영역(54pt)만큼 띄운 다크브라운 헤더 */}
           <div className="shrink-0 bg-chat-header" style={{ paddingTop: 54 }}>
             <div className="flex h-[48px] items-center px-[16px] text-white">
@@ -171,11 +175,11 @@ export function CustomerPane(props: CustomerPaneProps) {
         {/* ── 등기 조회 패널 ─────────────────────────────── */}
         <div className="min-w-0 flex-1">
           <p className="text-[13px] leading-[1.35] text-muted">발행 등기</p>
-          <p className="mt-[6px] font-mono text-[20px] font-bold leading-[1.3] text-ink">
+          <p className="mt-[5px] font-mono text-[16px] font-bold leading-[1.35] text-ink">
             {props.caseId}
           </p>
 
-          <dl className="mt-[16px] border-t border-line pt-[16px]">
+          <dl className="mt-[12px] border-t border-line pt-[12px]">
             <LookupRow label="모델 · 버전" value={`${props.model} / ${props.modelVersion}`} mono />
             <LookupRow label="개입 필요도" value={`R ${props.r}`} mono />
             <LookupRow label="판단" value={props.verdictSummary} />
@@ -220,6 +224,7 @@ export function CustomerPane(props: CustomerPaneProps) {
   );
 }
 
+/** 라벨·값을 한 줄에 붙인 컴팩트 리스트. 항목은 하나도 빼지 않는다. */
 function LookupRow({
   label,
   value,
@@ -232,10 +237,10 @@ function LookupRow({
   last?: boolean;
 }) {
   return (
-    <div className={last ? 'border-b border-line pb-[16px]' : 'pb-[16px]'}>
-      <dt className="text-[13px] leading-[1.35] text-muted">{label}</dt>
+    <div className={`flex items-baseline gap-[12px] ${last ? 'border-b border-line pb-[10px]' : 'pb-[10px]'}`}>
+      <dt className="w-[86px] shrink-0 text-[13px] leading-[1.6] text-muted">{label}</dt>
       <dd
-        className={`ko mt-[6px] text-[15px] font-bold leading-[1.4] text-ink ${
+        className={`ko min-w-0 flex-1 text-[13px] font-semibold leading-[1.6] text-ink ${
           mono ? 'tabular font-mono' : 'tabular'
         }`}
       >

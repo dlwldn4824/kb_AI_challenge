@@ -1,6 +1,13 @@
+import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { asset } from '@/lib/asset-path';
 import { SYNTHETIC_BADGE } from '@/lib/constants';
+
+export interface ChromeTab {
+  label: string;
+  href: string;
+  active: boolean;
+}
 
 /**
  * 모든 화면 상단의 chrome 바.
@@ -10,7 +17,16 @@ import { SYNTHETIC_BADGE } from '@/lib/constants';
  * mono 를 쓰고, 팀·상품명 같은 한글은 산세리프로 둔다 (멘토 [9]).
  * SYNTHETIC DEMO 배지는 어느 화면에서도 사라지지 않는다. 색만 중립이다 (멘토 [7]).
  */
-export function Chrome({ screen, meta = [] }: { screen: string; meta?: ReactNode[] }) {
+export function Chrome({
+  screen,
+  meta = [],
+  tabs = [],
+}: {
+  screen: string;
+  meta?: ReactNode[];
+  /** 화면 사이 이동 탭. 실제로 가는 곳만 둔다 — 죽은 메뉴는 만들지 않는다. */
+  tabs?: ChromeTab[];
+}) {
   return (
     <header className="sticky top-0 z-30 shrink-0">
       <div className="h-[3px] bg-kb" />
@@ -26,8 +42,33 @@ export function Chrome({ screen, meta = [] }: { screen: string; meta?: ReactNode
           />
           <span className="mx-[14px] h-[16px] w-px bg-line" />
           <h1 className="text-[15px] font-bold leading-[1.3] tracking-[-0.01em] text-ink">
-            답변등기 <span className="px-[3px] font-normal text-faint">·</span> {screen}
+            답변등기
+            {tabs.length === 0 && (
+              <>
+                <span className="px-[3px] font-normal text-faint">·</span>
+                {screen}
+              </>
+            )}
           </h1>
+
+          {tabs.length > 0 && (
+            <nav className="ml-[20px] flex h-[52px] items-stretch gap-[4px]">
+              {tabs.map((tab) => (
+                <Link
+                  key={tab.href}
+                  href={tab.href}
+                  aria-current={tab.active ? 'page' : undefined}
+                  className={`flex items-center border-b-[2px] px-[12px] text-[14px] leading-[1.4] transition-colors duration-[120ms] ${
+                    tab.active
+                      ? 'border-kb font-bold text-ink'
+                      : 'border-transparent text-muted hover:text-ink'
+                  }`}
+                >
+                  {tab.label}
+                </Link>
+              ))}
+            </nav>
+          )}
 
           <div className="ml-auto flex items-center gap-[12px] text-[13px] leading-[1.5] text-muted">
             {meta.map((item, index) => (

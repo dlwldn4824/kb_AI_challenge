@@ -1,83 +1,141 @@
 import { Chrome } from './chrome';
-import { QueueBoard } from './queue-board';
-import { KpiCell, Sheet, Shell } from './ui';
+import { AlertIcon, DeltaArrow, DocumentIcon, PeopleIcon, ShieldIcon } from './icons';
+import { QueueConsole } from './queue-console';
+import { Sheet, Shell } from './ui';
 import { ACTOR_ID, ACTOR_TEAM } from '@/lib/constants';
 import { DISPLAY } from '@/fixtures/stats';
-import type { QueueView } from '@/lib/views';
+import type { QueueView } from '@/lib/view-model';
 
 /**
  * 발행 대기 큐 화면 (스펙 §4.1).
  *
+ * 목록을 훑는 화면이므로 "무슨 화면인지 → 오늘 규모 → 무엇을 볼지" 순으로 읽히게 둔다.
  * 데이터가 어디서 왔는지는 모른다 — 서버 모드는 SQLite 재생 결과를,
  * 정적 데모 모드는 브라우저 스토어 재생 결과를 같은 모양으로 넘겨준다.
  */
 export function QueueScreen({ data }: { data: QueueView }) {
-  const { kpi, rFormula, queue, samples } = data;
-  const [formula, formulaNote] = rFormula.split(' · ');
-  // 사람이 본 건 = 개입 필요 + 저위험 무작위 표본. fixture 상수에서 계산한다.
-  const humanReviewed = kpi.interventionNeeded + kpi.randomSamples;
-  const humanReviewedRate = ((humanReviewed / kpi.draftsToday) * 100).toFixed(1);
+  const { kpi } = data;
 
   return (
     <main className="stage-scroll flex flex-col bg-page">
       <Chrome
         screen="발행 대기"
+        tabs={[
+          { label: '검토 대기', href: '/', active: true },
+          ...(data.lastPublishedCaseId
+            ? [{ label: '발행 완료', href: `/done/${data.lastPublishedCaseId}`, active: false }]
+            : []),
+        ]}
         meta={[
           <span key="ts">
             현재 시각 <span className="tabular font-mono">{DISPLAY.chromeTimestamp}</span>
           </span>,
-          ACTOR_TEAM,
           <span key="actor">
-            상담원 <span className="font-mono">{ACTOR_ID}</span>
+            {ACTOR_TEAM} · 김국민 대리 <span className="font-mono">({ACTOR_ID})</span>
           </span>,
         ]}
       />
 
       <Shell className="flex min-h-0 flex-1 flex-col">
-        <Sheet className="mt-[20px] flex min-h-0 flex-1 flex-col overflow-hidden" padded={false}>
-          <div className="grid min-h-[84px] grid-cols-[1fr_1fr_1fr_1fr_366px] border-b border-line">
-            <div className="px-[22px] py-[16px]">
-              <KpiCell label="오늘 AI 초안" value={kpi.draftsToday.toLocaleString()} unit="건" />
-            </div>
-
-            <div className="relative border-l border-line-soft px-[22px] py-[16px]">
-              <span className="absolute left-0 top-0 h-full w-[4px] bg-kb" />
-              <KpiCell
-                label="개입 필요"
-                value={String(kpi.interventionNeeded)}
-                unit={`건 (${kpi.interventionRate}%)`}
-              />
-            </div>
-
-            <div className="border-l border-line-soft px-[22px] py-[16px]">
-              <KpiCell label="저위험 무작위 표본" value={String(kpi.randomSamples)} unit="건" />
-            </div>
-
-            <div className="border-l border-line-soft px-[22px] py-[16px]">
-              <KpiCell label="검토 대기" value={String(kpi.pendingReview)} unit="건" />
-            </div>
-
-            <div className="border-l border-line-soft bg-kb-tint px-[22px] py-[16px]">
-              <div className="text-[13px] leading-[1.35] text-muted">개입 필요도</div>
-              <div className="tabular ko mt-[10px] text-[13px] font-bold leading-[1.6] text-ink">
-                {formula}
-              </div>
-              <div className="ko mt-[6px] text-[12px] leading-[1.5] text-muted">{formulaNote}</div>
-            </div>
-          </div>
-
-          <QueueBoard queue={queue} samples={samples} />
-
-          {/* 이 큐가 무엇을 뜻하는지 한 줄로 — 오늘 만들어진 초안 중 사람 손을 탄 비율 */}
-          <p className="ko mt-auto border-t border-line px-[22px] py-[14px] text-[13px] leading-[1.6] text-muted">
-            오늘 생성된 <span className="tabular font-bold text-ink">
-              {kpi.draftsToday.toLocaleString()}
-            </span>건 중, 사람이 본 것은{' '}
-            <span className="tabular font-bold text-ink">{humanReviewed}</span>건입니다 (
-            <span className="tabular font-bold text-ink">{humanReviewedRate}%</span>)
+        <header className="pt-[24px]">
+          <h1 className="text-[28px] font-bold leading-[1.25] tracking-[-0.02em] text-ink">
+            검토 대기
+          </h1>
+          <p className="ko mt-[6px] text-[14px] leading-[1.7] text-muted">
+            시스템이 먼저 확인이 필요한 AI 상담 답변을 골라 보여줍니다.
           </p>
-        </Sheet>
+        </header>
+
+        <div className="flex gap-[14px] pb-[20px] pt-[18px]">
+          <KpiCard
+            icon={<DocumentIcon />}
+            tone="neutral"
+            label="오늘 생성된 AI 초안"
+            value={kpi.draftsToday.toLocaleString()}
+            delta={kpi.delta.draftsToday}
+          />
+          <KpiCard
+            icon={<AlertIcon />}
+            tone="warn"
+            label="개입 필요"
+            value={String(kpi.interventionNeeded)}
+            note={`전체의 ${kpi.interventionRate}%`}
+            delta={kpi.delta.interventionNeeded}
+          />
+          <KpiCard
+            icon={<ShieldIcon />}
+            tone="ok"
+            label="저위험 무작위 표본"
+            value={String(kpi.randomSamples)}
+            delta={kpi.delta.randomSamples}
+          />
+          <KpiCard
+            icon={<PeopleIcon />}
+            tone="neutral"
+            label="검토 대기"
+            value={String(kpi.pendingReview)}
+            delta={kpi.delta.pendingReview}
+          />
+        </div>
+
+        <QueueConsole data={data} />
       </Shell>
     </main>
+  );
+}
+
+const TONE: Record<string, string> = {
+  neutral: 'bg-head text-ink-soft',
+  warn: 'bg-warn-bg text-warn',
+  ok: 'bg-ok-bg text-ok',
+};
+
+function KpiCard({
+  icon,
+  tone,
+  label,
+  value,
+  note,
+  delta,
+}: {
+  icon: React.ReactNode;
+  tone: 'neutral' | 'warn' | 'ok';
+  label: string;
+  value: string;
+  note?: string;
+  delta: number;
+}) {
+  const up = delta >= 0;
+
+  return (
+    <Sheet className="flex-1">
+      <div className="flex items-start gap-[14px]">
+        <span
+          className={`flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-[10px] ${TONE[tone]}`}
+        >
+          {icon}
+        </span>
+        <div className="min-w-0">
+          <p className="ko text-[13px] leading-[1.4] text-muted">{label}</p>
+          <p className="mt-[6px] flex items-baseline gap-[5px]">
+            <span className="tabular text-[30px] font-bold leading-[1.05] tracking-[-0.02em] text-ink">
+              {value}
+            </span>
+            <span className="text-[13px] leading-[1.5] text-muted">건</span>
+            {note && <span className="text-[12px] leading-[1.5] text-faint">{note}</span>}
+          </p>
+          <p className="ko mt-[6px] flex items-center gap-[4px] text-[12px] leading-[1.5] text-muted">
+            전일 대비
+            <span className="tabular font-semibold text-ink-soft">
+              {up ? '+' : ''}
+              {delta}건
+            </span>
+            <span className="text-faint">
+              <DeltaArrow up={up} />
+            </span>
+          </p>
+        </div>
+      </div>
+    </Sheet>
   );
 }

@@ -44,6 +44,10 @@
   --color-tier-c: #b8e9ff;
 
   /* ── 상태 ─────────────────────────────────── */
+  /* 경고(개입 필요) — 위험(레드)과 구분되는 주의 색 */
+  --color-warn: #b45309;
+  --color-warn-bg: #fff3e6;
+
   --color-danger: #d93025;
   --color-danger-bg: #fdf1f0;
   --color-ok: #1e8e3e;

@@ -13,6 +13,7 @@ next-env.d.ts
 
 # OMC runtime state (local only)
 .omc/
+.omx/
 
 # Reference-only assets (KB app screenshots, PDF extracts) — not for redistribution
 design-refs/
