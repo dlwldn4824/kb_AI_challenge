@@ -35,8 +35,24 @@ export function toKstIso(date: Date): string {
   return `${shifted.toISOString().slice(0, 19)}+09:00`;
 }
 
-export function eventTs(caseId: string, type: EventType): string {
+/**
+ * 정본 케이스의 유지 판정은 구절마다 다른 시각에 눌렸다.
+ * 한 초에 몰아 두면 타임라인에서 "사람이 하나씩 읽고 판단했다"가 보이지 않는다.
+ * (3번 구절은 수정이라 여기 없고, sentence_edited 시각을 따른다.)
+ */
+const PRIMARY_KEPT_TS: Record<number, string> = {
+  0: '2026-07-23T12:52:08+09:00',
+  1: '2026-07-23T12:52:19+09:00',
+  2: '2026-07-23T12:52:26+09:00',
+  4: '2026-07-23T12:52:47+09:00',
+};
+
+export function eventTs(caseId: string, type: EventType, sentenceIdx?: number): string {
   if (caseId === PRIMARY_CASE_ID) {
+    if (type === 'sentence_kept' && sentenceIdx !== undefined) {
+      const perSentence = PRIMARY_KEPT_TS[sentenceIdx];
+      if (perSentence) return perSentence;
+    }
     const fixed = PRIMARY_TIMELINE[type];
     if (fixed) return fixed;
   }
