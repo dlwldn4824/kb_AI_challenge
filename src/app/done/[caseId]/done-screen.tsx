@@ -82,7 +82,7 @@ export function DoneScreen({ view }: { view: RegistryView }) {
             {/* 결론 먼저 (멘토 [14]) */}
             <div
               className={`animate-verdict mt-[16px] flex min-h-[52px] items-center rounded-[6px] border-l-[3px] px-[18px] py-[12px] ${
-                matched ? 'border-ok bg-ok-bg' : 'border-danger bg-danger-bg'
+                matched ? 'border-ok bg-ok-bg' : 'border-danger bg-transparent'
               }`}
             >
               <span
@@ -107,26 +107,39 @@ export function DoneScreen({ view }: { view: RegistryView }) {
               </span>
             </div>
 
-            <ContentBlock
-              title="승인문"
-              note="상담원이 승인한 문장"
-              body={view.approvedContent}
-              digest={approvedDigest}
-            />
-
             {delivered ? (
-              <ContentBlock
-                title="실제 발송문"
-                note="고객이 수신한 문장"
-                body={view.approvedContent}
-                digest={dispatchedDigest}
-              />
+              /* 두 문장이 같으므로 전문을 두 번 싣지 않는다. 해시 두 줄만 붙여 대조한다. */
+              <div className="mt-[20px]">
+                <div className="flex items-baseline gap-[12px]">
+                  <span className="text-[14px] font-bold leading-[1.4] text-ink">
+                    승인문 = 실제 발송문
+                  </span>
+                  <span className="ko text-[13px] leading-[1.6] text-muted">
+                    상담원이 승인한 문장이 그대로 고객에게 나갔습니다
+                  </span>
+                </div>
+                <div className="ko mt-[8px] whitespace-pre-line border-l-[2px] border-line bg-paper px-[16px] py-[12px] text-[14px] leading-[1.7] text-ink">
+                  {view.approvedContent}
+                </div>
+                <div className="mt-[8px]">
+                  <DigestLine label="승인 sha256" digest={approvedDigest} />
+                  <DigestLine label="발송 sha256" digest={dispatchedDigest} />
+                </div>
+              </div>
             ) : (
-              <BlockedAttempt
-                approved={view.approvedContent ?? ''}
-                attempted={blocked?.attemptedContent ?? null}
-                digest={blocked?.actualDigest ?? null}
-              />
+              <>
+                <ContentBlock
+                  title="승인문"
+                  note="상담원이 승인한 문장"
+                  body={view.approvedContent}
+                  digest={approvedDigest}
+                />
+                <BlockedAttempt
+                  approved={view.approvedContent ?? ''}
+                  attempted={blocked?.attemptedContent ?? null}
+                  digest={blocked?.actualDigest ?? null}
+                />
+              </>
             )}
 
             <h3 className="mt-[28px] text-[14px] font-bold leading-[1.4] text-ink">봉인 정보</h3>
@@ -161,20 +174,15 @@ export function DoneScreen({ view }: { view: RegistryView }) {
               </span>
             </p>
 
-            <div className="mt-[20px] border-t border-line pt-[16px]">
-              <h3 className="text-[14px] font-bold leading-[1.4] text-ink">오늘 발행 결과</h3>
-              <div className="mt-[12px] grid grid-cols-4">
-                <TodayStat label="발행" value={STATS.draftsToday.toLocaleString()} />
-                <TodayStat label="사람 개입" value={String(STATS.interventionNeeded)} divided />
-                <TodayStat label="무작위 표본" value={String(STATS.randomSamples)} divided />
-                <TodayStat
-                  label="발송 차단"
-                  value={String(STATS.blockedToday)}
-                  divided
-                  accent
-                />
-              </div>
-            </div>
+            <p className="ko mt-[16px] border-t border-line pt-[12px] text-[13px] leading-[1.6] text-muted">
+              오늘 발행 <TodayNumber value={STATS.draftsToday.toLocaleString()} />
+              <span className="px-[8px] text-faint">·</span>
+              사람 개입 <TodayNumber value={String(STATS.interventionNeeded)} />
+              <span className="px-[8px] text-faint">·</span>
+              무작위 표본 <TodayNumber value={String(STATS.randomSamples)} />
+              <span className="px-[8px] text-faint">·</span>
+              발송 차단 <TodayNumber value={String(STATS.blockedToday)} accent />
+            </p>
           </section>
 
           {/* ── 우: 고객 수신 화면 ──────────────────────────────────── */}
@@ -264,7 +272,7 @@ function BlockedAttempt({
           승인문과 다른 부분이 붉게 표시됩니다
         </span>
       </div>
-      <div className="ko mt-[8px] whitespace-pre-line border-l-[2px] border-danger bg-danger-bg px-[16px] py-[12px] text-[14px] leading-[1.7] text-ink">
+      <div className="ko mt-[8px] whitespace-pre-line border-l-[2px] border-danger bg-paper px-[16px] py-[12px] text-[14px] leading-[1.7] text-ink">
         {parts === null ? (
           <span className="text-muted">
             이 시도의 문안은 기록되어 있지 않습니다. 해시 대조 결과만 남아 있습니다.
@@ -272,7 +280,7 @@ function BlockedAttempt({
         ) : (
           parts.map((part, index) =>
             part.changed ? (
-              <span key={index} className="rounded-[4px] bg-danger/15 font-bold text-danger">
+              <span key={index} className="font-bold text-danger">
                 {part.text}
               </span>
             ) : (
@@ -328,28 +336,20 @@ function diffTokens(approved: string, attempted: string) {
   return out;
 }
 
-function TodayStat({
-  label,
-  value,
-  divided,
-  accent,
-}: {
-  label: string;
-  value: string;
-  divided?: boolean;
-  accent?: boolean;
-}) {
+/** 클로징 숫자 4개. 값은 그대로 두고 면적만 한 줄로 줄인다. */
+function TodayNumber({ value, accent }: { value: string; accent?: boolean }) {
   return (
-    <div className={divided ? 'border-l border-line-soft pl-[20px]' : ''}>
-      <p className="text-[13px] leading-[1.35] text-muted">{label}</p>
-      <p
-        className={`tabular mt-[8px] text-[28px] font-bold leading-[1.05] tracking-[-0.02em] ${
-          accent ? 'text-danger' : 'text-ink'
-        }`}
-      >
-        {value}
-      </p>
-    </div>
+    <span className={`tabular font-semibold ${accent ? 'text-danger' : 'text-ink'}`}>{value}</span>
+  );
+}
+
+/** 승인·발송 해시를 세로로 붙여 육안 대조가 되게 한다. */
+function DigestLine({ label, digest }: { label: string; digest: string | null }) {
+  return (
+    <p className="tabular font-mono text-[13px] leading-[1.7] text-muted">
+      <span className="inline-block w-[104px]">{label}</span>
+      {digest ? shortDigest(digest) : '—'}
+    </p>
   );
 }
 

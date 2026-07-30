@@ -48,6 +48,19 @@ export function hhmm(iso: string): string {
   return iso.slice(11, 16);
 }
 
+/**
+ * `N시간 N분 전` 표기. 기준 시각을 인자로 받아 화면마다 흔들리지 않게 한다.
+ * (데모의 "현재 시각"은 DISPLAY.chromeTimestamp 로 고정되어 있다.)
+ */
+export function relativeLabel(iso: string, nowIso: string): string {
+  const minutes = Math.floor((Date.parse(nowIso) - Date.parse(iso)) / 60_000);
+  if (!Number.isFinite(minutes) || minutes < 1) return '방금 전';
+  if (minutes < 60) return `${minutes}분 전`;
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return rest === 0 ? `${hours}시간 전` : `${hours}시간 ${rest}분 전`;
+}
+
 /** 두 시각의 차이를 `MM:SS` 로. 검토 소요 표시용. */
 export function durationLabel(startIso: string, endIso: string): string {
   const ms = Date.parse(endIso) - Date.parse(startIso);

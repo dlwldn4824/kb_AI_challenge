@@ -5,8 +5,8 @@
  * 서버 모드는 views.ts 가, 정적 데모 모드는 api-client 가 각자 재료를 넣어 준다.
  */
 
-import { CUSTOMER_QUESTION, DISPLAY, STATS } from '@/fixtures/stats';
-import { hhmm } from './clock';
+import { CUSTOMER_QUESTION, DISPLAY, STATS, STATS_DELTA } from '@/fixtures/stats';
+import { hhmm, relativeLabel } from './clock';
 import { PRIMARY_CASE_ID, R_FORMULA_TEXT } from './constants';
 import { shortDigest } from './digest-core';
 import type { AnyStoredEvent, DetectedSignal } from './events';
@@ -16,6 +16,8 @@ import type { Tier } from './scoring';
 
 export interface QueueItem {
   caseId: string;
+  /** 접수 시각을 기준 현재(14:32)와 비교한 "N시간 N분 전". */
+  receivedAgo: string;
   r: number;
   tiers: Tier[];
   signals: DetectedSignal[];
@@ -38,7 +40,16 @@ export interface QueueView {
     randomSamples: number;
     pendingReview: number;
     blockedToday: number;
+    /** 전일 대비 증감 (표시용 합성 상수). */
+    delta: {
+      draftsToday: number;
+      interventionNeeded: number;
+      randomSamples: number;
+      pendingReview: number;
+    };
   };
+  /** 상단 탭의 `발행 완료` 가 가리킬 케이스. 발행 이력이 없으면 null. */
+  lastPublishedCaseId: string | null;
   rFormula: string;
   /** 개입이 필요한 큐. R 내림차순 엄격 정렬 (스펙 §0). */
   queue: QueueItem[];
@@ -58,6 +69,7 @@ function toQueueItem(state: CaseState): QueueItem {
     signals: state.signals,
     receivedAt: state.receivedAt,
     receivedAtLabel: hhmm(state.receivedAt),
+    receivedAgo: relativeLabel(state.receivedAt, DISPLAY.nowIso),
     product: state.product,
     inquiry: state.inquiry,
     status: state.status,
@@ -83,7 +95,10 @@ export function buildQueueFrom(states: CaseState[]): QueueView {
       randomSamples: STATS.randomSamples,
       pendingReview: STATS.pendingReview,
       blockedToday: STATS.blockedToday,
+      delta: { ...STATS_DELTA },
     },
+    lastPublishedCaseId:
+      [...states].reverse().find((state) => state.dispatched !== null)?.caseId ?? null,
     rFormula: R_FORMULA_TEXT,
     queue: items.filter((item) => item.r > 0).sort(byRisk),
     samples: items.filter((item) => item.r === 0 && item.sampled).sort(byRisk),

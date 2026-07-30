@@ -36,33 +36,34 @@ export function RegistryTimeline({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/45 px-6"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 px-6"
       role="dialog"
       aria-modal="true"
       aria-label="등기 조회 타임라인"
       onClick={onClose}
     >
       <div
-        className="max-h-[80%] w-[560px] overflow-y-auto rounded-[8px] border border-line bg-card"
+        className="max-h-[80%] w-[640px] overflow-y-auto rounded-[8px] border border-line bg-card"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="flex items-center border-b border-line px-[20px] py-[16px]">
-          <div>
+        <div className="flex items-start border-b border-line px-[20px] py-[16px]">
+          <div className="min-w-0">
             <h2 className="text-[16px] font-bold leading-[1.35] text-ink">등기 조회</h2>
-            <p className="mt-[4px] font-mono text-[13px] leading-[1.6] text-muted">
-              {replay.caseId}
+            <p className="ko mt-[4px] text-[13px] leading-[1.6] text-muted">
+              <span className="font-mono">{replay.caseId}</span>
+              <span className="px-[8px] text-faint">·</span>
+              이벤트 <span className="tabular font-semibold text-ink">{replay.eventCount}</span>건
+              <span className="px-[8px] text-faint">·</span>
+              원문 {replay.originalSentences.length}문장
+              <span className="px-[8px] text-faint">·</span>
+              수정 {replay.edits.length}건
             </p>
           </div>
-          <p className="ko ml-auto text-right text-[13px] leading-[1.6] text-muted">
-            이벤트 <span className="tabular font-bold text-ink">{replay.eventCount}</span>건 재생
-            <br />
-            원문 {replay.originalSentences.length}문장 · 수정 {replay.edits.length}건
-          </p>
           <button
             type="button"
             onClick={onClose}
             aria-label="닫기"
-            className="ml-[16px] shrink-0 rounded-[4px] px-[6px] text-[14px] text-muted transition-colors duration-[120ms] hover:text-ink"
+            className="ml-auto shrink-0 rounded-[4px] px-[6px] text-[14px] text-muted transition-colors duration-[120ms] hover:text-ink"
           >
             ✕
           </button>
@@ -110,8 +111,9 @@ interface Row {
 /** 이벤트 1건을 타임라인 한 줄로 옮긴다. 값은 payload 에서만 가져온다. */
 function describe(event: AnyStoredEvent): Row {
   const time = event.ts.slice(11, 19);
-  const neutral = 'bg-muted';
-  const brand = 'bg-kb-star';
+  // 색은 결과에만 쓴다. 진행 과정은 전부 중립 dot 이다.
+  const neutral = 'bg-faint';
+  const brand = neutral;
   const ok = 'bg-ok';
   const danger = 'bg-danger';
 

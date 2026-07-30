@@ -23,9 +23,22 @@ export const STATS = {
   blockedToday: 1,
 } as const;
 
+/**
+ * 전일 대비 증감. 20건 seed 에서 파생되지 않는 "오늘 하루 은행 전체" 합성 상수다.
+ * 화면에서 추세를 읽히게 하려는 표시용 값이며 판정에는 관여하지 않는다.
+ */
+export const STATS_DELTA = {
+  draftsToday: 128,
+  interventionNeeded: 6,
+  randomSamples: -3,
+  pendingReview: 3,
+} as const;
+
 export const DISPLAY = {
   /** 상단 chrome 바 우측 시각 (스펙 §4 공통). */
   chromeTimestamp: '2026-07-23 14:32',
+  /** 위 시각의 ISO 형태. "N분 전" 계산의 기준점이다. */
+  nowIso: '2026-07-23T14:32:00+09:00',
   /** 문장 대조 소요 표시 (스펙 §4.3). */
   comparisonElapsed: '00:00.4',
   /** 등기 조회 이력 (스펙 §4.3). */

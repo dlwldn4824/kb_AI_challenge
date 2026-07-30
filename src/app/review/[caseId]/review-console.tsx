@@ -219,9 +219,13 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
   const editedNow = current?.verdict === 'edited';
   const coherence = current?.coherence ?? null;
   const dispatched = view.status === '발행 완료';
+  // 정합성 불일치는 검사 박스가 이미 설명하므로 CTA 아래에서 한 번 더 말하지 않는다.
+  const mismatchShown = coherence?.result === 'mismatch';
   const blockLabel = dispatched
     ? '이미 발행된 등기입니다. 발송문은 승인문으로 고정되어 있습니다.'
-    : approveBlockLabel(view, pending);
+    : mismatchShown
+      ? null
+      : approveBlockLabel(view, pending);
 
   return (
     <main className="stage-scroll flex flex-col bg-page">
@@ -386,7 +390,7 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
                     {current.originalText}
                   </span>
                 </div>
-                <div className="mt-[6px] flex min-h-[56px] items-center rounded-[6px] border-l-[4px] border-kb bg-kb-tint px-[16px] py-[11px]">
+                <div className="mt-[6px] flex min-h-[56px] items-center rounded-[6px] border-l-[4px] border-line bg-paper px-[16px] py-[11px]">
                   <span className="w-[18px] shrink-0 text-[13px] font-bold text-ink">+</span>
                   <span className="ko text-[14px] font-semibold leading-[1.7] text-ink">
                     {current.currentText}
@@ -465,7 +469,7 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
                           ? 'border-ink bg-ink font-bold text-white'
                           : editedNow
                             ? 'border-line bg-card text-ink hover:bg-paper'
-                            : 'cursor-not-allowed border-transparent bg-paper text-faint'
+                            : 'cursor-not-allowed border-transparent bg-transparent text-faint'
                       }`}
                     >
                       {reason}
@@ -481,14 +485,14 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
                 {coherence && current?.reason ? (
                   <div
                     key={`${current.reason}-${coherence.result}`}
-                    className={`animate-panel flex min-h-[56px] items-center rounded-[6px] border-l-[4px] px-[16px] py-[12px] ${
+                    className={`animate-panel flex min-h-[48px] items-start rounded-[6px] border-l-[3px] px-[16px] py-[10px] ${
                       coherence.result === 'pass'
                         ? 'border-ok bg-ok-bg'
-                        : 'border-danger bg-danger-bg'
+                        : 'border-danger bg-transparent'
                     }`}
                   >
                     <span
-                      className={`mr-[14px] shrink-0 text-[15px] font-bold ${
+                      className={`mr-[12px] shrink-0 text-[15px] font-bold leading-[1.4] ${
                         coherence.result === 'pass' ? 'text-ok' : 'text-danger'
                       }`}
                     >
@@ -496,18 +500,14 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
                     </span>
                     <span className="ko min-w-0">
                       <span className="block text-[14px] font-bold leading-[1.4] text-ink">
-                        {current.reason}
+                        {coherence.result === 'pass'
+                          ? `적합 · ${current.reason}`
+                          : `불일치 · ${current.reason} · 사유 재선택`}
                       </span>
                       <span className="mt-[3px] block text-[13px] leading-[1.6] text-muted">
                         {coherence.detail}
+                        {coherence.result !== 'pass' && ' 이 사유로는 승인할 수 없습니다.'}
                       </span>
-                    </span>
-                    <span
-                      className={`ko ml-auto shrink-0 pl-[14px] text-[13px] font-bold ${
-                        coherence.result === 'pass' ? 'text-ok' : 'text-danger'
-                      }`}
-                    >
-                      {coherence.result === 'pass' ? '적합' : '불일치 · 사유 재선택'}
                     </span>
                   </div>
                 ) : (
@@ -592,8 +592,8 @@ function VerdictButton({
         event.stopPropagation();
         onClick();
       }}
-      className={`h-[26px] w-[48px] rounded-[6px] border text-[12px] leading-[1.5] transition-colors duration-100 ${
-        active ? activeClass : 'border-line bg-card text-muted hover:bg-paper'
+      className={`h-[26px] w-[48px] rounded-[6px] border text-[12px] leading-[1.5] transition-colors duration-100 disabled:cursor-not-allowed disabled:text-faint ${
+        active ? activeClass : 'border-transparent bg-transparent text-muted hover:bg-paper'
       }`}
     >
       {label}
