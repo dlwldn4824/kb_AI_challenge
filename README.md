@@ -1,32 +1,24 @@
-# React + TypeScript + Vite
+# KB AI Guardian
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+KB 금융 챌린지용 AI 상담 운영 콘솔입니다.  
+상담사가 고객 발송 전 AI 초안·정책 근거(RAG)·운영 검증을 한 화면에서 검토합니다.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React + TypeScript + Vite
+- Tailwind CSS
+- Claude (Anthropic) — 초안 생성 / 위험 표현 하이라이트 2-pass
 
-## React Compiler
+## Setup
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+cp .env.example .env.local
+# .env.local에 ANTHROPIC_API_KEY 설정
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Notes
+
+- `.env.local`은 커밋하지 않습니다.
+- 개발 서버 프록시: `/api/ask-ai`, `/api/review-risks`
