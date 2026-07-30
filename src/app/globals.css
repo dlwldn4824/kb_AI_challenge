@@ -1,0 +1,182 @@
+@import 'tailwindcss';
+
+/**
+ * Pretendard 로컬 번들 (docs/DESIGN_POLISH.md §3).
+ * KB금융 전용서체는 공식 배포 링크가 없어 번들할 수 없으므로 Pretendard 로 대체한다.
+ * npm 패키지의 woff2 를 public/fonts 로 복사해 서빙한다 — 런타임 외부 요청 없음.
+ */
+@font-face {
+  font-family: 'Pretendard Variable';
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: block;
+  src: url('/fonts/PretendardVariable.woff2') format('woff2-variations');
+}
+
+/**
+ * 브랜드 토큰. 근사값이 아니라 에셋에서 직접 샘플링한 값이다.
+ *   #FFCC00           brand/kb-starbanking-icon.png (앱 아이콘 배경)
+ *   #FCAF16 · #776C61 brand/kb-logo.svg (별 심볼 / 워드마크 fill)
+ *   #FFD338           kb-starbanking-01.png "이체" CTA
+ *   티어 칩 S/A/B/C   pdf-ref-10.png 표 셀 배경 (글자색은 #1E1E1E 계열)
+ */
+@theme {
+  /* ── KB 브랜드 ─────────────────────────────── */
+  --color-kb: #ffcc00;
+  --color-kb-dark: #f5b800;
+  --color-kb-cta: #ffd338;
+  --color-kb-star: #fcaf16;
+  --color-kb-tint: #fffbea;
+  --color-kb-tint-2: #fff4cf;
+
+  /* ── 텍스트 · 면 ───────────────────────────── */
+  --color-ink: #26282c;
+  --color-ink-soft: #4a4d52;
+  --color-muted: #776c61;
+  --color-faint: #a9a29a;
+
+  --color-line: #e6e3de;
+  --color-line-soft: #f0eeeb;
+  --color-page: #f5f6f4;
+  --color-stage: #16171a;
+  --color-card: #ffffff;
+  --color-paper: #faf9f7;
+  --color-head: #f0eeea;
+
+  /* ── 티어 칩 (pdf-ref-10 정본) ───────────────── */
+  --color-tier-s: #feccbe;
+  --color-tier-a: #feefc5;
+  --color-tier-b: #e4f0d5;
+  --color-tier-c: #b8e9ff;
+
+  /* ── 상태 ─────────────────────────────────── */
+  --color-danger: #d93025;
+  --color-danger-bg: #fdf1f0;
+  --color-ok: #1e8e3e;
+  --color-ok-bg: #f2faf4;
+
+  /* ── 고객 상담 화면 톤 ───────────────────────── */
+  --color-chat-bg: #f6f0e7;
+  --color-chat-header: #4a4237;
+  --color-chat-bubble: #ffe57a;
+
+  --font-sans:
+    'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+    'Apple SD Gothic Neo', 'Segoe UI', sans-serif;
+  --font-mono:
+    ui-monospace, 'SF Mono', SFMono-Regular, Menlo, 'D2Coding', Consolas, monospace;
+
+  --shadow-card: 0 1px 3px rgba(38, 40, 44, 0.06);
+  --shadow-raised: 0 6px 20px rgba(38, 40, 44, 0.12);
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* 표·KPI 의 숫자 자리가 흔들리지 않게 한다. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 마우스 클릭에는 링이 뜨지 않고 키보드 이동에만 뜨도록 통일한다.
+   옐로는 1차 행동(CTA) 전용이라 포커스 링은 중립색을 쓴다 (멘토 [7]). */
+:focus-visible {
+  outline: 2px solid var(--color-ink-soft);
+  outline-offset: 2px;
+}
+
+/* 폰 목업 내부 스크롤은 실기기처럼 스크롤바를 숨긴다. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* 한국어는 어절 단위로 끊는다. mono 값(해시·ID·시각)에는 적용하지 않는다 (멘토 [8]). */
+.ko {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* ──────────────────────────────────────────────────────────────
+ * 16:10 스테이지 (1920×1200)
+ * 제출물 이미지가 이 비율로 캡처되므로 캔버스를 고정하고,
+ * 뷰포트가 더 작으면 transform scale 로 줄여 맞춘다(내부는 그대로 인터랙티브).
+ * ────────────────────────────────────────────────────────────── */
+.stage-root {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: radial-gradient(120% 90% at 50% 0%, #23252a 0%, var(--color-stage) 68%);
+}
+
+.stage-frame {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1920px;
+  height: 1200px;
+  transform-origin: center center;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--color-page);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5);
+}
+
+/* 스테이지 안에서만 스크롤한다. 프레임 자체는 항상 16:10 을 유지한다. */
+.stage-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ──────────────────────────────────────────────────────────────
+ * 모션 — 멘토 §3 절제 가이드.
+ * 제출물의 실체는 정지 스크린샷이라 진입 연출은 두지 않는다.
+ * 남기는 것: panel-in · toast-in · transition-colors · 스피너,
+ * 추가하는 것: 화면3 판정 바 1개.
+ * ────────────────────────────────────────────────────────────── */
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-panel { animation: panel-in 0.16s ease-out; }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-toast { animation: toast-in 0.18s ease-out; }
+
+/* 화면3 일치/불일치 판정 바 — 유일하게 delay 를 허용한 연출 */
+@keyframes verdict-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-verdict { animation: verdict-in 0.22s ease-out 0.2s both; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.animate-spin { animation: spin 0.7s linear infinite; }
+
+/* 접근성: 모션을 줄여 달라고 한 사용자에게는 전부 끈다. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
