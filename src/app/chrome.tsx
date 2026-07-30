@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { asset } from '@/lib/asset-path';
 import { SYNTHETIC_BADGE } from '@/lib/constants';
 
 /**
@@ -17,7 +18,7 @@ export function Chrome({ screen, meta = [] }: { screen: string; meta?: ReactNode
         <div className="mx-auto flex h-[52px] w-full max-w-[1720px] items-center px-10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/brand/kb-logo.svg"
+            src={asset("/brand/kb-logo.svg")}
             alt="KB국민은행"
             width={61}
             height={20}

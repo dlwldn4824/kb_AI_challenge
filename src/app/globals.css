@@ -5,13 +5,7 @@
  * KB금융 전용서체는 공식 배포 링크가 없어 번들할 수 없으므로 Pretendard 로 대체한다.
  * npm 패키지의 woff2 를 public/fonts 로 복사해 서빙한다 — 런타임 외부 요청 없음.
  */
-@font-face {
-  font-family: 'Pretendard Variable';
-  font-weight: 45 920;
-  font-style: normal;
-  font-display: block;
-  src: url('/fonts/PretendardVariable.woff2') format('woff2-variations');
-}
+/* Pretendard 는 next/font/local 로 로드한다 (layout.tsx). basePath 가 자동 반영된다. */
 
 /**
  * 브랜드 토큰. 근사값이 아니라 에셋에서 직접 샘플링한 값이다.
@@ -61,8 +55,8 @@
   --color-chat-bubble: #ffe57a;
 
   --font-sans:
-    'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
-    'Apple SD Gothic Neo', 'Segoe UI', sans-serif;
+    var(--font-pretendard), -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo',
+    'Segoe UI', sans-serif;
   --font-mono:
     ui-monospace, 'SF Mono', SFMono-Regular, Menlo, 'D2Coding', Consolas, monospace;
 

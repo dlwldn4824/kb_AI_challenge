@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Chrome } from '../../chrome';
 import { SIGNAL_NOTE, SectionHead, Shell, SignalText, Spinner, TierChip, Toast } from '../../ui';
+import { api } from '@/lib/api-client';
 import { REASONS, type Reason } from '@/lib/constants';
 import type { CaseView } from '@/lib/views';
 
@@ -59,7 +60,7 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
     if (!reviewStartRef.current) {
       reviewStartRef.current =
         initial.status === '검토 대기' || initial.status === '표본 검토'
-          ? post(`/api/cases/${initial.caseId}/review-start`).then((result) => {
+          ? api.reviewStart(initial.caseId).then((result) => {
               if (result.status === 200) setView(result.data as CaseView);
             })
           : Promise.resolve();
@@ -102,7 +103,7 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
         return;
       }
 
-      const fresh = await getCase(view.caseId);
+      const fresh = await api.getCase(view.caseId);
       if (fresh) {
         setView(fresh);
         if (landed(fresh)) return;
@@ -130,7 +131,7 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
     setView(optimisticVerdict(view, idx, 'kept'));
     await mutate(
       `${idx + 1}번 구절 유지 판정`,
-      () => post(`/api/cases/${view.caseId}/sentences/${idx}/keep`),
+      () => api.keep(view.caseId, idx),
       (fresh) => fresh.sentences.find((item) => item.idx === idx)?.verdict === 'kept',
       idx,
     );
@@ -158,7 +159,7 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
     setView(optimisticVerdict(view, idx, 'edited', newText));
     await mutate(
       `${idx + 1}번 구절 수정 문안`,
-      () => post(`/api/cases/${view.caseId}/sentences/${idx}/edit`, { newText }),
+      () => api.edit(view.caseId, idx, newText),
       (fresh) => fresh.sentences.find((item) => item.idx === idx)?.currentText === newText,
       idx,
     );
@@ -174,7 +175,7 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
     setView(optimisticReason(view, idx, reason));
     await mutate(
       '수정 사유',
-      () => post(`/api/cases/${view.caseId}/sentences/${idx}/reason`, { reason }),
+      () => api.reason(view.caseId, idx, reason),
       (fresh) => {
         const sentence = fresh.sentences.find((item) => item.idx === idx);
         return sentence?.reason === reason && sentence.coherence !== null;
@@ -189,7 +190,7 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
     setSending(true);
 
     await enqueue(async () => {
-      const approve = await post(`/api/cases/${view.caseId}/approve`);
+      const approve = await api.approve(view.caseId);
       if (approve.status !== 200) {
         const body = approve.data as { blockers?: string[]; case?: CaseView };
         if (body.case) setView(body.case);
@@ -201,11 +202,7 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
       const approved = approve.data as CaseView;
       setView(approved);
 
-      const dispatch = await post('/api/dispatch', {
-        caseId: view.caseId,
-        content: approved.approvedContent ?? '',
-        via: 'ui',
-      });
+      const dispatch = await api.dispatch(view.caseId, approved.approvedContent ?? '');
 
       if (dispatch.status !== 200 && dispatch.status !== 409) {
         setToast('발송 요청이 처리되지 않았습니다. 잠시 후 다시 시도해 주세요.');
@@ -677,29 +674,4 @@ function firstActionable(view: CaseView): number {
   if (undecided) return undecided.idx;
   const detected = view.sentences.find((sentence) => sentence.signal !== null);
   return detected?.idx ?? 0;
-}
-
-/** 응답을 못 받았을 때 서버의 현재 상태를 다시 읽는다. */
-async function getCase(caseId: string): Promise<CaseView | null> {
-  try {
-    const response = await fetch(`/api/cases/${caseId}`);
-    if (!response.ok) return null;
-    return (await response.json()) as CaseView;
-  } catch {
-    return null;
-  }
-}
-
-async function post(path: string, body?: unknown) {
-  try {
-    const response = await fetch(path, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-    const data = await response.json().catch(() => ({}));
-    return { status: response.status, data };
-  } catch {
-    return { status: 0, data: {} };
-  }
 }

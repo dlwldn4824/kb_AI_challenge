@@ -16,3 +16,6 @@ next-env.d.ts
 
 # Reference-only assets (KB app screenshots, PDF extracts) — not for redistribution
 design-refs/
+.hold-api-during-export/
+.hold-tests-during-export/
+.hold-tamper-during-export.ts

@@ -104,6 +104,23 @@ B·B 조합으로는 R=2 가 나올 수 없습니다. R 값이 큐 정렬의 기
 **R=2 를 유지하고 신호를 A 티어 1건으로** 잡았습니다.
 `src/fixtures/cases.ts` 의 해당 항목 주석에도 같은 내용을 적어두었습니다.
 
+## 라이브 데모 (GitHub Pages)
+
+https://dlwldn4824.github.io/kb_AI_challenge/
+
+정적 데모는 서버 없이 도는 대신 **검증 로직을 브라우저에서 실제로 실행한다.** 이벤트 로그는
+브라우저 메모리(+sessionStorage), sha256·HMAC 봉인은 WebCrypto, 신호 감지·정합성 검사·상태
+재생은 `src/lib` 의 같은 순수 함수를 쓴다. 응답을 흉내 낸 mock 은 없다. Node 구현과 같은 해시가
+나오는지는 `tests/hash-parity.test.ts` 가 고정한다.
+
+다만 **"UI 를 거치지 않은 curl 도 똑같이 차단된다"는 증명은 정적 데모가 할 수 없다.** 그 증명은
+로컬 서버 모드의 불변조건 테스트(`npx vitest run`)와 `npm run tamper` 가 담당한다.
+
+```bash
+npm run build:static   # NEXT_PUBLIC_STATIC_DEMO=1 로 out/ 생성
+npx serve out          # 로컬 확인 (basePath 없이 보려면 NEXT_PUBLIC_BASE_PATH= 로 빌드)
+```
+
 ## 캡처 전 준비
 
 제출용 스크린샷을 찍기 전에는 `npm run seed` 로 상태를 되돌린다. 정본 케이스

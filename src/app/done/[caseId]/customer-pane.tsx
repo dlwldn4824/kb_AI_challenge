@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { IPHONE_PT, IPhoneFrame } from './iphone-frame';
 import { RegistryTimeline, type RegistryReplay } from './registry-timeline';
 import { SectionHead, Spinner } from '../../ui';
+import { api } from '@/lib/api-client';
+import { asset } from '@/lib/asset-path';
 
 export interface CustomerPaneProps {
   caseId: string;
@@ -45,9 +47,9 @@ export function CustomerPane(props: CustomerPaneProps) {
     setBusy(true);
     setFailed(false);
     try {
-      const response = await fetch(`/api/registry/${props.caseId}`);
-      if (!response.ok) throw new Error('lookup failed');
-      setReplay((await response.json()) as RegistryReplay);
+      const registry = await api.getRegistry(props.caseId);
+      if (!registry) throw new Error('lookup failed');
+      setReplay(registry as unknown as RegistryReplay);
       setOpen(true);
     } catch {
       setFailed(true);
@@ -98,7 +100,7 @@ export function CustomerPane(props: CustomerPaneProps) {
                 <div className="mt-[14px] flex items-center gap-[8px]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/brand/kb-starbanking-icon.png"
+                    src={asset("/brand/kb-starbanking-icon.png")}
                     alt=""
                     width={26}
                     height={26}
