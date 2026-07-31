@@ -27,3 +27,15 @@
 - 게이트 영향 확인: projection 의 `approvalStale` 은 `sentence_kept`·`sentence_edited`·`approval_invalidated` 3종에서만 켜지고, switch 의 `default: break;` 가 나머지를 무시한다. 따라서 approved 뒤에 이 이벤트가 쌓여도 승인은 유효하고 발송도 통과한다 — 테스트로 고정.
 - 증거: seed 이벤트 69 → 76건(approved 7 · learning_signal_saved 7), `src/lib/static-demo/seed-events.json` 재출력, `npm run build` / `npm run build:static` exit 0
 - 테스트: vitest 53 passed (신규 `tests/learning-signal.test.ts` 5건 — payload 값·approved 직후 순서·승인 무효화 없음·발송 통과·seed 기승인 케이스 재현)
+
+## [T3] 정본 대조 UI 블록 (XAI 2층) — 2026-07-31 15:44
+- 변경: `src/lib/scoring.ts` — `compareSentenceToFacts()` 분리(일치·불일치를 모두 돌려줌)하고 `detectFactMismatches()` 가 이 함수를 쓰도록 정리. `src/app/ui.tsx` — `TIER_BASIS` 맵 추가. `src/app/review/[caseId]/review-console.tsx` — 우측 판단하기 패널 아래에 "정본 대조" 섹션 추가(위층 법 근거 = 티어·고정 / 아래층 감지 근거 = 정본 대조·학습 가능).
+- 이유: 감지기 v2 는 이미 상품 정본 팩트와 초안을 대조하고 있는데 그 결과가 화면 어디에도 없었다. 검토자가 "왜 이 구절이 걸렸나"를 R 점수 하나로만 봐야 했다. 2층으로 나눈 것은 무엇이 고정된 법 위계이고 무엇이 규칙 개선으로 달라질 수 있는 판단인지 구분해 보여 주기 위해서다.
+- 새 계산 없음: 화면은 감지 경로와 같은 함수(`compareSentenceToFacts`)를 호출한다. 리팩터 후 `npm run eval` 결과 JSON 이 직전 커밋과 완전 동일함을 확인해 판정이 안 바뀐 것을 증명했다.
+- 법 근거 문구에 조문 번호를 넣지 않았다. 합성 데모 화면에 확인되지 않은 금소법 조항 번호를 박으면 그 자체가 사실 오류가 되므로 의무의 성격만 서술했다(코드 주석에도 기록).
+- UI 규약 준수: 옐로 0(티어 칩 정본색 + 중립/ok/danger만), 라운드 6px 1단, 카드 안 카드 없음(패널 직속 섹션 + 헤어라인 행 구분), 한글 `.ko` keep-all, 수치는 mono·tabular.
+- 증거: `verify-shots/t3-fact-comparison.png`(일치 — 정본 30 · 초안 30), `verify-shots/t3-fact-comparison-mismatch.png`(불일치 — 정본 30 · 초안 50 볼드 레드). 불일치 캡처는 `ANSWER_REGISTRY_DB=/tmp/t3demo.db` 임시 DB + 별도 시드로 재현했고 `data/demo.db` 는 건드리지 않았다(파일 수정시각으로 확인).
+- 테스트: vitest 53 passed / `npm run build` · `npm run build:static` exit 0
+
+## [QUESTION] T3 블록 배치 — 2026-07-31 15:44
+WORKPLAN 문구가 "우측 판단하기 패널 아래"라 CTA(`승인하고 발송`) 아래에 두었다. 다만 설명 블록이 최종 행동 버튼보다 아래에 오면 1080p 에서 접히기 쉽고, 읽는 순서도 "행동 → 근거"가 된다. 대안은 신호 분해 카드 바로 아래(사유 버튼 위)로 올리는 것이다. 지시 문구를 그대로 따랐으니 배치 변경이 필요하면 알려 달라.

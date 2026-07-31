@@ -279,33 +279,75 @@ function derived(type: SignalType, origin: DerivedOrigin, detail: string, senten
   return { type, tier: rule.tier, score: rule.score, label: rule.label, origin, detail, sentenceIdx };
 }
 
-/** 수치 슬롯이 정본과 다른가 · 주장 문장에 한정 조건이 붙어 있는가. */
-export function detectFactMismatches(sentences: string[], facts: ProductFacts): DerivedSignal[] {
-  const found: DerivedSignal[] = [];
+/**
+ * 문장 1개를 상품 정본 팩트와 대조한 결과. 어긋난 것만이 아니라 "맞은 것"도 함께
+ * 돌려준다 — 검토 화면은 무엇이 정본과 일치하는지도 보여 줘야 하기 때문이다.
+ * 감지 경로(detectFactMismatches)와 화면이 같은 함수를 쓰므로 둘이 갈라지지 않는다.
+ */
+export interface FactComparison {
+  key: string;
+  label: string;
+  kind: 'number' | 'condition';
+  /** 수치면 정본 값, 조건이면 요구 조건 설명. */
+  canonical: string;
+  /** 초안에서 읽어낸 값. 조건 대조에는 뽑을 값이 없어 null 이다. */
+  draft: string | null;
+  matches: boolean;
+  type: SignalType;
+}
+
+export function compareSentenceToFacts(text: string, facts: ProductFacts): FactComparison[] {
+  const comparisons: FactComparison[] = [];
 
   for (const fact of facts.numbers) {
-    sentences.forEach((text, idx) => {
-      const match = fact.slot.exec(text);
-      if (!match) return;
-      if (normalizeNumber(match[1]) === normalizeNumber(fact.canonical)) return;
-      found.push(
-        derived(
-          fact.type,
-          'fact_mismatch',
-          `${fact.label}: 정본 ${fact.canonical} · 초안 ${match[1]}`,
-          idx,
-        ),
-      );
+    const match = fact.slot.exec(text);
+    if (!match) continue;
+    comparisons.push({
+      key: fact.key,
+      label: fact.label,
+      kind: 'number',
+      canonical: fact.canonical,
+      draft: match[1],
+      matches: normalizeNumber(match[1]) === normalizeNumber(fact.canonical),
+      type: fact.type,
     });
   }
 
   for (const fact of facts.conditions) {
-    sentences.forEach((text, idx) => {
-      if (!fact.claim.test(text)) return;
-      if (fact.qualifier.test(text)) return;
-      found.push(derived(fact.type, 'fact_mismatch', `${fact.label} — 조건 없이 단정`, idx));
+    if (!fact.claim.test(text)) continue;
+    comparisons.push({
+      key: fact.key,
+      label: fact.label,
+      kind: 'condition',
+      canonical: fact.label,
+      draft: null,
+      matches: fact.qualifier.test(text),
+      type: fact.type,
     });
   }
+
+  return comparisons;
+}
+
+/** 수치 슬롯이 정본과 다른가 · 주장 문장에 한정 조건이 붙어 있는가. */
+export function detectFactMismatches(sentences: string[], facts: ProductFacts): DerivedSignal[] {
+  const found: DerivedSignal[] = [];
+
+  sentences.forEach((text, idx) => {
+    for (const comparison of compareSentenceToFacts(text, facts)) {
+      if (comparison.matches) continue;
+      found.push(
+        derived(
+          comparison.type,
+          'fact_mismatch',
+          comparison.kind === 'number'
+            ? `${comparison.label}: 정본 ${comparison.canonical} · 초안 ${comparison.draft}`
+            : `${comparison.label} — 조건 없이 단정`,
+          idx,
+        ),
+      );
+    }
+  });
 
   return found;
 }
