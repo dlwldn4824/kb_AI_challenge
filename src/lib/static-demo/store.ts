@@ -215,7 +215,7 @@ export function selectReason(caseId: string, idx: number, reason: Reason): CaseS
     caseId,
     type: 'reason_selected',
     actor: ACTOR_ID,
-    ts: eventTs(caseId, 'reason_selected'),
+    ts: eventTs(caseId, 'reason_selected', idx, reason),
     payload: { sentenceIdx: idx, reason },
   });
 
@@ -224,7 +224,7 @@ export function selectReason(caseId: string, idx: number, reason: Reason): CaseS
     caseId,
     type: 'coherence_checked',
     actor: 'system',
-    ts: eventTs(caseId, 'coherence_checked'),
+    ts: eventTs(caseId, 'coherence_checked', idx, reason),
     payload: {
       sentenceIdx: idx,
       reason,

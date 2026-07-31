@@ -460,6 +460,74 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
                 </p>
               )}
 
+              {/* ── 정본 대조 (2층 설명) ────────────────────────────
+                  위층은 고정된 법 근거, 아래층은 규칙 개선으로 달라지는 감지 근거다.
+                  두 층을 나눠 두어야 "무엇이 바뀔 수 있는 판단인지"가 드러난다.
+                  신호 카드 바로 아래에 두는 것은 읽는 순서를 근거 → 판단 → 행동으로
+                  맞추기 위해서다. CTA 아래에 있으면 근거가 행동보다 뒤에 오고
+                  1080p 에서 접힌다. */}
+              <section className="mt-[20px]">
+                <h3 className="text-[14px] font-bold leading-[1.4] text-ink">정본 대조</h3>
+
+                <p className="ko mt-[12px] text-[12px] leading-[1.5] text-faint">
+                  법 근거 (티어 {current?.signal?.tier ?? '—'} · 금소법 위계 — 고정)
+                </p>
+                {current?.signal ? (
+                  <div className="mt-[8px] flex items-start gap-[10px] rounded-[6px] bg-paper px-[16px] py-[12px]">
+                    <TierChip tier={current.signal.tier} size="md" />
+                    <span className="ko min-w-0 text-[13px] leading-[1.6] text-ink">
+                      {TIER_BASIS[current.signal.tier]}
+                    </span>
+                  </div>
+                ) : (
+                  <p className="ko mt-[8px] text-[13px] leading-[1.6] text-muted">
+                    이 구절에는 티어가 부여되지 않았습니다.
+                  </p>
+                )}
+
+                <p className="ko mt-[20px] text-[12px] leading-[1.5] text-faint">
+                  감지 근거 (정본 대조 — 학습 가능)
+                </p>
+                {comparisons.length > 0 ? (
+                  <ul className="mt-[8px]">
+                    {comparisons.map((comparison) => (
+                      <li
+                        key={comparison.key}
+                        className="flex items-baseline gap-[12px] border-b border-line-soft py-[10px] last:border-b-0"
+                      >
+                        <span className="ko min-w-0 flex-1 text-[13px] leading-[1.6] text-ink">
+                          {comparison.label}
+                        </span>
+                        {comparison.kind === 'number' ? (
+                          <span className="tabular shrink-0 font-mono text-[13px] leading-[1.6]">
+                            <span className="text-muted">정본 {comparison.canonical}</span>
+                            <span className="px-[6px] text-faint">·</span>
+                            <span className={comparison.matches ? 'text-ink' : 'font-bold text-danger'}>
+                              초안 {comparison.draft}
+                            </span>
+                          </span>
+                        ) : (
+                          <span className="ko shrink-0 text-[13px] leading-[1.6] text-muted">
+                            {comparison.matches ? '조건 명시됨' : '조건 없음'}
+                          </span>
+                        )}
+                        <span
+                          className={`shrink-0 text-[12px] leading-[1.5] ${
+                            comparison.matches ? 'text-ok' : 'text-danger'
+                          }`}
+                        >
+                          {comparison.matches ? '일치' : '불일치'}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="ko mt-[8px] text-[13px] leading-[1.6] text-muted">
+                    이 구절에 대조할 정본 팩트가 없습니다.
+                  </p>
+                )}
+              </section>
+
               <h3 className="mt-[20px] text-[14px] font-bold leading-[1.4] text-ink">
                 수정 사유 설명
               </h3>
@@ -563,71 +631,6 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
                   {blockLabel}
                 </p>
               )}
-
-              {/* ── 정본 대조 (2층 설명) ────────────────────────────
-                  위층은 고정된 법 근거, 아래층은 규칙 개선으로 달라지는 감지 근거다.
-                  두 층을 나눠 두어야 "무엇이 바뀔 수 있는 판단인지"가 드러난다. */}
-              <section className="mt-[28px] border-t border-line pt-[16px]">
-                <h3 className="text-[14px] font-bold leading-[1.4] text-ink">정본 대조</h3>
-
-                <p className="ko mt-[12px] text-[12px] leading-[1.5] text-faint">
-                  법 근거 (티어 {current?.signal?.tier ?? '—'} · 금소법 위계 — 고정)
-                </p>
-                {current?.signal ? (
-                  <div className="mt-[8px] flex items-start gap-[10px] rounded-[6px] bg-paper px-[16px] py-[12px]">
-                    <TierChip tier={current.signal.tier} size="md" />
-                    <span className="ko min-w-0 text-[13px] leading-[1.6] text-ink">
-                      {TIER_BASIS[current.signal.tier]}
-                    </span>
-                  </div>
-                ) : (
-                  <p className="ko mt-[8px] text-[13px] leading-[1.6] text-muted">
-                    이 구절에는 티어가 부여되지 않았습니다.
-                  </p>
-                )}
-
-                <p className="ko mt-[20px] text-[12px] leading-[1.5] text-faint">
-                  감지 근거 (정본 대조 — 학습 가능)
-                </p>
-                {comparisons.length > 0 ? (
-                  <ul className="mt-[8px]">
-                    {comparisons.map((comparison) => (
-                      <li
-                        key={comparison.key}
-                        className="flex items-baseline gap-[12px] border-b border-line-soft py-[10px] last:border-b-0"
-                      >
-                        <span className="ko min-w-0 flex-1 text-[13px] leading-[1.6] text-ink">
-                          {comparison.label}
-                        </span>
-                        {comparison.kind === 'number' ? (
-                          <span className="tabular shrink-0 font-mono text-[13px] leading-[1.6]">
-                            <span className="text-muted">정본 {comparison.canonical}</span>
-                            <span className="px-[6px] text-faint">·</span>
-                            <span className={comparison.matches ? 'text-ink' : 'font-bold text-danger'}>
-                              초안 {comparison.draft}
-                            </span>
-                          </span>
-                        ) : (
-                          <span className="ko shrink-0 text-[13px] leading-[1.6] text-muted">
-                            {comparison.matches ? '조건 명시됨' : '조건 없음'}
-                          </span>
-                        )}
-                        <span
-                          className={`shrink-0 text-[12px] leading-[1.5] ${
-                            comparison.matches ? 'text-ok' : 'text-danger'
-                          }`}
-                        >
-                          {comparison.matches ? '일치' : '불일치'}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="ko mt-[8px] text-[13px] leading-[1.6] text-muted">
-                    이 구절에 대조할 정본 팩트가 없습니다.
-                  </p>
-                )}
-              </section>
             </div>
           </aside>
         </div>
