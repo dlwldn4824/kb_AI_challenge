@@ -14,3 +14,9 @@
 - 이유: 큐 KPI와 라벨 계열 통일(①), 전체 27건 vs 목록 9건 기준 혼동 해소(②), 동일 초 4건의 비현실성 제거(③), 봉인과 발송 상태의 층위 분리(④).
 - 증거: `verify-shots/v2-08-blocked-timeline.png`, 커밋 162d08b
 - 테스트: vitest 48 passed
+
+## [T5] 감지기 버전 라벨 — 2026-07-31 15:29
+- 변경: `src/lib/scoring.ts` — `DETECTOR_VERSION = 'rule-v2 (fact·omission)'` 상수 신설. `src/app/review/[caseId]/review-console.tsx` — 검토 화면 헤더 우측 모델 표기 옆에 "감지기 rule-v2 (fact·omission)" 병기(모델 · 감지기 · 신뢰도 순).
+- 이유: 같은 초안이라도 어떤 규칙 세트가 판정했는지에 따라 신호가 달라진다. 모델 버전만 적어 두면 감지기 v1/v2 결과를 사후에 구분할 수 없다. 규칙을 고칠 때 이 상수를 올리는 것으로 판정 이력을 추적한다.
+- 증거: 검토 화면 헤더 렌더, `npm run build` exit 0
+- 테스트: vitest 48 passed

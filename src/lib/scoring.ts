@@ -26,6 +26,12 @@ import {
   type ProductFacts,
 } from '@/fixtures/product-facts';
 
+/**
+ * 감지기 버전. 화면에 모델 버전과 나란히 찍어서, 어떤 규칙 세트가 이 판정을
+ * 냈는지 남긴다. 규칙을 고치면 이 값을 올린다.
+ */
+export const DETECTOR_VERSION = 'rule-v2 (fact·omission)';
+
 export type Tier = 'S' | 'A' | 'B';
 
 export type SignalType =

@@ -6,6 +6,7 @@ import { Chrome } from '../../chrome';
 import { SIGNAL_NOTE, SectionHead, Shell, SignalText, Spinner, TierChip, Toast } from '../../ui';
 import { api } from '@/lib/api-client';
 import { REASONS, type Reason } from '@/lib/constants';
+import { DETECTOR_VERSION } from '@/lib/scoring';
 import type { CaseView } from '@/lib/views';
 
 /**
@@ -254,6 +255,8 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
                 right={
                   <span className="text-[13px] leading-[1.6] text-muted">
                     <span className="font-mono">{view.model}</span>
+                    <span className="px-[6px] text-faint">·</span>
+                    감지기 <span className="font-mono">{DETECTOR_VERSION}</span>
                     <span className="px-[6px] text-faint">·</span>
                     신뢰도 <span className="tabular font-mono">{view.confidence}</span>
                   </span>
