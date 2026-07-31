@@ -310,14 +310,21 @@ function AnalysisPanel({
         </p>
       )}
 
-      <p className="ko mt-[16px] border-t border-line pt-[12px] text-[13px] leading-[1.6] text-muted">
-        <span className="tabular font-semibold text-ink">
-          {kpi.draftsToday.toLocaleString()}
-        </span>
-        건 중 사람이 볼{' '}
-        <span className="tabular font-semibold text-ink">{humanReviewed}</span>건을 시스템이
-        고릅니다.
-      </p>
+      {/*
+        첫 줄이 원칙(전 건 승인), 둘째 줄이 선별(먼저 볼 순서)이다.
+        "고른 것만 본다"로 읽히면 승인 없이 나가는 건이 있다는 오해가 생긴다.
+      */}
+      <div className="ko mt-[16px] border-t border-line pt-[12px] text-[13px] leading-[1.6]">
+        <p className="text-ink">
+          <span className="tabular font-semibold">{kpi.draftsToday.toLocaleString()}</span>건
+          전부, 승인 없이는 나가지 않습니다.
+        </p>
+        <p className="mt-[2px] text-muted">
+          시스템은 그중 깊게 볼{' '}
+          <span className="tabular font-semibold text-ink">{humanReviewed}</span>건을 먼저
+          보여줍니다.
+        </p>
+      </div>
     </Sheet>
   );
 }
