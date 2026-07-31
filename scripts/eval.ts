@@ -49,6 +49,42 @@ const ERROR_TYPE_LABEL: Record<SignalType, string> = {
   procedure_document: '서류 기한 왜곡',
 };
 
+/** eval-results.json 의 by_error_type 키 (덱·차트가 그대로 읽는 축약 라벨). */
+const ERROR_TYPE_KEY: Record<SignalType, string> = {
+  numeric_change: '수치바꿔치기',
+  exemption_condition: '조건삭제',
+  overcertainty: '단정삽입',
+  deadline_eligibility: '자격요건삭제',
+  disadvantage_omission: '불이익누락',
+  procedure_document: '서류기한왜곡',
+};
+
+/**
+ * 감지기 v1(패턴 규칙만) 시절의 실행 기록.
+ *
+ * v1 감지기는 이제 코드에 없어서 다시 돌릴 수 없다. 그래서 이 숫자는 재계산이
+ * 아니라 과거 실행을 옮겨 적은 것이고, `source: "recorded"` 로 구분해 둔다.
+ * 지우지 않는 이유는 개선 폭 자체가 서사이기 때문이다 — 특히 v1 이 단정 삽입만
+ * 8/8 잡고 수치 바꿔치기를 0/8 놓쳤다는 사실이 v2 의 존재 이유다.
+ */
+const V1_RECORD = {
+  detector: 'v1',
+  ranking: 'R',
+  recall_at_39: 0.2292,
+  precision_at_39: 0.2821,
+  hits: 11,
+  by_error_type: {
+    수치바꿔치기: 0,
+    조건삭제: 1,
+    단정삽입: 8,
+    자격요건삭제: 1,
+    불이익누락: 1,
+    서류기한왜곡: 0,
+  },
+  source: 'recorded',
+  note: '패턴 규칙만 쓰던 감지기. 상투구 오탐 23/192, 삭제형 오류로 R 이 기준선 아래로 내려간 건 14건.',
+} as const;
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 시드 고정 PRNG · 편집거리
 // ─────────────────────────────────────────────────────────────────────────────
@@ -705,6 +741,55 @@ function main(): void {
       `실제 초안은 팩트 테이블이 예상하지 못한 방식으로도 틀린다.`,
   );
 
+  // ── 덱 12-5 용 마크다운 표 ────────────────────────────────────────────────
+  const md = (cells: string[]) => `| ${cells.join(' | ')} |`;
+  console.log('\n덱 12-5 용 마크다운 표 (아래 블록을 그대로 붙여넣기)\n');
+  console.log(md(['방법', `Recall@${K}`, `Precision@${K}`, '적중']));
+  console.log(md(['---', '---:', '---:', '---:']));
+  console.log(
+    md(['R 랭킹 (감지기 v2 + 확증 정렬)', pct(rMetrics.recall), pct(rMetrics.precision), `${rMetrics.hits}/${positives}`]),
+  );
+  console.log(
+    md(['R 랭킹 (감지기 v2 · 순수 R)', pct(pureRMetrics.recall), pct(pureRMetrics.precision), `${pureRMetrics.hits}/${positives}`]),
+  );
+  console.log(
+    md([
+      'R 랭킹 (감지기 v1 · 순수 R · 기록)',
+      pct(V1_RECORD.recall_at_39),
+      pct(V1_RECORD.precision_at_39),
+      `${V1_RECORD.hits}/${positives}`,
+    ]),
+  );
+  console.log(
+    md(['편집거리 baseline', pct(editMetrics.recall), pct(editMetrics.precision), `${editMetrics.hits}/${positives}`]),
+  );
+  console.log(
+    md([
+      `무작위 (${RANDOM_TRIALS}회 평균)`,
+      pct(randomMetrics.recall),
+      pct(randomMetrics.precision),
+      `${randomMetrics.hits.toFixed(2)}/${positives}`,
+    ]),
+  );
+
+  console.log(`\n오류 유형별 상위 ${K}건 적중 (유형당 양성 ${perTypePositives}건)\n`);
+  console.log(md(['오류 유형', 'v2 + 확증', 'v2 순수 R', 'v1 (기록)', '편집거리']));
+  console.log(md(['---', '---:', '---:', '---:', '---:']));
+  for (const type of ERROR_TYPES) {
+    console.log(
+      md([
+        ERROR_TYPE_LABEL[type],
+        String(rByType[type]),
+        String(pureRByType[type]),
+        String(V1_RECORD.by_error_type[ERROR_TYPE_KEY[type] as keyof typeof V1_RECORD.by_error_type]),
+        String(editByType[type]),
+      ]),
+    );
+  }
+
+  const byErrorTypeOf = (hits: Record<string, number>) =>
+    Object.fromEntries(ERROR_TYPES.map((type) => [ERROR_TYPE_KEY[type], hits[type]]));
+
   const output = {
     design: {
       templates: TEMPLATES.map((template) => ({ id: template.id, title: template.title })),
@@ -728,6 +813,33 @@ function main(): void {
       tierScore: TIER_SCORE,
       confirmNoteRate: CONFIRM_NOTE_RATE,
     },
+    /**
+     * WORKPLAN T6 스키마 — 감지기 버전별로 나란히. 기존 수치는 지우지 않는다.
+     * v1 은 재계산이 아니라 과거 실행 기록(source: recorded)이다.
+     */
+    runs: [
+      V1_RECORD,
+      {
+        detector: 'v2',
+        ranking: 'R',
+        recall_at_39: round(pureRMetrics.recall),
+        precision_at_39: round(pureRMetrics.precision),
+        hits: pureRMetrics.hits,
+        by_error_type: byErrorTypeOf(pureRByType),
+        source: 'recomputed',
+        note: '팩트 대조·누락 감지·상투구 오탐 제외를 넣은 감지기. 랭킹은 R 내림차순만.',
+      },
+      {
+        detector: 'v2',
+        ranking: 'R+confirmedHits',
+        recall_at_39: round(rMetrics.recall),
+        precision_at_39: round(rMetrics.precision),
+        hits: rMetrics.hits,
+        by_error_type: byErrorTypeOf(rByType),
+        source: 'recomputed',
+        note: `같은 R 안에서 레퍼런스 확증 건수로 2차 정렬. K=${K} 가 만드는 Recall 천장에 붙어 있어 상한으로 읽어야 한다.`,
+      },
+    ],
     methods: [
       {
         key: 'r_ranking',
