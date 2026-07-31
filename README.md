@@ -8,6 +8,9 @@ AI 상담 초안을 위험 순으로 골라주고, 상담직원이 문장 단위
 > **SYNTHETIC DEMO · 합성 예시 데이터** — 실제 고객 데이터가 아닙니다.
 > 외부 API·LLM 호출이 없고, 네트워크 없이 로컬에서만 동작합니다.
 
+**AI 배치 원칙**: 되돌릴 수 있는 곳(감지·선별·설명)엔 AI를, 되돌릴 수 없는 곳(승인·발송)엔 결정론을.
+감지기는 규칙 기반이고 틀려도 사람이 덮어쓸 수 있지만, 승인·발송 게이트에는 확률적 판단이 없습니다.
+
 구현의 정본은 [`docs/BUILD_SPEC.md`](docs/BUILD_SPEC.md) 입니다.
 
 ## 설치
@@ -27,7 +30,7 @@ npm run dev     # predev 로 seed 가 먼저 돌아갑니다. http://localhost:3
 ## 테스트
 
 ```bash
-npx vitest run  # 불변조건 4 + 승인 게이트 2
+npx vitest run  # 48건 — 불변조건 4 + 승인 게이트 2 + 판정 경합 2 + 감지기 회귀 36 + 해시 동등성 4
 ```
 
 ## 데모 시나리오 6스텝
@@ -60,8 +63,14 @@ UI 를 거치지 않아도 같은 결과가 나온다는 것이 요점입니다.
 
 | 무엇 | 파일 |
 |---|---|
-| 불변조건 4 + 승인 게이트 · 해시 동등성 12건 통과 | [`docs/evidence-invariants-green.png`](docs/evidence-invariants-green.png) |
+| 불변조건 4 + 승인 게이트 2 개별 통과, 전체 48건 통과 | [`docs/evidence-invariants-green.png`](docs/evidence-invariants-green.png) |
 | `npm run tamper` — 변조 문안이 409 로 차단되는 전 과정 | [`docs/evidence-tamper-demo.gif`](docs/evidence-tamper-demo.gif) |
+| 합성 벤치마크 240건으로 잰 랭킹 성능 (v1/v2 나란히) | [`docs/eval-results.json`](docs/eval-results.json) |
+
+`npm run eval` 로 잰 결과에서 한 가지가 분명해졌습니다. **자격 요건이나 불이익 문구를
+통째로 지운 초안은 위험 구절이 사라지므로 R 이 오히려 내려갑니다** — R 내림차순 큐만
+보면 가장 위험한 누락이 맨 뒤로 밀립니다. 저위험 무작위 표본 레인을 따로 둔 이유가
+이것이고, 우리 평가가 우리 설계(표본)의 존재 이유를 실증한 셈입니다.
 
 ## 구조
 

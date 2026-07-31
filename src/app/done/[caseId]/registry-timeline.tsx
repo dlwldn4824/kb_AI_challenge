@@ -166,6 +166,15 @@ function describe(event: AnyStoredEvent): Row {
         detail: `${event.payload.approver} · 버전 ${event.payload.versionId}`,
         tone: ok,
       };
+    case 'learning_signal_saved':
+      return {
+        time,
+        label: '판단 레이블 저장 · 감지기 개선 데이터',
+        detail: `구절 ${event.payload.sentenceCount} · 수정 ${event.payload.editCount}${
+          event.payload.reasons.length > 0 ? ` · ${event.payload.reasons.join(' · ')}` : ''
+        }`,
+        tone: neutral,
+      };
     case 'approval_invalidated':
       return { time, label: '승인 무효화 · 승인 후 문장 변경', tone: danger };
     case 'dispatch_attempted':

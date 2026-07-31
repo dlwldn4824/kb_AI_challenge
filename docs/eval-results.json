@@ -64,6 +64,59 @@
     },
     "confirmNoteRate": 0.1
   },
+  "runs": [
+    {
+      "detector": "v1",
+      "ranking": "R",
+      "recall_at_39": 0.2292,
+      "precision_at_39": 0.2821,
+      "hits": 11,
+      "by_error_type": {
+        "수치바꿔치기": 0,
+        "조건삭제": 1,
+        "단정삽입": 8,
+        "자격요건삭제": 1,
+        "불이익누락": 1,
+        "서류기한왜곡": 0
+      },
+      "source": "recorded",
+      "note": "패턴 규칙만 쓰던 감지기. 상투구 오탐 23/192, 삭제형 오류로 R 이 기준선 아래로 내려간 건 14건."
+    },
+    {
+      "detector": "v2",
+      "ranking": "R",
+      "recall_at_39": 0.2708,
+      "precision_at_39": 0.3333,
+      "hits": 13,
+      "by_error_type": {
+        "수치바꿔치기": 0,
+        "조건삭제": 1,
+        "단정삽입": 8,
+        "자격요건삭제": 1,
+        "불이익누락": 1,
+        "서류기한왜곡": 2
+      },
+      "source": "recomputed",
+      "note": "팩트 대조·누락 감지·상투구 오탐 제외를 넣은 감지기. 랭킹은 R 내림차순만."
+    },
+    {
+      "detector": "v2",
+      "ranking": "R+confirmedHits",
+      "recall_at_39": 0.8125,
+      "precision_at_39": 1,
+      "hits": 39,
+      "by_error_type": {
+        "수치바꿔치기": 6,
+        "조건삭제": 7,
+        "단정삽입": 8,
+        "자격요건삭제": 7,
+        "불이익누락": 5,
+        "서류기한왜곡": 6
+      },
+      "source": "recomputed",
+      "note": "같은 R 안에서 레퍼런스 확증 건수로 2차 정렬. K=39 가 만드는 Recall 천장에 붙어 있어 상한으로 읽어야 한다."
+    }
+  ],
   "methods": [
     {
       "key": "r_ranking",

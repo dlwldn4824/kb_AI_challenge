@@ -202,7 +202,7 @@ export function replayEvents(
       case 'signals_detected': {
         state.signals = event.payload.signals;
         state.r = event.payload.r;
-      state.confirmedHits = event.payload.confirmedHits ?? 0;
+        state.confirmedHits = event.payload.confirmedHits ?? 0;
         state.sampled = event.payload.sampled === true;
         for (const signal of event.payload.signals) {
           const sentence = sentences.get(signal.sentenceIdx);

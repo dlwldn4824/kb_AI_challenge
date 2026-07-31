@@ -22,6 +22,8 @@ const PRIMARY_TIMELINE: Partial<Record<EventType, string>> = {
   reason_selected: '2026-07-23T12:53:29+09:00',
   coherence_checked: '2026-07-23T12:53:29+09:00',
   approved: '2026-07-23T12:54:12+09:00',
+  // 승인 확정 직후 시스템이 남기는 기록이라 승인과 같은 초를 쓴다.
+  learning_signal_saved: '2026-07-23T12:54:12+09:00',
   dispatch_attempted: '2026-07-23T12:54:12+09:00',
   dispatched: '2026-07-23T12:54:12+09:00',
 };
