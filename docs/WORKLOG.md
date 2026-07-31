@@ -182,3 +182,17 @@ qa_data[]  (파일당 항상 1건)
 - `VerdictButton` 의 `aria-disabled={locked}` 를 `aria-label` 로 바꿨다. 실제로는 눌러야 차단 모달이 뜨는 버튼인데 보조기술에는 "못 누른다"고 알리고 있었다. Playwright 도 이 속성 때문에 클릭이 막혀서 발견했다 — 실사용자도 같은 벽에 부딪힌다.
 - 증거: `verify-shots/m1-sealed-lock.png` (1920×1200 · 잠금 배너 · 반투명 읽기 전용 행 · 차단 모달 · 우측 정본 대조 블록 보존)
 - 테스트: vitest 60 passed (57 + sealed-case 3) / tsc 0 / `npm run build` · `npm run build:static` exit 0
+
+## [T13] 클린 재현 테스트 — 2026-07-31 16:44
+- 환경: macOS 26.5.2 · node v25.2.1 · 새 임시 폴더에 `git archive HEAD` 추출(비추적·gitignore 파일 자동 배제)
+- 절차·결과 (전부 통과):
+  ① `npm install` — 131 packages, 4s ② `npx vitest run` — **60 passed / 0 failed**
+  ③ `npm run seed` — 정본 케이스 검토 대기 상태로 시드 ④ `npm run eval` — R+확증 81.3% / 100.0% 재현
+  ⑤ `npm run tamper` — HTTP 409 차단 재현 ⑥ `npm run aihub:load` — 데이터 없음 안내 후 exit 0 (기본 데모 무영향)
+  ⑦ `npm run build` — 성공 ⑧ `npm run dev` 기동 → `/` 200 + `/api/cases` KPI JSON 정상 응답
+- 6막 데모의 화면 조작 재현은 동일 코드에 대한 Playwright 실측(deck-01~05, gif-01/02 캡처 과정)으로 갈음.
+
+## [T14] zip 패키징 체크 — 2026-07-31 16:44
+- 방법: `git archive --format=zip HEAD` → `KBAICH/answer-registry-submission.zip` (144 files, 6.9MB)
+- 포함 확인: 소스 전체 · README · docs/(BUILD_SPEC, WORKPLAN_FINAL, WORKLOG, eval-results.json, eval-results-aihub.json, aihub-stats.json, evidence-*.png/gif) · verify-shots/(deck-01~05, gif-01/02 등)
+- 금지물 검사: zip 목록 grep — `aihub/`·`*.db`·`node_modules`·`.env.local`·`.next`·`.DS_Store` **0건** (AI Hub 원본·해제본 미포함 확정)
