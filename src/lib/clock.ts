@@ -9,6 +9,7 @@
 
 import { PRIMARY_CASE_ID } from './constants';
 import type { EventType } from './events';
+import { PRIMARY_DEMO } from '../fixtures/cases';
 
 const KST_OFFSET_MINUTES = 9 * 60;
 
@@ -49,11 +50,32 @@ const PRIMARY_KEPT_TS: Record<number, string> = {
   4: '2026-07-23T12:52:47+09:00',
 };
 
-export function eventTs(caseId: string, type: EventType, sentenceIdx?: number): string {
+/**
+ * 정본 케이스에서 사유 선택은 한 번에 끝나지 않는다.
+ * 먼저 고른 사유가 실제 수정과 어긋나 불일치로 막히고, 사유를 바꿔 다시 고른
+ * 뒤에야 적합 판정이 난다. 사람의 오선택과 재판단이 기록에 그대로 남는다는 것이
+ * 이 케이스의 논점이라, 확정 사유({@link PRIMARY_DEMO.reason})만 뒤 시각을 쓰고
+ * 그전의 시도는 이 시각으로 앞세운다.
+ */
+const PRIMARY_REASON_RETRY_TS = '2026-07-23T12:53:12+09:00';
+
+export function eventTs(
+  caseId: string,
+  type: EventType,
+  sentenceIdx?: number,
+  reason?: string,
+): string {
   if (caseId === PRIMARY_CASE_ID) {
     if (type === 'sentence_kept' && sentenceIdx !== undefined) {
       const perSentence = PRIMARY_KEPT_TS[sentenceIdx];
       if (perSentence) return perSentence;
+    }
+    if (
+      (type === 'reason_selected' || type === 'coherence_checked') &&
+      reason !== undefined &&
+      reason !== PRIMARY_DEMO.reason
+    ) {
+      return PRIMARY_REASON_RETRY_TS;
     }
     const fixed = PRIMARY_TIMELINE[type];
     if (fixed) return fixed;

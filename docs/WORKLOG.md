@@ -126,3 +126,28 @@ qa_data[]  (파일당 항상 1건)
 - 기본 seed 완전 불변 확인: 배지 "SYNTHETIC DEMO · 합성 예시 데이터", 큐 R=11 S·S·A·A·B 이하 그대로, `src/lib/static-demo/seed-events.json` diff 없음(dataset 은 옵셔널이라 합성 시드 payload 에 나타나지 않음).
 - 증거: `docs/aihub-stats.json` · `npm run aihub:stats` 콘솔 표 · 두 모드 배지 문자열 직접 확인
 - 테스트: vitest 53 passed (scoring-regression 36건 포함, 기본 seed 기준 그대로) / build · build:static exit 0
+
+## [T11] 덱용 캡처 5 + GIF 2 (선행 조정 A·B 포함) — 2026-07-31 16:30
+### 선행 조정 A — T3 정본 대조 블록 배치 이동 (팀 리드 결정)
+- 변경: `src/app/review/[caseId]/review-console.tsx` — 정본 대조 섹션을 CTA 아래에서 **신호 분해 카드 바로 아래(수정 사유 설명 위)** 로 이동. 헤어라인(`border-t` + `mt-[28px]`)을 떼고 형제 섹션과 같은 `mt-[20px]` + h3 로 맞췄다.
+- 이유: [QUESTION] 항목에 대한 팀 리드 결정(사용자 보고됨). 읽는 순서를 근거 → 판단 → 행동으로 되돌리고 1080p 접힘을 막는다. 같은 패널 안 형제 섹션이 전부 h3 로만 구분되는데 하나만 헤어라인을 쓰면 층위가 어긋나 함께 정리했다. 코드 주석에 배치 이유를 남겼다.
+
+### 선행 조정 B — 사유 오선택·재판단 기록
+- 변경: `src/lib/clock.ts` — `eventTs(caseId, type, sentenceIdx?, reason?)` 로 확장하고 `PRIMARY_REASON_RETRY_TS = 12:53:12` 신설. 정본 케이스에서 확정 사유(`PRIMARY_DEMO.reason`)만 12:53:29 를 쓰고 그전 시도는 12:53:12 로 앞세운다. `src/lib/actions.ts` · `src/lib/static-demo/store.ts` 의 `selectReason` 이 사유를 넘기도록 수정(서버·정적 두 모드 동일).
+- **seed 에 이벤트를 넣지 않았다.** 정본 케이스는 seed 직후 "검토 대기"(이벤트 2건)여야 하고 그것이 캡처·README 6막의 전제다. 사유 이벤트를 seed 에 심으면 그 전제가 깨진다. 대신 시각만 갈라 두어, 화면에서 실제로 오선택하면 그 흐름이 그대로 기록되게 했다 — 덱 4번이 요구한 타임라인은 조작이 아니라 실조작 결과다.
+- 불일치 문구는 코드 변경 없이 나온다: 정본 수정은 확인 안내 추가라 `수치 오류` 사유에는 `checkCoherence` 가 "문구 추가만 있고 수치 변경 없음"을 낸다(지시서 문구와 동일).
+- 타임라인 dot: `registry-timeline.tsx` 는 이미 `coherence_checked{result!=='pass'}` 를 `bg-danger` 로 그린다 — 확인만 하고 수정 없음.
+- 불변 확인: R=11 · 신호 S·S·A·A·B · 검토 소요 02:41 · 승인 payload · seed 이벤트 76건 그대로. `npm run export:seed` 재출력 결과 `seed-events.json` diff 0. `npm run eval` 결과 JSON 바이트 동일(감지 판정 불변).
+- 신규 테스트 `tests/reason-retry.test.ts` 4건: 오선택이 mismatch 로 기록되고 승인 422 / 재선택해도 틀린 시도가 로그에 남음(reasons `[수치 오류, 자격 미확인]`, results `[mismatch, pass]`) / 시각 12:53:12 → 12:53:29 이고 전체 로그에서 seq 오름차순과 ts 가 어긋나지 않음 / 오선택이 끼어도 봉인·검토 소요 불변.
+
+### 캡처 (verify-shots/, 전부 1920×1200, 에러 토스트 0)
+- `deck-01-queue.png` 224K — 큐 · R=11 분해 패널 · 2줄 압축 문장
+- `deck-02-review-mismatch.png` 204K — 붉은 불일치 카드 · 비활성 승인 버튼 · **새 위치의 정본 대조 블록**
+- `deck-03-blocked-diff.png` 164K — 차단 화면 · 붉은 diff "서류 없이도 즉시 처리됩니다"
+- `deck-04-registry-timeline.png` 240K — 이벤트 16건 전체 · 12:53:12 불일치(적색 dot) · 12:53:29 통과(녹색 dot) · 판단 레이블 저장 줄
+- `deck-05-dispatched.png` 200K — 해시 2줄 일치 · 봉인 정보 · 고객 수신 화면
+- `gif-01-coherence.gif` 448K — 1280×800 4프레임 실조작 녹화(수정 완료 → 불일치 → 적합 → 발행 완료)
+- `gif-02-tamper.gif` 208K — `docs/evidence-tamper-demo.gif` 사본(내용 최신이라 재생성 불요)
+- 절차: `npm run seed` 직후 0142="검토 대기" 상태에서 화면 조작으로 진행하며 촬영. deck-01 은 승인 전 상태가 필요해 리시드 후 재촬영했다.
+- 뷰포트: `devicePixelRatio` 가 0.9 라 1728×1080 을 요청하면 CSS 는 1920×1200 이지만 PNG 가 1728 로 나온다. **1920×1200 을 요청**하면 CSS 2133×1333 → stage scale 1.111 로 캔버스가 뷰포트를 꽉 채우고 PNG 가 정확히 1920×1200 이 된다(다운스케일이라 화질 손실도 없다).
+- **하단 여백은 줄이지 못했다.** 지시의 "브라우저 높이 조절"은 stage 모드(1920×1200 고정 캔버스, `src/app/stage.tsx`)와 양립하지 않는다 — 창을 줄이면 캔버스가 통째로 축소되고 레터박스가 늘 뿐 콘텐츠 비율은 그대로다. 명시 요구인 1920×1200 을 지키고 여백은 남겼다. 없애려면 캔버스 비율을 바꾸거나 검토 화면 레이아웃을 손봐야 해 지시 범위를 넘는다.
