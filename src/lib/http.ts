@@ -24,6 +24,17 @@ export function conflict(body: Record<string, unknown>): NextResponse {
   return NextResponse.json(body, { status: 409 });
 }
 
+/** 이미 발송된 등기를 고치려 한 요청. 발송 차단과 같은 409 계열로 답한다. */
+export function sealed(caseId: string, dispatchedAt: string): NextResponse {
+  return conflict({
+    error: 'case_sealed',
+    reason: 'already_dispatched',
+    message: '409 CASE SEALED — 이미 발송된 등기입니다. 편집이 차단되었습니다.',
+    caseId,
+    dispatchedAt,
+  });
+}
+
 export async function readJson(request: Request): Promise<Record<string, unknown>> {
   try {
     const parsed = await request.json();

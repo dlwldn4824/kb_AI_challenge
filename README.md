@@ -111,7 +111,7 @@ npm run seed -- --aihub                     # 실상담 재구성 케이스로 �
 ## 구조
 
 ```
-src/app/                화면 3 + 차단 배너
+src/app/                화면 3 + 차단 배너 + 발행 완료 재열람 잠금(sealed-lock.tsx)
 src/app/api/            route handlers (전부 runtime = 'nodejs')
 src/lib/                db · digest · seal · scoring · coherence · projection
 src/lib/static-demo/    브라우저 단독 모드 (WebCrypto + 인메모리 이벤트 로그)
@@ -144,6 +144,21 @@ seal          = HMAC_SHA256(SEAL_SECRET,
 
 정규화 덕분에 줄바꿈(CRLF)이나 유니코드 정규화 형태가 달라도 같은 내용이면 통과하고,
 실제로 한 글자가 바뀌면 다이제스트가 달라져 차단됩니다.
+
+### 발행 완료 재열람 잠금
+
+`/review/[caseId]` 를 발행 완료(dispatched) 케이스로 다시 열면 상단에 잠금 배너가 뜨고,
+구절 행은 반투명 처리되며 `수정` 버튼을 눌러도 편집 대신 차단 모달(등기번호 · 봉인 시각 ·
+봉인 sha256)이 뜹니다. `발송 문안` 카드도 `봉인된 발송문 · 읽기 전용`으로 바뀌어 봉인된
+승인문을 그대로 보여줍니다.
+
+화면만 잠그지 않습니다. `keep` · `edit` · `reason` 세 API 가 발송된 케이스를
+**409 `case_sealed`** 로 거부하므로 UI 를 거치지 않는 `curl` 도 같은 답을 받고,
+거부된 요청은 이벤트 로그에 아무것도 남기지 않습니다. 다만 **승인만 되고 아직 나가지 않은
+상태의 편집은 그대로 허용**됩니다 — 그 경로의 정답은 차단이 아니라 `approval_invalidated`
+로 승인을 무효로 돌리는 것이기 때문입니다(불변조건 2). 셋 다 `tests/sealed-case.test.ts` 가 고정합니다.
+
+컴포넌트는 `src/app/review/[caseId]/sealed-lock.tsx` 이고, 재발행은 이번 스코프 밖입니다.
 
 ### 만들지 않은 것
 

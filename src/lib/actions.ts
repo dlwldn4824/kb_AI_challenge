@@ -24,10 +24,35 @@ export class CaseNotFoundError extends Error {
   }
 }
 
+/** 이미 고객에게 나간 등기를 고치려 했을 때. 라우트가 409 로 옮긴다. */
+export class CaseSealedError extends Error {
+  constructor(
+    public caseId: string,
+    public dispatchedAt: string,
+  ) {
+    super(`case already dispatched: ${caseId}`);
+  }
+}
+
 function requireCase(caseId: string): CaseState {
   const state = replay(caseId);
   if (!state.exists) throw new CaseNotFoundError(caseId);
   return state;
+}
+
+/**
+ * 발송이 끝난 등기는 더 고칠 수 없다.
+ *
+ * 화면에서 잠그는 것만으로는 부족하다. 이 제품의 주장은 "검증은 화면이 아니라
+ * 발송 경로에 있다"이므로, 잠금도 UI 가 아니라 여기에 있어야 curl 로 때려도 같은 답이 온다.
+ *
+ * 승인만 되고 아직 나가지 않은 상태의 편집은 여기서 막지 않는다 — 그 경로는
+ * `approval_invalidated` 를 쌓아 승인을 무효로 돌리는 것이 정답이다 (불변조건 2).
+ */
+function assertNotDispatched(state: CaseState): void {
+  if (state.dispatched) {
+    throw new CaseSealedError(state.caseId, state.dispatched.dispatchedAt);
+  }
 }
 
 /**
@@ -62,6 +87,7 @@ export function startReview(caseId: string, at?: string): CaseState {
 
 export function keepSentence(caseId: string, idx: number, at?: string): CaseState {
   const before = requireCase(caseId);
+  assertNotDispatched(before);
   assertSentenceExists(before, idx);
 
   appendEvent({
@@ -83,6 +109,7 @@ export function editSentence(
   at?: string,
 ): CaseState {
   const before = requireCase(caseId);
+  assertNotDispatched(before);
   assertSentenceExists(before, idx);
 
   appendEvent({
@@ -105,6 +132,7 @@ export function selectReason(
   at?: string,
 ): CaseState {
   const before = requireCase(caseId);
+  assertNotDispatched(before);
   const sentence = assertSentenceExists(before, idx);
 
   appendEvent({

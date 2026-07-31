@@ -158,3 +158,27 @@ qa_data[]  (파일당 항상 1건)
 - 실상담 수치는 낮은 대로 적었다(Recall@39 25.0% vs 합성 81.3%) — 절대 원칙 2.
 - 증거물 갱신: 테스트가 48 → 57 이 되어 `docs/evidence-invariants-green.png` 재생성(1400×1040, 384K). 방식 동일 — 실제 `npx vitest run` 두 번(불변조건·사유재선택 verbose / 전체 기본 리포터)을 한 터미널 세션에서 실행한 출력 그대로이고, 마지막 줄이 `Tests 57 passed (57)`.
 - 테스트: vitest 57 passed / tsc 0 / `npm run build` · `npm run build:static` exit 0 / eval JSON 재현 동일
+
+## [M1] bborang 브랜치 병합 + 조정 3건 — 2026-07-31 16:45
+- 병합 출처: `origin/feature/block-edit-on-sealed-case` (3dcbb71, "발행 완료 케이스 재열람 시 편집 차단 UI", bborang). 분기점 162d08b.
+- 충돌 해소: `review-console.tsx` 의 import 한 줄만 충돌했고 양쪽을 다 남겼다(우리 `TIER_BASIS` + 그들 `sealed-lock`). 그들의 sealed-lock 코드와 우리 T3 정본 대조 블록·T5 감지기 라벨이 같은 파일 다른 영역이라 나머지는 자동 병합됐다. 병합 후 우측 패널 순서(정본 대조 → 사유 → 적합성 → CTA)와 양쪽 기능 존재를 문자열 단위로 확인했다. README 는 자동 병합.
+
+### 조정 1 — 서버 가드 (핵심)
+- 변경: `src/lib/actions.ts` `CaseSealedError` + `assertNotDispatched()` 신설, `keepSentence`·`editSentence`·`selectReason` 진입부에 적용. `src/lib/http.ts` `sealed()` 헬퍼(409). `keep`·`edit`·`reason` 라우트 3곳이 409 `{error:'case_sealed', reason:'already_dispatched', caseId, dispatchedAt}` 로 응답. `src/lib/static-demo/store.ts` 에 `CaseSealed` + 같은 가드 3곳(두 모드의 판정이 갈리지 않게).
+- 이유: 잠금이 UI 에만 있으면 curl 로 dispatched 케이스가 편집된다. "검증은 화면이 아니라 발송 경로에 있다"는 이 제품의 주장과 정면으로 어긋나므로 잠금도 서버에 둬야 한다.
+- **dispatched 이전(승인만 된 상태)의 편집은 그대로 허용**한다. 그 경로의 정답은 차단이 아니라 `approval_invalidated` 로 승인을 무효로 돌리는 것이고(불변조건 2), 막아 버리면 기존 불변조건 테스트가 검증하는 흐름 자체가 사라진다.
+- 실증: 발송 완료 후 `curl -X POST .../sentences/0/edit` → `HTTP/1.1 409 Conflict` + `case_sealed` 확인.
+- 신규 테스트 `tests/sealed-case.test.ts` 3건: dispatched 후 edit → 409 이고 `sentence_edited` 가 늘지 않음 / keep·reason 도 409 이며 거부된 요청은 이벤트를 하나도 남기지 않음 / 승인 후 발송 전 편집은 200 이고 `approval_invalidated` 가 뒤따름.
+
+### 조정 2 — seal 색 토큰 제거
+- 변경: `src/app/globals.css` 에서 `--color-seal`(#e0a000) · `--color-seal-bg` 삭제. `sealed-lock.tsx` 배너를 `border-b border-line bg-head` + `text-ink-soft` 자물쇠로, 모달 아이콘도 `text-ink-soft` 로 바꿨다.
+- 이유: 옐로는 화면당 CTA 하나라는 예산 규약이 있고, 앰버는 경고(warn)와도 겹친다. 이 상태는 "무언가 잘못됐다"가 아니라 "이미 끝났다"라서 색으로 말할 일이 아니다 — 자물쇠와 중립 회색이 더 정확하다. 붉은 계열도 피했다(차단 danger 와 층위가 섞인다). 의도는 코드 주석에 남겼다.
+
+### 조정 3 — 죽은 UI 제거
+- 변경: 배너와 모달의 비활성 `새 등기로 재발행` 버튼 2개 삭제(모달의 남은 버튼은 전체 폭으로). README 해당 문단을 "재발행은 이번 스코프 밖" 한 줄로 줄이고, 대신 서버 가드 설명으로 대체했다.
+- 이유: 누를 수 없는 컨트롤은 "곧 된다"는 잘못된 신호만 준다. 원칙은 모달 본문 문장이 이미 말하고 있어 버튼 없이도 전달된다.
+
+### 덤으로 고친 것 (지시 범위 밖 · 캡처 중 발견)
+- `VerdictButton` 의 `aria-disabled={locked}` 를 `aria-label` 로 바꿨다. 실제로는 눌러야 차단 모달이 뜨는 버튼인데 보조기술에는 "못 누른다"고 알리고 있었다. Playwright 도 이 속성 때문에 클릭이 막혀서 발견했다 — 실사용자도 같은 벽에 부딪힌다.
+- 증거: `verify-shots/m1-sealed-lock.png` (1920×1200 · 잠금 배너 · 반투명 읽기 전용 행 · 차단 모달 · 우측 정본 대조 블록 보존)
+- 테스트: vitest 60 passed (57 + sealed-case 3) / tsc 0 / `npm run build` · `npm run build:static` exit 0

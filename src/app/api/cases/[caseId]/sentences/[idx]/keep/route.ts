@@ -1,5 +1,5 @@
-import { CaseNotFoundError, keepSentence } from '@/lib/actions';
-import { badRequest, notFound, ok, parseIndex } from '@/lib/http';
+import { CaseNotFoundError, CaseSealedError, keepSentence } from '@/lib/actions';
+import { badRequest, notFound, ok, parseIndex, sealed } from '@/lib/http';
 import { toCaseView } from '@/lib/views';
 
 export const runtime = 'nodejs';
@@ -21,6 +21,7 @@ export async function POST(
     return ok(toCaseView(keepSentence(caseId, sentenceIdx)));
   } catch (error) {
     if (error instanceof CaseNotFoundError) return notFound(caseId);
+    if (error instanceof CaseSealedError) return sealed(caseId, error.dispatchedAt);
     if (error instanceof RangeError) return badRequest('sentence_not_found', idx);
     throw error;
   }
