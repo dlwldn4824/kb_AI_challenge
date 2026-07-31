@@ -53,6 +53,10 @@
   --color-ok: #1e8e3e;
   --color-ok-bg: #f2faf4;
 
+  /* 발행 완료 잠금(봉인) 톤 — 경고(danger)와 구분되는 "읽기 전용" 색 */
+  --color-seal: #e0a000;
+  --color-seal-bg: #fff8e6;
+
   /* ── 고객 상담 화면 톤 ───────────────────────── */
   --color-chat-bg: #f6f0e7;
   --color-chat-header: #4a4237;

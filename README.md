@@ -59,7 +59,7 @@ UI 를 거치지 않아도 같은 결과가 나온다는 것이 요점입니다.
 ## 구조
 
 ```
-src/app/                화면 3 + 차단 배너
+src/app/                화면 3 + 차단 배너 + 발행 완료 재열람 잠금(sealed-lock.tsx)
 src/app/api/            route handlers (전부 runtime = 'nodejs')
 src/lib/                db · digest · seal · scoring · coherence · projection
 src/fixtures/           합성 상담 20건 + 총량 지표 상수
@@ -88,6 +88,18 @@ seal          = HMAC_SHA256(SEAL_SECRET,
 
 정규화 덕분에 줄바꿈(CRLF)이나 유니코드 정규화 형태가 달라도 같은 내용이면 통과하고,
 실제로 한 글자가 바뀌면 다이제스트가 달라져 차단됩니다.
+
+### 발행 완료 재열람 잠금
+
+`/review/[caseId]` 를 발행 완료(dispatched) 케이스로 다시 열면 상단에 잠금 배너가 뜨고,
+구절 행은 반투명 처리되며 `수정` 버튼을 눌러도 편집 대신 차단 모달(등기번호 · 봉인 시각 ·
+봉인 sha256)이 뜹니다. `발송 문안` 카드도 `봉인된 발송문 · 읽기 전용`으로 바뀌어 봉인된
+승인문을 그대로 보여줍니다.
+
+UI 전용 변경입니다 — `projection.ts` 가 이미 노출하던 `dispatched` · `approval.sealedAt` ·
+`approval.contentDigest` 값을 화면에 얹었을 뿐, 이벤트 스키마나 조회 로직은 그대로입니다.
+컴포넌트는 `src/app/review/[caseId]/sealed-lock.tsx`. `새 등기로 재발행` 버튼은 자리만
+있고 비활성 상태입니다 — 재발행 기능 자체는 이번 스코프 밖입니다.
 
 ### 만들지 않은 것
 

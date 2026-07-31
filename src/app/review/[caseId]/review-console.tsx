@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Chrome } from '../../chrome';
 import { SIGNAL_NOTE, SectionHead, Shell, SignalText, Spinner, TierChip, Toast } from '../../ui';
+import { LockIcon, SealedBanner, SealedBlockModal } from './sealed-lock';
 import { api } from '@/lib/api-client';
 import { REASONS, type Reason } from '@/lib/constants';
 import type { CaseView } from '@/lib/views';
@@ -24,6 +25,7 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
   const [pending, setPending] = useState(false);
   const [sending, setSending] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [blockModalOpen, setBlockModalOpen] = useState(false);
 
   /**
    * 판정 요청은 한 줄로 세운다.
@@ -243,6 +245,8 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
         ]}
       />
 
+      {dispatched && <SealedBanner sealedAt={view.approval?.sealedAt ?? null} />}
+
       <Shell className="flex min-h-0 flex-1 flex-col">
         <div className="flex min-h-0 flex-1 items-stretch pt-[20px]">
           {/* ── 좌: AI 초안 구절 리스트 ─────────────────────────────── */}
@@ -281,7 +285,7 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
                     }}
                     className={`relative cursor-pointer px-[12px] transition-colors duration-[120ms] ${
                       isSelected ? 'bg-kb-tint' : 'bg-transparent hover:bg-paper'
-                    }`}
+                    } ${dispatched ? 'opacity-50' : ''}`}
                   >
                     {isSelected && <span className="absolute left-0 top-0 h-full w-[3px] bg-kb" />}
 
@@ -308,7 +312,7 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
                             testId={`keep-${sentence.idx}`}
                             active={sentence.verdict === 'kept'}
                             tone="soft"
-                            disabled={busy}
+                            disabled={busy || dispatched}
                             onClick={() => keep(sentence.idx)}
                           />
                           <VerdictButton
@@ -317,7 +321,10 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
                             active={sentence.verdict === 'edited'}
                             tone="strong"
                             disabled={busy}
-                            onClick={() => startEditing(sentence.idx)}
+                            locked={dispatched}
+                            onClick={() =>
+                              dispatched ? setBlockModalOpen(true) : startEditing(sentence.idx)
+                            }
                           />
                         </span>
                       ) : (
@@ -404,9 +411,13 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
             )}
 
             <div className="mt-[20px] flex items-baseline gap-[12px]">
-              <h3 className="text-[14px] font-bold leading-[1.4] text-ink">발송 문안</h3>
+              <h3 className="text-[14px] font-bold leading-[1.4] text-ink">
+                {dispatched ? '봉인된 발송문' : '발송 문안'}
+              </h3>
               <span className="text-[13px] leading-[1.6] text-muted">
-                {view.approval?.valid ? (
+                {dispatched ? (
+                  '읽기 전용'
+                ) : view.approval?.valid ? (
                   <>
                     승인 완료 · 봉인 <span className="font-mono">{view.approval.versionId}</span>
                   </>
@@ -416,7 +427,7 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
               </span>
             </div>
             <div className="ko mt-[8px] whitespace-pre-line rounded-[6px] border-l-[2px] border-line bg-paper px-[16px] py-[14px] text-[14px] leading-[1.7] text-ink">
-              {view.currentContent}
+              {dispatched ? (view.approvedContent ?? view.currentContent) : view.currentContent}
             </div>
           </section>
 
@@ -559,6 +570,15 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
       </Shell>
 
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
+
+      {blockModalOpen && (
+        <SealedBlockModal
+          caseId={view.caseId}
+          sealedAt={view.approval?.sealedAt ?? null}
+          contentDigest={view.approval?.contentDigest ?? null}
+          onClose={() => setBlockModalOpen(false)}
+        />
+      )}
     </main>
   );
 }
@@ -569,6 +589,7 @@ function VerdictButton({
   active,
   tone,
   disabled,
+  locked,
   onClick,
 }: {
   label: string;
@@ -576,6 +597,8 @@ function VerdictButton({
   active: boolean;
   tone: 'soft' | 'strong';
   disabled: boolean;
+  /** 발행 완료 케이스에서 잠긴 상태. 실제 disabled 는 아니다 — 눌러야 차단 모달이 뜬다. */
+  locked?: boolean;
   onClick: () => void;
 }) {
   // 옐로는 화면당 CTA 하나뿐이라(멘토 [7]) 선택 상태는 그레이/잉크 필로 구분한다.
@@ -587,15 +610,19 @@ function VerdictButton({
       type="button"
       data-testid={testId}
       aria-pressed={active}
+      aria-disabled={locked || undefined}
       disabled={disabled}
       onClick={(event) => {
         event.stopPropagation();
         onClick();
       }}
-      className={`h-[26px] w-[48px] rounded-[6px] border text-[12px] leading-[1.5] transition-colors duration-100 disabled:cursor-not-allowed disabled:text-faint ${
-        active ? activeClass : 'border-transparent bg-transparent text-muted hover:bg-paper'
+      className={`flex h-[26px] shrink-0 items-center justify-center gap-[3px] rounded-[6px] border text-[12px] leading-[1.5] transition-colors duration-100 disabled:cursor-not-allowed disabled:text-faint ${
+        locked ? 'w-[62px] px-[4px] text-faint' : 'w-[48px]'
+      } ${
+        active && !locked ? activeClass : 'border-transparent bg-transparent text-muted hover:bg-paper'
       }`}
     >
+      {locked && <LockIcon className="h-[10px] w-[10px] shrink-0" />}
       {label}
     </button>
   );
