@@ -196,3 +196,9 @@ qa_data[]  (파일당 항상 1건)
 - 방법: `git archive --format=zip HEAD` → `KBAICH/answer-registry-submission.zip` (144 files, 6.9MB)
 - 포함 확인: 소스 전체 · README · docs/(BUILD_SPEC, WORKPLAN_FINAL, WORKLOG, eval-results.json, eval-results-aihub.json, aihub-stats.json, evidence-*.png/gif) · verify-shots/(deck-01~05, gif-01/02 등)
 - 금지물 검사: zip 목록 grep — `aihub/`·`*.db`·`node_modules`·`.env.local`·`.next`·`.DS_Store` **0건** (AI Hub 원본·해제본 미포함 확정)
+
+## [T15] README 재구성 — 2026-07-31 16:56
+- 변경: `README.md` 전면 교체(사용자 작성 — 세 개의 숫자 · 데모 6막 인라인 캡처 · 숫자—정직하게 절). `docs/evidence-invariants-green.png` 재생성(57건 시점 캡처 → 현재 60 passed 기준, 신규 테스트 파일 4종 요약 포함, 실제 출력 그대로).
+- 검증: 참조 이미지 10개(deck-01~05 · t3-fact-comparison-mismatch · m1-sealed-lock · gif-01/02 · evidence PNG) 전부 실존, GIF 412/208KB(GitHub 렌더 한도 내), 앵커 `#숫자--정직하게` = GitHub 슬러그 규칙(em-dash 제거+공백 2회 하이픈화) 일치.
+- 판단: WORKLOG 내 "57" 표기 2곳은 append-only 기록이라 보존(기록 당시 사실). 사용자 대면 문서(README·BUILD_SPEC)에는 낡은 수치 잔존 0건.
+- 테스트: vitest 60 passed
