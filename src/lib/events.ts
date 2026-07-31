@@ -16,6 +16,7 @@ export const EVENT_TYPES = [
   'reason_selected',
   'coherence_checked',
   'approved',
+  'learning_signal_saved',
   'approval_invalidated',
   'dispatch_attempted',
   'dispatch_blocked',
@@ -96,6 +97,18 @@ export interface ApprovedPayload {
   seal: string;
 }
 
+/**
+ * 승인 확정 직후 남기는 학습 레이블. 감지기 개선용 기록일 뿐이고
+ * 승인·발송 게이트는 이 이벤트를 읽지 않는다(내용 변경 이벤트가 아니다).
+ */
+export interface LearningSignalSavedPayload {
+  caseId: string;
+  sentenceCount: number;
+  editCount: number;
+  reasons: Reason[];
+  tierCounts: Record<Tier, number>;
+}
+
 export interface ApprovalInvalidatedPayload {
   invalidatedApprovalSeq: number;
   cause: 'content_changed';
@@ -134,6 +147,7 @@ export type EventPayloadMap = {
   reason_selected: ReasonSelectedPayload;
   coherence_checked: CoherenceCheckedPayload;
   approved: ApprovedPayload;
+  learning_signal_saved: LearningSignalSavedPayload;
   approval_invalidated: ApprovalInvalidatedPayload;
   dispatch_attempted: DispatchAttemptedPayload;
   dispatch_blocked: DispatchBlockedPayload;

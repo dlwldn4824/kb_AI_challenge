@@ -12,6 +12,7 @@ import { eventTs } from './clock';
 import { ACTOR_ID, ACTOR_TEAM, isReason, type Reason } from './constants';
 import { appendEvent } from './db';
 import { digest, versionIdOf } from './digest';
+import { learningSignalOf } from './learning-signal';
 import type { ApprovedPayload, BlockReason } from './events';
 import { checkCoherence } from './coherence';
 import { replay, type CaseState } from './projection';
@@ -183,6 +184,15 @@ export function approveCase(caseId: string, at?: string): ApproveResult {
   };
 
   appendEvent({ caseId, type: 'approved', actor: ACTOR_ID, ts: sealedAt, payload });
+
+  // 판정 레이블을 남긴다. 기록 전용이라 승인을 무효화하지 않는다(불변조건 2).
+  appendEvent({
+    caseId,
+    type: 'learning_signal_saved',
+    actor: 'system',
+    ts: at ?? eventTs(caseId, 'learning_signal_saved'),
+    payload: learningSignalOf(state),
+  });
 
   return { ok: true, state: replay(caseId), approval: payload };
 }

@@ -14,6 +14,7 @@ import { checkCoherence } from '../coherence';
 import { eventTs } from '../clock';
 import { ACTOR_ID, ACTOR_TEAM, type Reason } from '../constants';
 import { versionIdOf } from '../digest-core';
+import { learningSignalOf } from '../learning-signal';
 import type { AnyStoredEvent, ApprovedPayload, BlockReason, EventPayloadMap, EventType } from '../events';
 import {
   approvalBlockersOf,
@@ -283,6 +284,16 @@ export async function approveCase(caseId: string): Promise<ApproveResult> {
   };
 
   append({ caseId, type: 'approved', actor: ACTOR_ID, ts: sealedAt, payload });
+
+  // 서버 모드(actions.ts)와 같은 payload 를 같은 순서로 남긴다.
+  append({
+    caseId,
+    type: 'learning_signal_saved',
+    actor: 'system',
+    ts: eventTs(caseId, 'learning_signal_saved'),
+    payload: learningSignalOf(state),
+  });
+
   return { ok: true, state: replayCase(caseId) };
 }
 

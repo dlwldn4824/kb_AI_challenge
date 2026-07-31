@@ -568,6 +568,24 @@
   },
   {
     "seq": 20,
+    "caseId": "RG-2026-081-0098",
+    "type": "learning_signal_saved",
+    "actor": "system",
+    "ts": "2026-07-23T12:16:00+09:00",
+    "payload": {
+      "caseId": "RG-2026-081-0098",
+      "sentenceCount": 3,
+      "editCount": 0,
+      "reasons": [],
+      "tierCounts": {
+        "S": 0,
+        "A": 1,
+        "B": 1
+      }
+    }
+  },
+  {
+    "seq": 21,
     "caseId": "RG-2026-081-0091",
     "type": "draft_created",
     "actor": "system",
@@ -596,7 +614,7 @@
     }
   },
   {
-    "seq": 21,
+    "seq": 22,
     "caseId": "RG-2026-081-0091",
     "type": "signals_detected",
     "actor": "system",
@@ -617,7 +635,7 @@
     }
   },
   {
-    "seq": 22,
+    "seq": 23,
     "caseId": "RG-2026-081-0091",
     "type": "review_started",
     "actor": "EMP-4471",
@@ -625,7 +643,7 @@
     "payload": {}
   },
   {
-    "seq": 23,
+    "seq": 24,
     "caseId": "RG-2026-081-0091",
     "type": "sentence_kept",
     "actor": "EMP-4471",
@@ -635,7 +653,7 @@
     }
   },
   {
-    "seq": 24,
+    "seq": 25,
     "caseId": "RG-2026-081-0091",
     "type": "approved",
     "actor": "EMP-4471",
@@ -652,7 +670,25 @@
     }
   },
   {
-    "seq": 25,
+    "seq": 26,
+    "caseId": "RG-2026-081-0091",
+    "type": "learning_signal_saved",
+    "actor": "system",
+    "ts": "2026-07-23T11:59:00+09:00",
+    "payload": {
+      "caseId": "RG-2026-081-0091",
+      "sentenceCount": 2,
+      "editCount": 0,
+      "reasons": [],
+      "tierCounts": {
+        "S": 0,
+        "A": 1,
+        "B": 0
+      }
+    }
+  },
+  {
+    "seq": 27,
     "caseId": "RG-2026-081-0083",
     "type": "draft_created",
     "actor": "system",
@@ -681,7 +717,7 @@
     }
   },
   {
-    "seq": 26,
+    "seq": 28,
     "caseId": "RG-2026-081-0083",
     "type": "signals_detected",
     "actor": "system",
@@ -694,7 +730,7 @@
     }
   },
   {
-    "seq": 27,
+    "seq": 29,
     "caseId": "RG-2026-081-0077",
     "type": "draft_created",
     "actor": "system",
@@ -723,7 +759,7 @@
     }
   },
   {
-    "seq": 28,
+    "seq": 30,
     "caseId": "RG-2026-081-0077",
     "type": "signals_detected",
     "actor": "system",
@@ -736,7 +772,7 @@
     }
   },
   {
-    "seq": 29,
+    "seq": 31,
     "caseId": "RG-2026-081-0135",
     "type": "draft_created",
     "actor": "system",
@@ -765,7 +801,7 @@
     }
   },
   {
-    "seq": 30,
+    "seq": 32,
     "caseId": "RG-2026-081-0135",
     "type": "signals_detected",
     "actor": "system",
@@ -786,7 +822,7 @@
     }
   },
   {
-    "seq": 31,
+    "seq": 33,
     "caseId": "RG-2026-081-0135",
     "type": "review_started",
     "actor": "EMP-4471",
@@ -794,7 +830,7 @@
     "payload": {}
   },
   {
-    "seq": 32,
+    "seq": 34,
     "caseId": "RG-2026-081-0135",
     "type": "sentence_kept",
     "actor": "EMP-4471",
@@ -804,7 +840,7 @@
     }
   },
   {
-    "seq": 33,
+    "seq": 35,
     "caseId": "RG-2026-081-0135",
     "type": "approved",
     "actor": "EMP-4471",
@@ -821,7 +857,25 @@
     }
   },
   {
-    "seq": 34,
+    "seq": 36,
+    "caseId": "RG-2026-081-0135",
+    "type": "learning_signal_saved",
+    "actor": "system",
+    "ts": "2026-07-23T10:52:00+09:00",
+    "payload": {
+      "caseId": "RG-2026-081-0135",
+      "sentenceCount": 2,
+      "editCount": 0,
+      "reasons": [],
+      "tierCounts": {
+        "S": 0,
+        "A": 0,
+        "B": 1
+      }
+    }
+  },
+  {
+    "seq": 37,
     "caseId": "RG-2026-081-0135",
     "type": "dispatch_attempted",
     "actor": "system",
@@ -833,7 +887,7 @@
     }
   },
   {
-    "seq": 35,
+    "seq": 38,
     "caseId": "RG-2026-081-0135",
     "type": "dispatch_blocked",
     "actor": "system",
@@ -845,7 +899,7 @@
     }
   },
   {
-    "seq": 36,
+    "seq": 39,
     "caseId": "RG-2026-081-0072",
     "type": "draft_created",
     "actor": "system",
@@ -874,7 +928,7 @@
     }
   },
   {
-    "seq": 37,
+    "seq": 40,
     "caseId": "RG-2026-081-0072",
     "type": "signals_detected",
     "actor": "system",
@@ -886,7 +940,7 @@
     }
   },
   {
-    "seq": 38,
+    "seq": 41,
     "caseId": "RG-2026-081-0072",
     "type": "review_started",
     "actor": "EMP-4471",
@@ -894,7 +948,7 @@
     "payload": {}
   },
   {
-    "seq": 39,
+    "seq": 42,
     "caseId": "RG-2026-081-0072",
     "type": "approved",
     "actor": "EMP-4471",
@@ -911,7 +965,25 @@
     }
   },
   {
-    "seq": 40,
+    "seq": 43,
+    "caseId": "RG-2026-081-0072",
+    "type": "learning_signal_saved",
+    "actor": "system",
+    "ts": "2026-07-23T11:46:00+09:00",
+    "payload": {
+      "caseId": "RG-2026-081-0072",
+      "sentenceCount": 2,
+      "editCount": 0,
+      "reasons": [],
+      "tierCounts": {
+        "S": 0,
+        "A": 0,
+        "B": 0
+      }
+    }
+  },
+  {
+    "seq": 44,
     "caseId": "RG-2026-081-0072",
     "type": "dispatch_attempted",
     "actor": "EMP-4471",
@@ -923,7 +995,7 @@
     }
   },
   {
-    "seq": 41,
+    "seq": 45,
     "caseId": "RG-2026-081-0072",
     "type": "dispatched",
     "actor": "EMP-4471",
@@ -935,7 +1007,7 @@
     }
   },
   {
-    "seq": 42,
+    "seq": 46,
     "caseId": "RG-2026-081-0068",
     "type": "draft_created",
     "actor": "system",
@@ -964,7 +1036,7 @@
     }
   },
   {
-    "seq": 43,
+    "seq": 47,
     "caseId": "RG-2026-081-0068",
     "type": "signals_detected",
     "actor": "system",
@@ -976,7 +1048,7 @@
     }
   },
   {
-    "seq": 44,
+    "seq": 48,
     "caseId": "RG-2026-081-0068",
     "type": "review_started",
     "actor": "EMP-4471",
@@ -984,7 +1056,7 @@
     "payload": {}
   },
   {
-    "seq": 45,
+    "seq": 49,
     "caseId": "RG-2026-081-0068",
     "type": "approved",
     "actor": "EMP-4471",
@@ -1001,7 +1073,25 @@
     }
   },
   {
-    "seq": 46,
+    "seq": 50,
+    "caseId": "RG-2026-081-0068",
+    "type": "learning_signal_saved",
+    "actor": "system",
+    "ts": "2026-07-23T11:23:00+09:00",
+    "payload": {
+      "caseId": "RG-2026-081-0068",
+      "sentenceCount": 2,
+      "editCount": 0,
+      "reasons": [],
+      "tierCounts": {
+        "S": 0,
+        "A": 0,
+        "B": 0
+      }
+    }
+  },
+  {
+    "seq": 51,
     "caseId": "RG-2026-081-0068",
     "type": "dispatch_attempted",
     "actor": "EMP-4471",
@@ -1013,7 +1103,7 @@
     }
   },
   {
-    "seq": 47,
+    "seq": 52,
     "caseId": "RG-2026-081-0068",
     "type": "dispatched",
     "actor": "EMP-4471",
@@ -1025,7 +1115,7 @@
     }
   },
   {
-    "seq": 48,
+    "seq": 53,
     "caseId": "RG-2026-081-0064",
     "type": "draft_created",
     "actor": "system",
@@ -1054,7 +1144,7 @@
     }
   },
   {
-    "seq": 49,
+    "seq": 54,
     "caseId": "RG-2026-081-0064",
     "type": "signals_detected",
     "actor": "system",
@@ -1066,7 +1156,7 @@
     }
   },
   {
-    "seq": 50,
+    "seq": 55,
     "caseId": "RG-2026-081-0064",
     "type": "review_started",
     "actor": "EMP-4471",
@@ -1074,7 +1164,7 @@
     "payload": {}
   },
   {
-    "seq": 51,
+    "seq": 56,
     "caseId": "RG-2026-081-0064",
     "type": "approved",
     "actor": "EMP-4471",
@@ -1091,7 +1181,25 @@
     }
   },
   {
-    "seq": 52,
+    "seq": 57,
+    "caseId": "RG-2026-081-0064",
+    "type": "learning_signal_saved",
+    "actor": "system",
+    "ts": "2026-07-23T11:04:00+09:00",
+    "payload": {
+      "caseId": "RG-2026-081-0064",
+      "sentenceCount": 2,
+      "editCount": 0,
+      "reasons": [],
+      "tierCounts": {
+        "S": 0,
+        "A": 0,
+        "B": 0
+      }
+    }
+  },
+  {
+    "seq": 58,
     "caseId": "RG-2026-081-0064",
     "type": "dispatch_attempted",
     "actor": "EMP-4471",
@@ -1103,7 +1211,7 @@
     }
   },
   {
-    "seq": 53,
+    "seq": 59,
     "caseId": "RG-2026-081-0064",
     "type": "dispatched",
     "actor": "EMP-4471",
@@ -1115,7 +1223,7 @@
     }
   },
   {
-    "seq": 54,
+    "seq": 60,
     "caseId": "RG-2026-081-0059",
     "type": "draft_created",
     "actor": "system",
@@ -1144,7 +1252,7 @@
     }
   },
   {
-    "seq": 55,
+    "seq": 61,
     "caseId": "RG-2026-081-0059",
     "type": "signals_detected",
     "actor": "system",
@@ -1156,7 +1264,7 @@
     }
   },
   {
-    "seq": 56,
+    "seq": 62,
     "caseId": "RG-2026-081-0059",
     "type": "review_started",
     "actor": "EMP-4471",
@@ -1164,7 +1272,7 @@
     "payload": {}
   },
   {
-    "seq": 57,
+    "seq": 63,
     "caseId": "RG-2026-081-0059",
     "type": "approved",
     "actor": "EMP-4471",
@@ -1181,7 +1289,25 @@
     }
   },
   {
-    "seq": 58,
+    "seq": 64,
+    "caseId": "RG-2026-081-0059",
+    "type": "learning_signal_saved",
+    "actor": "system",
+    "ts": "2026-07-23T10:38:00+09:00",
+    "payload": {
+      "caseId": "RG-2026-081-0059",
+      "sentenceCount": 2,
+      "editCount": 0,
+      "reasons": [],
+      "tierCounts": {
+        "S": 0,
+        "A": 0,
+        "B": 0
+      }
+    }
+  },
+  {
+    "seq": 65,
     "caseId": "RG-2026-081-0059",
     "type": "dispatch_attempted",
     "actor": "EMP-4471",
@@ -1193,7 +1319,7 @@
     }
   },
   {
-    "seq": 59,
+    "seq": 66,
     "caseId": "RG-2026-081-0059",
     "type": "dispatched",
     "actor": "EMP-4471",
@@ -1205,7 +1331,7 @@
     }
   },
   {
-    "seq": 60,
+    "seq": 67,
     "caseId": "RG-2026-081-0055",
     "type": "draft_created",
     "actor": "system",
@@ -1234,7 +1360,7 @@
     }
   },
   {
-    "seq": 61,
+    "seq": 68,
     "caseId": "RG-2026-081-0055",
     "type": "signals_detected",
     "actor": "system",
@@ -1246,7 +1372,7 @@
     }
   },
   {
-    "seq": 62,
+    "seq": 69,
     "caseId": "RG-2026-081-0048",
     "type": "draft_created",
     "actor": "system",
@@ -1275,7 +1401,7 @@
     }
   },
   {
-    "seq": 63,
+    "seq": 70,
     "caseId": "RG-2026-081-0048",
     "type": "signals_detected",
     "actor": "system",
@@ -1287,7 +1413,7 @@
     }
   },
   {
-    "seq": 64,
+    "seq": 71,
     "caseId": "RG-2026-081-0042",
     "type": "draft_created",
     "actor": "system",
@@ -1316,7 +1442,7 @@
     }
   },
   {
-    "seq": 65,
+    "seq": 72,
     "caseId": "RG-2026-081-0042",
     "type": "signals_detected",
     "actor": "system",
@@ -1328,7 +1454,7 @@
     }
   },
   {
-    "seq": 66,
+    "seq": 73,
     "caseId": "RG-2026-081-0037",
     "type": "draft_created",
     "actor": "system",
@@ -1357,7 +1483,7 @@
     }
   },
   {
-    "seq": 67,
+    "seq": 74,
     "caseId": "RG-2026-081-0037",
     "type": "signals_detected",
     "actor": "system",
@@ -1369,7 +1495,7 @@
     }
   },
   {
-    "seq": 68,
+    "seq": 75,
     "caseId": "RG-2026-081-0031",
     "type": "draft_created",
     "actor": "system",
@@ -1398,7 +1524,7 @@
     }
   },
   {
-    "seq": 69,
+    "seq": 76,
     "caseId": "RG-2026-081-0031",
     "type": "signals_detected",
     "actor": "system",

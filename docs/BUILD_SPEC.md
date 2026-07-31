@@ -73,16 +73,17 @@ CREATE INDEX idx_events_case ON events(case_id, seq);
 ```
 
 - **UPDATE/DELETE 금지. 가변 boolean 컬럼 금지.** 다른 테이블 없음(뷰/파생 캐시 없이 재생으로 도출).
-- 이벤트 타입(정확히 이 12개): `draft_created` / `signals_detected` / `review_started` / `sentence_kept` / `sentence_edited` / `reason_selected` / `coherence_checked` / `approved` / `approval_invalidated` / `dispatch_attempted` / `dispatch_blocked` / `dispatched`
+- 이벤트 타입(정확히 이 13개): `draft_created` / `signals_detected` / `review_started` / `sentence_kept` / `sentence_edited` / `reason_selected` / `coherence_checked` / `approved` / `learning_signal_saved` / `approval_invalidated` / `dispatch_attempted` / `dispatch_blocked` / `dispatched`
 - payload 예:
   - `draft_created`: `{ product, inquiry, receivedAt, model: "KB-FAQ-2026-06", modelVersion: "v3.4.2", confidence, sentences: [{ idx, text, flagStart, flagEnd }] }` (flagStart/End = 하이라이트 구간 오프셋, 신호 없으면 null)
-  - `signals_detected`: `{ signals: [{ sentenceIdx, type, tier, score, label, evidence }], r }`
+  - `signals_detected`: `{ signals: [{ sentenceIdx, type, tier, score, label, evidence }], r, confirmedHits }` (confirmedHits = 팩트 불일치 + 조항 누락 발화 수. R 에는 안 들어가고 큐 정렬 2차 키로만 쓴다)
   - `signals_detected` (표본): `{ signals: [], r: 0, sampled: true }` — R=0 표본 선정도 이벤트로 기록
   - `sentence_kept`: `{ sentenceIdx }`
   - `sentence_edited`: `{ sentenceIdx, newText }`
   - `reason_selected`: `{ sentenceIdx, reason }`  — reason ∈ 아래 6종
   - `coherence_checked`: `{ sentenceIdx, reason, diffKind, result: "pass" | "mismatch", detail }`
   - `approved`: `{ versionId, contentDigest, approver, team, reason, modelVersion, sealedAt, seal }` (seal = HMAC hex)
+  - `learning_signal_saved`: `{ caseId, sentenceCount, editCount, reasons: [reason], tierCounts: { S, A, B } }` — `approved` 직후 시스템이 남기는 판정 레이블. **기록 전용이며 게이트가 읽지 않는다**: 내용 변경 이벤트가 아니므로 승인을 무효화하지 않고(불변조건 2), 발송 검증에도 관여하지 않는다.
   - `approval_invalidated`: `{ invalidatedApprovalSeq, cause: "content_changed" }`
   - `dispatch_attempted`: `{ contentDigest, via: "ui" | "api" }`
   - `dispatch_blocked`: `{ reason: "no_valid_approval" | "digest_mismatch" | "seal_invalid", expectedDigest?, actualDigest? }`
