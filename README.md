@@ -152,10 +152,13 @@ seal          = HMAC_SHA256(SEAL_SECRET,
 봉인 sha256)이 뜹니다. `발송 문안` 카드도 `봉인된 발송문 · 읽기 전용`으로 바뀌어 봉인된
 승인문을 그대로 보여줍니다.
 
-UI 전용 변경입니다 — `projection.ts` 가 이미 노출하던 `dispatched` · `approval.sealedAt` ·
-`approval.contentDigest` 값을 화면에 얹었을 뿐, 이벤트 스키마나 조회 로직은 그대로입니다.
-컴포넌트는 `src/app/review/[caseId]/sealed-lock.tsx`. `새 등기로 재발행` 버튼은 자리만
-있고 비활성 상태입니다 — 재발행 기능 자체는 이번 스코프 밖입니다.
+화면만 잠그지 않습니다. `keep` · `edit` · `reason` 세 API 가 발송된 케이스를
+**409 `case_sealed`** 로 거부하므로 UI 를 거치지 않는 `curl` 도 같은 답을 받고,
+거부된 요청은 이벤트 로그에 아무것도 남기지 않습니다. 다만 **승인만 되고 아직 나가지 않은
+상태의 편집은 그대로 허용**됩니다 — 그 경로의 정답은 차단이 아니라 `approval_invalidated`
+로 승인을 무효로 돌리는 것이기 때문입니다(불변조건 2). 셋 다 `tests/sealed-case.test.ts` 가 고정합니다.
+
+컴포넌트는 `src/app/review/[caseId]/sealed-lock.tsx` 이고, 재발행은 이번 스코프 밖입니다.
 
 ### 만들지 않은 것
 

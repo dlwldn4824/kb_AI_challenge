@@ -32,11 +32,18 @@ function tsLabel(iso: string): string {
   return `${iso.slice(0, 10)} ${iso.slice(11, 19)}`;
 }
 
+/**
+ * 읽기 전용은 경고가 아니다.
+ *
+ * 옐로는 화면당 CTA 하나에만 쓴다는 규약이 있고, 이 상태는 "무언가 잘못됐다"가 아니라
+ * "이미 끝났다"에 가깝다. 그래서 색으로 말하지 않고 자물쇠와 중립 회색으로만 말한다.
+ * 붉은 계열도 쓰지 않는다 — 차단(danger)과 섞이면 층위가 무너진다.
+ */
 export function SealedBanner({ sealedAt }: { sealedAt: string | null }) {
   return (
-    <section className="shrink-0 border-l-[3px] border-seal bg-seal-bg">
+    <section className="shrink-0 border-b border-line bg-head">
       <div className="mx-auto flex w-full max-w-[1720px] items-center gap-[14px] px-10 py-[12px]">
-        <LockIcon className="h-[18px] w-[18px] shrink-0 text-seal" />
+        <LockIcon className="h-[18px] w-[18px] shrink-0 text-ink-soft" />
         <div className="min-w-0">
           <p className="text-[14px] font-bold leading-[1.4] text-ink">발행 완료 · 읽기 전용</p>
           <p className="ko mt-[2px] text-[13px] leading-[1.6] text-muted">
@@ -46,15 +53,6 @@ export function SealedBanner({ sealedAt }: { sealedAt: string | null }) {
             이 화면에서는 수정할 수 없습니다
           </p>
         </div>
-        <button
-          type="button"
-          disabled
-          // TODO: 재발행 기능은 이번 스코프에 포함되지 않는다.
-          title="재발행 기능은 아직 구현되지 않았습니다"
-          className="ml-auto h-[36px] shrink-0 rounded-[6px] border border-line bg-card px-[16px] text-[13px] font-bold text-faint disabled:cursor-not-allowed"
-        >
-          새 등기로 재발행
-        </button>
       </div>
     </section>
   );
@@ -113,7 +111,7 @@ export function SealedBlockModal({
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-start gap-[12px] border-b border-line px-[20px] py-[16px]">
-          <LockIcon className="mt-[2px] h-[18px] w-[18px] shrink-0 text-seal" />
+          <LockIcon className="mt-[2px] h-[18px] w-[18px] shrink-0 text-ink-soft" />
           <h2 id="sealed-block-title" className="text-[16px] font-bold leading-[1.35] text-ink">
             이미 발행된 등기입니다
           </h2>
@@ -133,29 +131,22 @@ export function SealedBlockModal({
             </dd>
           </dl>
 
+          {/* 재발행은 이번 스코프 밖이라 버튼을 두지 않는다.
+              누를 수 없는 컨트롤은 "곧 된다"는 잘못된 신호만 준다. */}
           <p className="ko mt-[16px] text-[13px] leading-[1.6] text-muted">
-            내용을 바로잡으려면 새 등기를 발행하세요.
+            내용을 바로잡아야 한다면 새 등기로 다시 발행하는 것이 원칙입니다.
             <br />
             기존 등기는 삭제되지 않고 이력으로 남습니다.
           </p>
         </div>
 
-        <div className="flex gap-[10px] border-t border-line px-[20px] py-[16px]">
+        <div className="border-t border-line px-[20px] py-[16px]">
           <button
             type="button"
             onClick={onClose}
-            className="h-[40px] flex-1 rounded-[6px] border border-line bg-card text-[13px] font-bold text-ink transition-colors duration-[120ms] hover:bg-paper"
+            className="h-[40px] w-full rounded-[6px] border border-line bg-card text-[13px] font-bold text-ink transition-colors duration-[120ms] hover:bg-paper"
           >
             읽기 전용으로 보기
-          </button>
-          <button
-            type="button"
-            disabled
-            // TODO: 재발행 기능은 이번 스코프에 포함되지 않는다.
-            title="재발행 기능은 아직 구현되지 않았습니다"
-            className="h-[40px] flex-1 rounded-[6px] bg-ink text-[13px] font-bold text-white disabled:cursor-not-allowed disabled:bg-head disabled:text-faint"
-          >
-            새 등기로 재발행
           </button>
         </div>
       </div>

@@ -688,7 +688,9 @@ function VerdictButton({
       type="button"
       data-testid={testId}
       aria-pressed={active}
-      aria-disabled={locked || undefined}
+      // aria-disabled 를 붙이면 보조기술이 "못 누른다"고 읽는데 실제로는 눌러야
+      // 차단 사유가 뜬다. 잠긴 사실은 이름으로 알리고 버튼은 살려 둔다.
+      aria-label={locked ? `${label} — 이미 발행된 등기, 눌러서 사유 보기` : undefined}
       disabled={disabled}
       onClick={(event) => {
         event.stopPropagation();

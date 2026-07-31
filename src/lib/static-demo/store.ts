@@ -154,6 +154,27 @@ export class CaseNotFound extends Error {
   }
 }
 
+/** 이미 발송된 등기를 고치려 했을 때. 서버 모드의 409 `case_sealed` 와 같은 자리다. */
+export class CaseSealed extends Error {
+  constructor(
+    public caseId: string,
+    public dispatchedAt: string,
+  ) {
+    super(`case already dispatched: ${caseId}`);
+  }
+}
+
+/**
+ * 발송이 끝난 등기는 더 고칠 수 없다.
+ * 정적 모드에도 같은 가드를 두어야 두 모드의 판정이 갈리지 않는다.
+ * 승인만 되고 아직 나가지 않은 상태의 편집은 막지 않는다 (불변조건 2 경로).
+ */
+function assertNotDispatched(state: CaseState): void {
+  if (state.dispatched) {
+    throw new CaseSealed(state.caseId, state.dispatched.dispatchedAt);
+  }
+}
+
 /** 승인 이후 내용이 바뀌면 승인을 무효화한다 (스펙 §2.2, 불변조건 2). */
 function invalidateApprovalIfNeeded(caseId: string, before: CaseState): void {
   if (!before.validApproval) return;
@@ -180,6 +201,7 @@ export function startReview(caseId: string): CaseState {
 
 export function keepSentence(caseId: string, idx: number): CaseState {
   const before = requireCase(caseId);
+  assertNotDispatched(before);
   assertSentence(before, idx);
   append({
     caseId,
@@ -194,6 +216,7 @@ export function keepSentence(caseId: string, idx: number): CaseState {
 
 export function editSentence(caseId: string, idx: number, newText: string): CaseState {
   const before = requireCase(caseId);
+  assertNotDispatched(before);
   assertSentence(before, idx);
   append({
     caseId,
@@ -209,6 +232,7 @@ export function editSentence(caseId: string, idx: number, newText: string): Case
 /** 사유 선택 즉시 정합성 검사까지 기록한다 (스펙 §3). */
 export function selectReason(caseId: string, idx: number, reason: Reason): CaseState {
   const before = requireCase(caseId);
+  assertNotDispatched(before);
   const sentence = assertSentence(before, idx);
 
   append({
