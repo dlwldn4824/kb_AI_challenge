@@ -1,0 +1,93 @@
+{
+  "dataset": {
+    "name": "AI Hub 금융분야 고객상담 데이터 (dataSetSn=71926)",
+    "domain": "은행",
+    "institution": [
+      "하나은행"
+    ],
+    "canonical_field": "qa_data[].output",
+    "total_files_available": 45000,
+    "sampled_files": 3000,
+    "usable_answers": 1502,
+    "seed": 20260723,
+    "redistribution": "원본 재배포 금지 — repo 에는 파생 수치만 포함"
+  },
+  "design": {
+    "total": 240,
+    "positives": 48,
+    "negatives": 192,
+    "positives_per_type": 8,
+    "negatives_per_source": 4,
+    "k": 39,
+    "random_trials": 1000,
+    "detector": "v2",
+    "ranking": "R+confirmedHits",
+    "max_recall_at_k": 0.8125,
+    "injector_shortage": []
+  },
+  "reference": {
+    "kind": "per-case canonical answer",
+    "numbers": "모범답변의 수치 토큰(앞 문맥 포함)을 슬롯으로",
+    "required": "모범답변이 담고 있던 신호 유형이 초안에서 사라지면 누락으로",
+    "conditions": "비움 — 조건절 claim/qualifier 짝은 상품 지식이 필요해 일반화하지 않음",
+    "caveat": "오류 주입기와 감지기가 같은 문서(모범답변)를 레퍼런스로 공유한다. 따라서 이 수치는 성능이 아니라 상한으로 읽어야 한다. 합성 평가(docs/eval-results.json)와 같은 한계다."
+  },
+  "runs": [
+    {
+      "detector": "v2",
+      "ranking": "R+confirmedHits",
+      "recall_at_39": 0.25,
+      "precision_at_39": 0.3077,
+      "hits": 12,
+      "by_error_type": {
+        "수치바꿔치기": 4,
+        "조건삭제": 1,
+        "단정삽입": 3,
+        "자격요건삭제": 0,
+        "불이익누락": 1,
+        "서류절차왜곡": 3
+      }
+    },
+    {
+      "detector": "v2",
+      "ranking": "R",
+      "recall_at_39": 0.2292,
+      "precision_at_39": 0.2821,
+      "hits": 11,
+      "by_error_type": {
+        "수치바꿔치기": 3,
+        "조건삭제": 1,
+        "단정삽입": 3,
+        "자격요건삭제": 0,
+        "불이익누락": 1,
+        "서류절차왜곡": 3
+      }
+    },
+    {
+      "detector": "—",
+      "ranking": "edit_distance",
+      "recall_at_39": 0.2083,
+      "precision_at_39": 0.2564,
+      "hits": 10,
+      "by_error_type": {
+        "수치바꿔치기": 2,
+        "조건삭제": 1,
+        "단정삽입": 0,
+        "자격요건삭제": 3,
+        "불이익누락": 3,
+        "서류절차왜곡": 1
+      }
+    },
+    {
+      "detector": "—",
+      "ranking": "random (1000회 평균)",
+      "recall_at_39": 0.1624,
+      "precision_at_39": 0.1998,
+      "hits": 7.79
+    }
+  ],
+  "confirmed_hits": {
+    "positives_with_confirmation": 8,
+    "negatives_with_confirmation": 0
+  }
+}

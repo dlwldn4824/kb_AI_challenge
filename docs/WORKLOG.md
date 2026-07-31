@@ -79,3 +79,22 @@ qa_data[]  (파일당 항상 1건)
 - 매핑 결정: 질문 = `input.question`(고객 최초 질문), 추가 질문 = `input.follow_up_question`, **모범답변 = `output`**, 주제 = `consulting_topic` + `qa_topic`. `instruction` 은 과업 지시문이라 질문이 아니라 meta 로 보관했다. `input.answer` 는 상담 중간 답변이고 `output` 이 최종 모범답변이라 정본은 `output` 을 쓴다.
 - 증거: `npm run aihub:load -- --limit 200 --print` — 파일 45,000건 · 파싱 200건 · 하나은행
 - 테스트: vitest 53 passed / tsc · build exit 0 / `git check-ignore -v data/aihub/probe.json` 확인
+
+## [T9] 실상담 기반 평가 (npm run eval -- --aihub) — 2026-07-31 16:04
+- 변경: `scripts/eval-aihub.ts` 신설, `scripts/eval.ts` 에 `--aihub` 디스패치, `src/lib/scoring.ts` 에 `detectDraftWithFacts(sentences, facts?)` 분리(팩트를 이름으로 찾지 않고 직접 받는 진입점 — 판정 로직은 `detectDraft` 와 동일). 결과는 `docs/eval-results-aihub.json` 별도 파일.
+- 설계: 원본 45,000건 중 시드 고정 표본 3,000 파일 파싱 → 문장 3개 이상인 모범답변 1,502건. 오류 유형 6종 × 8건 = 양성 48, 각 양성마다 **같은 정본에서 나온** 무해 변주 4건을 붙여 음성 192건. 총 240건 · K=39 · seed 20260723. 답변마다 원래 위험도가 다른 교란을 없애려고 양성·음성을 같은 원문에서 짝지었다.
+- 레퍼런스: 하나은행 상품은 product-facts 에 없으므로 **그 건의 모범답변 자체**를 정본으로 삼았다(은행이 FAQ 정본을 보유한다는 제품 전제와 같은 구조). numbers = 모범답변의 수치 토큰(앞 문맥 포함), required = 모범답변이 담고 있던 신호 유형이 초안에서 사라지면 누락. conditions 는 비웠다 — 조건절의 claim/qualifier 짝은 상품 지식이 있어야 만들 수 있어 일반화하지 않았다.
+- **주의(필수)**: 오류 주입기와 감지기가 같은 문서를 레퍼런스로 공유하므로 이 수치는 성능이 아니라 상한이다. 합성 평가와 같은 한계이며 콘솔·JSON(`reference.caveat`)에 모두 박아 두었다.
+- 결과 (조작 없이 그대로):
+
+| 방법 | Recall@39 | Precision@39 | 적중 |
+| --- | ---: | ---: | ---: |
+| R 랭킹 (v2 + 확증) | 25.0% | 30.8% | 12/48 |
+| R 랭킹 (순수 R) | 22.9% | 28.2% | 11/48 |
+| 편집거리 baseline | 20.8% | 25.6% | 10/48 |
+| 무작위 (1,000회 평균) | 16.2% | 20.0% | 7.79/48 |
+
+- 합성 평가(81.3%)와 크게 다르다. 확증이 붙은 양성이 48건 중 8건뿐이기 때문이고, 그 8건은 전부 수치 바꿔치기다. 실제 상담 답변은 같은 주제를 여러 문장이 나눠 말하므로 한 문장을 지워도 신호 "유형"이 통째로 사라지지 않아 누락 트리거가 거의 안 걸린다. 자동 유도할 수 있는 레퍼런스는 수치까지이고, 조건·누락 판정에는 상품 지식이 필요하다는 뜻이다 — 합성 벤치마크가 왜 낙관적이었는지에 대한 직접 증거다.
+- 발견·수정한 버그: `/g` 정규식을 공유하면서 `exec` 이 남긴 `lastIndex` 를 `matchAll` 이 물려받아 레퍼런스에서 문자열 앞쪽 수치가 통째로 빠졌다. 확증이 6/48 로 낮게 나오던 원인이며, 정규식을 매 호출 새로 만들도록 고쳐 8/48 이 되었다.
+- 증거: `docs/eval-results-aihub.json` · 직접 2회 실행 콘솔·JSON 바이트 동일
+- 테스트: vitest 53 passed / 합성 `docs/eval-results.json` 미변경 확인 / build · build:static exit 0

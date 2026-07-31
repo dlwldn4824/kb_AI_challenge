@@ -405,6 +405,17 @@ export interface DetectedDraft {
  * 입력은 문장과 상품명뿐이다 — 정답이나 평가용 정보를 받지 않는다.
  */
 export function detectDraft(sentences: string[], product?: string): DetectedDraft {
+  return detectDraftWithFacts(sentences, findProductFacts(product));
+}
+
+/**
+ * 팩트 테이블을 이름으로 찾지 않고 직접 받는 진입점.
+ *
+ * 상품 카탈로그에 없는 상담(예: 외부 데이터셋 평가)에서는 그 건의 정본 답변 자체가
+ * 레퍼런스가 된다. 은행이 FAQ 정본을 들고 있다는 제품 전제와 같은 구조다.
+ * 판정 로직은 detectDraft 와 완전히 동일하다 — 팩트를 어디서 얻느냐만 다르다.
+ */
+export function detectDraftWithFacts(sentences: string[], facts?: ProductFacts): DetectedDraft {
   const detected: DetectedDraft['sentences'] = [];
   const signals: DetectedDraft['signals'] = [];
 
@@ -428,7 +439,6 @@ export function detectDraft(sentences: string[], product?: string): DetectedDraf
     }
   });
 
-  const facts = findProductFacts(product);
   const mismatches = facts ? detectFactMismatches(sentences, facts) : [];
   const presentTypes = new Set<SignalType>([
     ...signals.map((signal) => signal.type),
