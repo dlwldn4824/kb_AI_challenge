@@ -80,6 +80,8 @@ export interface CaseState {
   tiers: Tier[];
   signalTypes: SignalType[];
   r: number;
+  /** 레퍼런스 확증 건수. R 에는 안 들어가고 큐 정렬 2차 키로만 쓴다. */
+  confirmedHits: number;
   sampled: boolean;
   detectedCount: number;
   keptCount: number;
@@ -121,6 +123,7 @@ function emptyState(caseId: string): CaseState {
     tiers: [],
     signalTypes: [],
     r: 0,
+    confirmedHits: 0,
     sampled: false,
     detectedCount: 0,
     keptCount: 0,
@@ -199,6 +202,7 @@ export function replayEvents(
       case 'signals_detected': {
         state.signals = event.payload.signals;
         state.r = event.payload.r;
+      state.confirmedHits = event.payload.confirmedHits ?? 0;
         state.sampled = event.payload.sampled === true;
         for (const signal of event.payload.signals) {
           const sentence = sentences.get(signal.sentenceIdx);

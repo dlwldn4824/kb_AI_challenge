@@ -95,7 +95,8 @@
           "evidence": "3개월 이내 발급분"
         }
       ],
-      "r": 11
+      "r": 11,
+      "confirmedHits": 0
     }
   },
   {
@@ -172,7 +173,8 @@
           "evidence": "비대면 해지가 불가합니다"
         }
       ],
-      "r": 8
+      "r": 8,
+      "confirmedHits": 0
     }
   },
   {
@@ -243,7 +245,8 @@
           "evidence": "중도 해지"
         }
       ],
-      "r": 7
+      "r": 7,
+      "confirmedHits": 0
     }
   },
   {
@@ -306,7 +309,8 @@
           "evidence": "반드시 조기상환됩니다"
         }
       ],
-      "r": 6
+      "r": 6,
+      "confirmedHits": 0
     }
   },
   {
@@ -385,7 +389,8 @@
           "evidence": "신청서"
         }
       ],
-      "r": 5
+      "r": 5,
+      "confirmedHits": 0
     }
   },
   {
@@ -448,7 +453,8 @@
           "evidence": "제출"
         }
       ],
-      "r": 4
+      "r": 4,
+      "confirmedHits": 0
     }
   },
   {
@@ -511,7 +517,8 @@
           "evidence": "증빙 서류"
         }
       ],
-      "r": 3
+      "r": 3,
+      "confirmedHits": 0
     }
   },
   {
@@ -605,7 +612,8 @@
           "evidence": "실적 요건"
         }
       ],
-      "r": 2
+      "r": 2,
+      "confirmedHits": 0
     }
   },
   {
@@ -681,6 +689,7 @@
     "payload": {
       "signals": [],
       "r": 0,
+      "confirmedHits": 0,
       "sampled": true
     }
   },
@@ -722,6 +731,7 @@
     "payload": {
       "signals": [],
       "r": 0,
+      "confirmedHits": 0,
       "sampled": true
     }
   },
@@ -771,7 +781,8 @@
           "evidence": "증빙 서류"
         }
       ],
-      "r": 1
+      "r": 1,
+      "confirmedHits": 0
     }
   },
   {
@@ -870,7 +881,8 @@
     "ts": "2026-07-23T11:41:00+09:00",
     "payload": {
       "signals": [],
-      "r": 0
+      "r": 0,
+      "confirmedHits": 0
     }
   },
   {
@@ -959,7 +971,8 @@
     "ts": "2026-07-23T11:18:00+09:00",
     "payload": {
       "signals": [],
-      "r": 0
+      "r": 0,
+      "confirmedHits": 0
     }
   },
   {
@@ -1048,7 +1061,8 @@
     "ts": "2026-07-23T10:59:00+09:00",
     "payload": {
       "signals": [],
-      "r": 0
+      "r": 0,
+      "confirmedHits": 0
     }
   },
   {
@@ -1137,7 +1151,8 @@
     "ts": "2026-07-23T10:33:00+09:00",
     "payload": {
       "signals": [],
-      "r": 0
+      "r": 0,
+      "confirmedHits": 0
     }
   },
   {
@@ -1226,7 +1241,8 @@
     "ts": "2026-07-23T10:12:00+09:00",
     "payload": {
       "signals": [],
-      "r": 0
+      "r": 0,
+      "confirmedHits": 0
     }
   },
   {
@@ -1266,7 +1282,8 @@
     "ts": "2026-07-23T09:58:00+09:00",
     "payload": {
       "signals": [],
-      "r": 0
+      "r": 0,
+      "confirmedHits": 0
     }
   },
   {
@@ -1306,7 +1323,8 @@
     "ts": "2026-07-23T09:35:00+09:00",
     "payload": {
       "signals": [],
-      "r": 0
+      "r": 0,
+      "confirmedHits": 0
     }
   },
   {
@@ -1346,7 +1364,8 @@
     "ts": "2026-07-23T09:14:00+09:00",
     "payload": {
       "signals": [],
-      "r": 0
+      "r": 0,
+      "confirmedHits": 0
     }
   },
   {
@@ -1386,7 +1405,8 @@
     "ts": "2026-07-23T08:52:00+09:00",
     "payload": {
       "signals": [],
-      "r": 0
+      "r": 0,
+      "confirmedHits": 0
     }
   }
 ]

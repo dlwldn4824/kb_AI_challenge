@@ -1,0 +1,208 @@
+{
+  "design": {
+    "templates": [
+      {
+        "id": "T1",
+        "title": "적금 한도 변경 안내"
+      },
+      {
+        "id": "T2",
+        "title": "대출 중도상환수수료 안내"
+      },
+      {
+        "id": "T3",
+        "title": "예금 만기 해지 안내"
+      },
+      {
+        "id": "T4",
+        "title": "카드 연회비 안내"
+      }
+    ],
+    "errorTypes": [
+      {
+        "type": "numeric_change",
+        "label": "수치 바꿔치기"
+      },
+      {
+        "type": "exemption_condition",
+        "label": "조건절 삭제"
+      },
+      {
+        "type": "overcertainty",
+        "label": "단정 표현 삽입"
+      },
+      {
+        "type": "deadline_eligibility",
+        "label": "자격 요건 삭제"
+      },
+      {
+        "type": "disadvantage_omission",
+        "label": "불이익 문구 삭제"
+      },
+      {
+        "type": "procedure_document",
+        "label": "서류 기한 왜곡"
+      }
+    ],
+    "variantsPerCell": 10,
+    "positivesPerCell": 2,
+    "total": 240,
+    "positives": 48,
+    "negatives": 192,
+    "k": 39,
+    "seed": 20260723,
+    "randomTrials": 1000,
+    "maxRecallAtK": 0.8125,
+    "detector": "v2",
+    "ranking": "R+confirmedHits",
+    "rankKey": "(R desc, confirmedHits desc, receivedAt asc) — src/lib/ranking.ts 의 compareRank 를 큐와 공유",
+    "detectorNote": "src/lib/scoring.ts — 패턴 규칙 + 정본 팩트 대조 + 필수 조항 누락(부재 감지). 전부 규칙 기반.",
+    "tierScore": {
+      "S": 3,
+      "A": 2,
+      "B": 1
+    },
+    "confirmNoteRate": 0.1
+  },
+  "methods": [
+    {
+      "key": "r_ranking",
+      "label": "R 랭킹 (R + 확증)",
+      "recallAtK": 0.8125,
+      "precisionAtK": 1,
+      "hits": 39,
+      "meanR": 11.6154,
+      "tierCounts": {
+        "S": 86,
+        "A": 78,
+        "B": 39
+      },
+      "hitsByErrorType": {
+        "numeric_change": 6,
+        "exemption_condition": 7,
+        "overcertainty": 8,
+        "deadline_eligibility": 7,
+        "disadvantage_omission": 5,
+        "procedure_document": 6
+      }
+    },
+    {
+      "key": "r_ranking_pure",
+      "label": "R 랭킹 (순수 R · 이전 방식, 비교용)",
+      "recallAtK": 0.2708,
+      "precisionAtK": 0.3333,
+      "hits": 13,
+      "meanR": 11.6154,
+      "tierCounts": {
+        "S": 86,
+        "A": 78,
+        "B": 39
+      },
+      "hitsByErrorType": {
+        "numeric_change": 0,
+        "exemption_condition": 1,
+        "overcertainty": 8,
+        "deadline_eligibility": 1,
+        "disadvantage_omission": 1,
+        "procedure_document": 2
+      }
+    },
+    {
+      "key": "edit_distance",
+      "label": "편집거리 baseline",
+      "recallAtK": 0.2292,
+      "precisionAtK": 0.2821,
+      "hits": 11,
+      "meanR": 11.2308,
+      "tierCounts": {
+        "S": 81,
+        "A": 78,
+        "B": 39
+      },
+      "hitsByErrorType": {
+        "numeric_change": 0,
+        "exemption_condition": 0,
+        "overcertainty": 3,
+        "deadline_eligibility": 3,
+        "disadvantage_omission": 4,
+        "procedure_document": 1
+      }
+    },
+    {
+      "key": "random",
+      "label": "무작위 (1000회 평균)",
+      "recallAtK": 0.1643,
+      "precisionAtK": 0.2023,
+      "hits": 7.89,
+      "meanR": 11.1018,
+      "tierCounts": {
+        "S": 79.32,
+        "A": 78,
+        "B": 39
+      },
+      "theoreticalHits": 7.8
+    }
+  ],
+  "falsePositives": {
+    "overcertaintyInNegatives": 0,
+    "confirmedHitsInNegatives": 0,
+    "negatives": 192
+  },
+  "confirmedHits": {
+    "positivesWithConfirmation": 42,
+    "positives": 48,
+    "note": "팩트 테이블과 오류 주입기를 같은 템플릿 4종 위에서 설계했으므로 커버리지가 낙관적이다. 상한으로 읽을 것."
+  },
+  "triggerCoverage": {
+    "numeric_change": {
+      "positives": 8,
+      "factMismatch": 8,
+      "omission": 0
+    },
+    "exemption_condition": {
+      "positives": 8,
+      "factMismatch": 8,
+      "omission": 0
+    },
+    "overcertainty": {
+      "positives": 8,
+      "factMismatch": 4,
+      "omission": 0
+    },
+    "deadline_eligibility": {
+      "positives": 8,
+      "factMismatch": 0,
+      "omission": 8
+    },
+    "disadvantage_omission": {
+      "positives": 8,
+      "factMismatch": 0,
+      "omission": 8
+    },
+    "procedure_document": {
+      "positives": 8,
+      "factMismatch": 6,
+      "omission": 0
+    }
+  },
+  "belowBaseline": {
+    "baseRByTemplate": {
+      "T1": 11,
+      "T2": 11,
+      "T3": 11,
+      "T4": 11
+    },
+    "total": 0,
+    "positives": 0
+  },
+  "rDistribution": {
+    "11": {
+      "total": 232,
+      "positives": 40
+    },
+    "14": {
+      "total": 8,
+      "positives": 8
+    }
+  }
+}

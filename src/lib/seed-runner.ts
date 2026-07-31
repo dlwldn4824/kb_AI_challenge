@@ -50,7 +50,16 @@ export function seedDatabase(options: { verbose?: boolean } = {}): SeedSummary {
   const blockedCases: string[] = [];
 
   for (const fixture of CASES) {
-    const detected = detectDraft(fixture.sentences);
+    const detected = detectDraft(fixture.sentences, fixture.product);
+
+    // 정본 시드는 팩트 대조·누락 경로가 하나도 발화하지 않아야 한다. 발화한다면
+    // 보강 규칙이 정상 문안을 물었다는 뜻이므로, 문장이 아니라 규칙을 고쳐야 한다.
+    if (detected.derived.length > 0) {
+      const detail = detected.derived
+        .map((signal) => `${signal.origin}/${signal.type} — ${signal.detail}`)
+        .join(' / ');
+      throw new Error(`${fixture.caseId}: 정상 시드 문안에서 보강 규칙이 발화했습니다 — ${detail}`);
+    }
 
     if (detected.r !== fixture.expected.r) {
       throw new Error(
@@ -92,8 +101,8 @@ export function seedDatabase(options: { verbose?: boolean } = {}): SeedSummary {
       // R=0 표본 선정도 플래그 컬럼이 아니라 이벤트로 남긴다 (스펙 §2.1).
       payload:
         fixture.flow === 'sampled'
-          ? { signals: [], r: 0, sampled: true }
-          : { signals: detected.signals, r: detected.r },
+          ? { signals: [], r: 0, confirmedHits: 0, sampled: true }
+          : { signals: detected.signals, r: detected.r, confirmedHits: detected.confirmedHits },
     });
 
     if (fixture.flow === 'pending' || fixture.flow === 'sampled') {

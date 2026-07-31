@@ -11,6 +11,7 @@ import { PRIMARY_CASE_ID, R_FORMULA_TEXT } from './constants';
 import { shortDigest } from './digest-core';
 import type { AnyStoredEvent, DetectedSignal } from './events';
 import type { CaseState, CaseStatus } from './projection';
+import { compareRank } from './ranking';
 import type { SealInput } from './seal-core';
 import type { Tier } from './scoring';
 
@@ -19,6 +20,8 @@ export interface QueueItem {
   /** 접수 시각을 기준 현재(14:32)와 비교한 "N시간 N분 전". */
   receivedAgo: string;
   r: number;
+  /** 레퍼런스 확증 건수. R 표시값과 무관하며 같은 R 안의 정렬에만 쓴다. */
+  confirmedHits: number;
   tiers: Tier[];
   signals: DetectedSignal[];
   receivedAt: string;
@@ -65,6 +68,7 @@ function toQueueItem(state: CaseState): QueueItem {
   return {
     caseId: state.caseId,
     r: state.r,
+    confirmedHits: state.confirmedHits,
     tiers: state.tiers,
     signals: state.signals,
     receivedAt: state.receivedAt,
@@ -84,8 +88,8 @@ function toQueueItem(state: CaseState): QueueItem {
 export function buildQueueFrom(states: CaseState[]): QueueView {
   const items = states.map(toQueueItem);
 
-  const byRisk = (a: QueueItem, b: QueueItem) =>
-    b.r - a.r || b.receivedAt.localeCompare(a.receivedAt);
+  // 정렬 키는 제품 코드 한 곳(ranking.ts)에만 있고 평가 스크립트도 같은 함수를 쓴다.
+  const byRisk = compareRank;
 
   return {
     kpi: {

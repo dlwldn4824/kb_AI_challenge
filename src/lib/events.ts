@@ -54,6 +54,11 @@ export interface DraftCreatedPayload {
 export interface SignalsDetectedPayload {
   signals: DetectedSignal[];
   r: number;
+  /**
+   * 레퍼런스 확증 건수(팩트 불일치 + 필수 조항 누락). 큐 정렬 2차 키로만 쓴다.
+   * 이 필드가 생기기 전 이벤트에는 없으므로 옵셔널이다.
+   */
+  confirmedHits?: number;
   /** R=0 무작위 표본 검토 대상으로 선정되었을 때만 true. */
   sampled?: boolean;
 }
