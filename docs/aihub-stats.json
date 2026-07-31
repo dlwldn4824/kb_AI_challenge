@@ -1,0 +1,127 @@
+{
+  "dataset": {
+    "name": "AI Hub 금융분야 고객상담 데이터 (dataSetSn=71926)",
+    "domain": "은행",
+    "files": 45000,
+    "cases": 45000,
+    "institution": [
+      "하나은행"
+    ],
+    "redistribution": "원본 재배포 금지 — repo 에는 파생 수치만 포함"
+  },
+  "mapping_basis": {
+    "S": "금액·금리·면제조건처럼 계약의 핵심 수치·조건을 말하는 주제",
+    "A": "기한·자격 요건, 해지·연체 같은 불이익 고지가 걸리는 주제",
+    "B": "절차·서류 안내",
+    "none": "조회성 안내 — 잘못 말해도 계약 조건이 바뀌지 않는다",
+    "note": "손 배정 값과 별개로 감지기 실측 비율을 함께 싣는다. 덱 숫자는 실측 쪽을 쓴다.",
+    "per_topic_reason": {
+      "대출문의(만기/연장/조회등)": "A · 만기/해지 · 자격 — 만기·연장은 기한과 자격 요건이 걸리고, 조건 안내에 금액·금리가 따라온다",
+      "이자/연체금액": "S · 수치 · 이자/연체 — 이율·금액이 답변의 핵심이고 연체는 불이익 고지 대상이다",
+      "금융거래한도/비대면한도계좌": "S · 한도 — 한도 금액이 곧 수치이고 비대면 제한은 자격·불이익에 걸린다",
+      "만기,연장/해지,수신": "A · 만기/해지 — 중도해지이율·불이익 고지가 따라붙는다",
+      "부수거래금리감면": "S · 수치 · 면제조건 — 감면은 면제 조건이고 금리는 수치다",
+      "환전문의": "— · 조회성 — 환율·수수료 수치가 나오지만 계약 조건을 바꾸지 않는다. 정본 시드에서도 환율 우대 안내를 R=0 으로 두었다",
+      "자동이체조회": "— · 조회성 — 조회 안내. 계약 조건 변경 없음",
+      "거래내역/잔액조회": "— · 조회성 — 조회 안내. 계약 조건 변경 없음",
+      "중계요청/착오송금": "B · 절차·서류 — 처리 절차 안내라 S/A 가 아니다",
+      "기타(은행)": "— · 분류 불가 — 주제가 특정되지 않는다"
+    }
+  },
+  "sensitive_share": {
+    "assigned": 0.6989,
+    "measured_detector": 0.3664
+  },
+  "by_topic": [
+    {
+      "topic": "대출문의(만기/연장/조회등)",
+      "count": 13317,
+      "share": 0.2959,
+      "assigned_tier": "A",
+      "area": "만기/해지 · 자격",
+      "measured_s": 0.1865,
+      "measured_a": 0.103,
+      "measured_sa": 0.2742
+    },
+    {
+      "topic": "이자/연체금액",
+      "count": 9942,
+      "share": 0.2209,
+      "assigned_tier": "S",
+      "area": "수치 · 이자/연체",
+      "measured_s": 0.1589,
+      "measured_a": 0.3318,
+      "measured_sa": 0.4509
+    },
+    {
+      "topic": "자동이체조회",
+      "count": 4775,
+      "share": 0.1061,
+      "assigned_tier": null,
+      "area": "조회성",
+      "measured_s": 0.1074,
+      "measured_a": 0.4195,
+      "measured_sa": 0.4909
+    },
+    {
+      "topic": "거래내역/잔액조회",
+      "count": 4520,
+      "share": 0.1004,
+      "assigned_tier": null,
+      "area": "조회성",
+      "measured_s": 0.1133,
+      "measured_a": 0.1091,
+      "measured_sa": 0.2102
+    },
+    {
+      "topic": "금융거래한도/비대면한도계좌",
+      "count": 3421,
+      "share": 0.076,
+      "assigned_tier": "S",
+      "area": "한도",
+      "measured_s": 0.1099,
+      "measured_a": 0.1982,
+      "measured_sa": 0.2903
+    },
+    {
+      "topic": "만기,연장/해지,수신",
+      "count": 3046,
+      "share": 0.0677,
+      "assigned_tier": "A",
+      "area": "만기/해지",
+      "measured_s": 0.1599,
+      "measured_a": 0.6671,
+      "measured_sa": 0.7443
+    },
+    {
+      "topic": "환전문의",
+      "count": 2571,
+      "share": 0.0571,
+      "assigned_tier": null,
+      "area": "조회성",
+      "measured_s": 0.2081,
+      "measured_a": 0.0447,
+      "measured_sa": 0.2485
+    },
+    {
+      "topic": "부수거래금리감면",
+      "count": 1724,
+      "share": 0.0383,
+      "assigned_tier": "S",
+      "area": "수치 · 면제조건",
+      "measured_s": 0.4878,
+      "measured_a": 0.1259,
+      "measured_sa": 0.565
+    },
+    {
+      "topic": "중계요청/착오송금",
+      "count": 1684,
+      "share": 0.0374,
+      "assigned_tier": "B",
+      "area": "절차·서류",
+      "measured_s": 0.0517,
+      "measured_a": 0.0606,
+      "measured_sa": 0.1093
+    }
+  ]
+}

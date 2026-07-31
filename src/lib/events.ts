@@ -43,6 +43,8 @@ export interface DetectedSignal {
 }
 
 export interface DraftCreatedPayload {
+  /** 'aihub' 는 실상담 재구성 시드로 들어온 케이스. 없으면 합성 시드다. */
+  dataset?: 'aihub';
   product: string;
   inquiry: string;
   receivedAt: string;

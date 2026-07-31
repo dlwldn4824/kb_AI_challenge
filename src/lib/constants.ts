@@ -15,6 +15,8 @@ export const MODEL_VERSION = 'v3.4.2';
 
 /** 화면 상단 chrome 바에 상시 노출되는 배지 (스펙 §1). */
 export const SYNTHETIC_BADGE = 'SYNTHETIC DEMO · 합성 예시 데이터';
+/** seed --aihub 로 실상담 재구성 케이스를 넣었을 때만 쓴다. SYNTHETIC 표기는 유지한다. */
+export const AIHUB_BADGE = 'SYNTHETIC DEMO · AI Hub 실상담 기반 재구성';
 
 /** 발행 대기 화면 우측 R 산식 카드 문구 (스펙 §4.1). */
 export const R_FORMULA_TEXT =

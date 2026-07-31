@@ -23,7 +23,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { loadAihubCases, listAihubFiles, MISSING_DATA_NOTICE, type AihubCase } from './load-aihub';
+import { loadAihubCases, listAihubFiles, splitSentences, MISSING_DATA_NOTICE } from './load-aihub';
 import type { ProductFacts } from '../src/fixtures/product-facts';
 import { compareRank } from '../src/lib/ranking';
 import { detectDraftWithFacts } from '../src/lib/scoring';
@@ -103,14 +103,6 @@ function levenshtein(a: string, b: string): number {
     [previous, current] = [current, previous];
   }
   return previous[right.length];
-}
-
-/** 한국어 종결어미 뒤에서 끊는다. 모범답변은 대체로 3~5문장이다. */
-function splitSentences(text: string): string[] {
-  return text
-    .split(/(?<=[.!?])\s+/)
-    .map((part) => part.trim())
-    .filter((part) => part.length > 0);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

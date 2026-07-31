@@ -133,6 +133,14 @@ export function parseAihubFile(file: string): AihubCase[] {
   });
 }
 
+/** 한국어 종결부호 뒤에서 끊는다. 감지기는 문장 배열을 입력으로 받는다. */
+export function splitSentences(text: string): string[] {
+  return text
+    .split(/(?<=[.!?])\s+/)
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0);
+}
+
 export interface LoadOptions {
   /** 파싱할 파일 수 상한. 없으면 전부. */
   limit?: number;

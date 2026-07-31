@@ -44,12 +44,26 @@ export interface SeedSummary {
   blockedCases: string[];
 }
 
-export function seedDatabase(options: { verbose?: boolean } = {}): SeedSummary {
+export interface SeedOptions {
+  verbose?: boolean;
+  /**
+   * 시드에 넣을 케이스. 넣지 않으면 합성 정본 20건(CASES) 이다.
+   * 실상담 재구성 트랙은 scripts/seed.ts 가 만들어 넘긴다 — src 가 scripts 를
+   * 거꾸로 import 하지 않게 하려는 것이다.
+   */
+  cases?: CaseFixture[];
+  /** 'aihub' 면 draft_created 에 표식을 남겨 화면 배지가 바뀐다. */
+  dataset?: 'aihub';
+}
+
+export function seedDatabase(options: SeedOptions = {}): SeedSummary {
   const log = options.verbose ? console.log : () => {};
   const dbFile = recreateDatabaseFile();
   const blockedCases: string[] = [];
 
-  for (const fixture of CASES) {
+  const fixtures = options.cases ?? CASES;
+
+  for (const fixture of fixtures) {
     const detected = detectDraft(fixture.sentences, fixture.product);
 
     // 정본 시드는 팩트 대조·누락 경로가 하나도 발화하지 않아야 한다. 발화한다면
@@ -83,6 +97,7 @@ export function seedDatabase(options: { verbose?: boolean } = {}): SeedSummary {
       actor: SYSTEM_ACTOR,
       ts: draftTs,
       payload: {
+        dataset: options.dataset,
         product: fixture.product,
         inquiry: fixture.inquiry,
         receivedAt: fixture.receivedAt,
@@ -167,7 +182,7 @@ export function seedDatabase(options: { verbose?: boolean } = {}): SeedSummary {
 
   return {
     dbFile,
-    caseCount: CASES.length,
+    caseCount: fixtures.length,
     eventCount: events.length,
     eventsByType,
     blockedCases,

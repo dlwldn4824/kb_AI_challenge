@@ -82,6 +82,8 @@ export interface CaseState {
   r: number;
   /** 레퍼런스 확증 건수. R 에는 안 들어가고 큐 정렬 2차 키로만 쓴다. */
   confirmedHits: number;
+  /** 'aihub' 면 실상담 재구성 시드. 배지 문구만 바뀐다. */
+  dataset: 'aihub' | null;
   sampled: boolean;
   detectedCount: number;
   keptCount: number;
@@ -124,6 +126,7 @@ function emptyState(caseId: string): CaseState {
     signalTypes: [],
     r: 0,
     confirmedHits: 0,
+    dataset: null,
     sampled: false,
     detectedCount: 0,
     keptCount: 0,
@@ -177,6 +180,7 @@ export function replayEvents(
       case 'draft_created': {
         const payload = event.payload as DraftCreatedPayload;
         state.exists = true;
+        state.dataset = payload.dataset ?? null;
         state.product = payload.product;
         state.inquiry = payload.inquiry;
         state.receivedAt = payload.receivedAt;

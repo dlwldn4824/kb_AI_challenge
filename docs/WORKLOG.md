@@ -98,3 +98,31 @@ qa_data[]  (파일당 항상 1건)
 - 발견·수정한 버그: `/g` 정규식을 공유하면서 `exec` 이 남긴 `lastIndex` 를 `matchAll` 이 물려받아 레퍼런스에서 문자열 앞쪽 수치가 통째로 빠졌다. 확증이 6/48 로 낮게 나오던 원인이며, 정규식을 매 호출 새로 만들도록 고쳐 8/48 이 되었다.
 - 증거: `docs/eval-results-aihub.json` · 직접 2회 실행 콘솔·JSON 바이트 동일
 - 테스트: vitest 53 passed / 합성 `docs/eval-results.json` 미변경 확인 / build · build:static exit 0
+
+## [T10] 실데이터 통계 + seed --aihub 배지 — 2026-07-31 16:14
+- 변경: `scripts/aihub-stats.ts` 신설 + `package.json` `aihub:stats`. `scripts/seed.ts` — `--aihub` 모드(실상담 재구성 20건으로 큐 구성). `src/lib/seed-runner.ts` — `SeedOptions { cases?, dataset? }` 로 케이스 주입을 받게 함(src 가 scripts 를 거꾸로 import 하지 않도록 fixture 조립은 scripts 쪽에 둠). `src/lib/constants.ts` `AIHUB_BADGE`, `src/lib/events.ts` `DraftCreatedPayload.dataset?`, `src/lib/projection-core.ts` `state.dataset`, `src/lib/view-model.ts` 배지 전환.
+- 통계는 표본이 아니라 전체 45,000건을 읽는다(약 2초). 결과는 `docs/aihub-stats.json`.
+
+### 주제 → 티어 매핑 기준
+감지기 티어 정의를 그대로 쓴다. S = 금액·금리·면제조건처럼 계약의 핵심 수치·조건을 말하는 주제 / A = 기한·자격 요건, 해지·연체 같은 불이익 고지가 걸리는 주제 / B = 절차·서류 안내 / — = 조회성(잘못 말해도 계약 조건이 안 바뀜). 은행 분야 주제가 닫힌 집합 9종이라 하나씩 손으로 배정했다.
+
+| 주제 | 배정 | 근거 |
+|---|---|---|
+| 대출문의(만기/연장/조회등) | A | 만기·연장은 기한·자격이 걸리고 조건 안내에 금액·금리가 따라온다 |
+| 이자/연체금액 | S | 이율·금액이 핵심이고 연체는 불이익 고지 대상 |
+| 금융거래한도/비대면한도계좌 | S | 한도 금액이 곧 수치, 비대면 제한은 자격·불이익 |
+| 만기,연장/해지,수신 | A | 중도해지이율·불이익 고지가 따라붙음 |
+| 부수거래금리감면 | S | 감면은 면제 조건, 금리는 수치 |
+| 환전문의 | — | 환율·수수료 수치는 있으나 계약 조건을 바꾸지 않음. 정본 시드도 환율 우대를 R=0 으로 둠 |
+| 자동이체조회 · 거래내역/잔액조회 | — | 조회성 |
+| 중계요청/착오송금 | B | 처리 절차 안내라 S/A 아님 |
+| 기타(은행) | — | 주제 미특정 |
+
+- **손 배정을 그대로 쓰지 않았다.** 같은 표에 감지기가 그 주제의 모범답변에서 실제로 S/A 를 발화시킨 비율을 나란히 실었고, 덱에 쓸 숫자는 실측 쪽이다.
+  - 손 배정 기준 S/A 주제 비중 **69.9%** (31,450/45,000)
+  - 감지기 실측 S/A 발화 비중 **36.6%** ← 덱 숫자
+  - 둘이 갈리는 대표 사례: `자동이체조회` 는 조회성으로 배정했지만 실측 S/A 발화가 49.1% 다. 주제 이름만으로는 민감도를 못 가린다는 증거이고, 손 배정만 실었으면 과장이 됐을 것이다.
+- seed 트랙: `npm run seed -- --aihub` 는 R 상위 18건 + 저위험 표본 2건으로 큐를 채우고 `draft_created.dataset='aihub'` 를 남긴다. 화면 배지는 "SYNTHETIC DEMO · AI Hub 실상담 기반 재구성" 으로 바뀐다 — SYNTHETIC 표기는 유지했다(원본 문안이 아니라 변환 결과이므로). 데이터가 없으면 안내 후 합성 시드로 진행한다.
+- 기본 seed 완전 불변 확인: 배지 "SYNTHETIC DEMO · 합성 예시 데이터", 큐 R=11 S·S·A·A·B 이하 그대로, `src/lib/static-demo/seed-events.json` diff 없음(dataset 은 옵셔널이라 합성 시드 payload 에 나타나지 않음).
+- 증거: `docs/aihub-stats.json` · `npm run aihub:stats` 콘솔 표 · 두 모드 배지 문자열 직접 확인
+- 테스트: vitest 53 passed (scoring-regression 36건 포함, 기본 seed 기준 그대로) / build · build:static exit 0
