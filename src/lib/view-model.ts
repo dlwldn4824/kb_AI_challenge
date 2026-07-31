@@ -7,7 +7,7 @@
 
 import { CUSTOMER_QUESTION, DISPLAY, STATS, STATS_DELTA } from '@/fixtures/stats';
 import { hhmm, relativeLabel } from './clock';
-import { PRIMARY_CASE_ID, R_FORMULA_TEXT } from './constants';
+import { AIHUB_BADGE, PRIMARY_CASE_ID, R_FORMULA_TEXT, SYNTHETIC_BADGE } from './constants';
 import { shortDigest } from './digest-core';
 import type { AnyStoredEvent, DetectedSignal } from './events';
 import type { CaseState, CaseStatus } from './projection';
@@ -107,7 +107,7 @@ export function buildQueueFrom(states: CaseState[]): QueueView {
     queue: items.filter((item) => item.r > 0).sort(byRisk),
     samples: items.filter((item) => item.r === 0 && item.sampled).sort(byRisk),
     lowRisk: items.filter((item) => item.r === 0 && !item.sampled).sort(byRisk),
-    badge: 'SYNTHETIC DEMO · 합성 예시 데이터',
+    badge: states.some((state) => state.dataset === 'aihub') ? AIHUB_BADGE : SYNTHETIC_BADGE,
     chromeTimestamp: DISPLAY.chromeTimestamp,
   };
 }

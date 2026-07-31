@@ -562,6 +562,12 @@ const round = (value: number, digits = 4) => Number(value.toFixed(digits));
 // ─────────────────────────────────────────────────────────────────────────────
 
 function main(): void {
+  // 실데이터 트랙은 별도 스크립트·별도 결과 파일로 간다. 수치를 섞지 않는다.
+  if (process.argv.slice(2).includes('--aihub')) {
+    void import('./eval-aihub').then((module) => module.runAihubEval());
+    return;
+  }
+
   const items = buildCorpus();
   const positives = items.filter((item) => item.positive).length;
   const tieKey = (() => {
