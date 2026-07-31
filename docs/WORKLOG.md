@@ -202,3 +202,9 @@ qa_data[]  (파일당 항상 1건)
 - 검증: 참조 이미지 10개(deck-01~05 · t3-fact-comparison-mismatch · m1-sealed-lock · gif-01/02 · evidence PNG) 전부 실존, GIF 412/208KB(GitHub 렌더 한도 내), 앵커 `#숫자--정직하게` = GitHub 슬러그 규칙(em-dash 제거+공백 2회 하이픈화) 일치.
 - 판단: WORKLOG 내 "57" 표기 2곳은 append-only 기록이라 보존(기록 당시 사실). 사용자 대면 문서(README·BUILD_SPEC)에는 낡은 수치 잔존 0건.
 - 테스트: vitest 60 passed
+
+## [T15-검증] 라이브 Pages 실조작 검증 — 2026-07-31 17:08
+- 결과: 6항목 전부 통과 — 큐 필터 실동작(9→5건), 검토 플로우 실조작(브라우저 정합성 검사가 불일치→재선택→적합 실계산), done 해시 동일(WebCrypto=Node), 타임라인 16건(실수 기록 포함), 차단 케이스, sealed-lock 정적 모드, 외부 도메인 요청 0건.
+- 수정 1건: 전 페이지 콘솔 favicon 404(도메인 루트 기본 시도) → `src/app/icon.svg` 신설(App Router 자동 인식, basePath 반영 링크 생성 확인). 수정 후 콘솔 에러 0건.
+- 증거: `verify-shots/live-01/03/04/05.png` (1920×1200 라이브 캡처)
+- 테스트: vitest 60 passed / build·build:static exit 0
