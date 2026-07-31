@@ -53,3 +53,29 @@ WORKPLAN 문구가 "우측 판단하기 패널 아래"라 CTA(`승인하고 발�
 - 무작위 baseline 은 1,000회 평균 유지(이론값 7.80 · 실측 7.89).
 - 증거: `npm run eval` 콘솔 하단 마크다운 블록
 - 테스트: vitest 53 passed
+
+## [T8] AI Hub 은행 상담 데이터 로더 — 2026-07-31 15:56
+- 변경: `.gitignore` — `data/aihub/` 선행 추가(원본·해제본 재배포 금지). `scripts/load-aihub.ts` 신설 + `package.json` 에 `aihub:load` 스크립트.
+- 순서 준수: .gitignore 를 먼저 넣고 `git check-ignore` 로 확인한 뒤에 zip 을 조립했다. 조립·해제는 전부 `data/aihub/` 안에서만 했고 원본 디렉터리(`25.금융분야_고객상담_데이터/`)는 읽기만 했다. 커밋 시점 `git status` 에 원본 490MB 가 하나도 잡히지 않음을 확인했다.
+- 데이터 규모: TL_은행 40,000 파일 + VL_은행 5,000 파일 = 45,000건, 해제 후 389MB. 기관은 전부 하나은행.
+- 데이터 없을 때: 발급 → `data/aihub/` 배치 → 재실행 안내를 출력하고 **exit 0**. 실제로 폴더를 치우고 실행해 확인했다. 기본 데모(합성 20건)는 이 경로와 무관하다.
+
+### 실물 스키마 (정찰 내용과 다른 부분이 있어 실물 기준으로 구현)
+```
+source.source_institution      하나은행
+source.source_id               21-1_bk_01_000029
+source.source_date             202506
+source.consulting_content      TX/RX 상담 전문
+consulting.consulting_category 은행
+consulting.consulting_topic    예: 대출문의(만기/연장/조회등)
+consulting.consulting_summary  상담 요약
+qa_data[]  (파일당 항상 1건)
+  qa_id, task_category, consulting_situation, qa_topic,
+  consulting_purpose, core_financial_terms, instruction
+  input { question, answer, follow_up_question }
+  output                        ← 모범답변(정본)
+```
+- **정찰 내용과 다른 점: `qa_data[].input.answer` 는 "없다"고 전달받았으나 실제로는 존재한다.** 표본 400건 기준 `instruction`·`output`·`input.question`·`input.answer`·`input.follow_up_question` 는 100% 존재, `core_financial_terms` 만 85.5%. `output` 길이 중앙값 181자(75~636).
+- 매핑 결정: 질문 = `input.question`(고객 최초 질문), 추가 질문 = `input.follow_up_question`, **모범답변 = `output`**, 주제 = `consulting_topic` + `qa_topic`. `instruction` 은 과업 지시문이라 질문이 아니라 meta 로 보관했다. `input.answer` 는 상담 중간 답변이고 `output` 이 최종 모범답변이라 정본은 `output` 을 쓴다.
+- 증거: `npm run aihub:load -- --limit 200 --print` — 파일 45,000건 · 파싱 200건 · 하나은행
+- 테스트: vitest 53 passed / tsc · build exit 0 / `git check-ignore -v data/aihub/probe.json` 확인

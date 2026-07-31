@@ -15,6 +15,10 @@ next-env.d.ts
 .omc/
 .omx/
 
+# AI Hub 「금융분야 고객상담 데이터」 원본·해제본 — 재배포 금지 라이선스.
+# 조립한 zip, 해제한 json, 중간 산출물 전부. repo 에는 파생 수치(docs/*.json)만 들어간다.
+data/aihub/
+
 # Reference-only assets (KB app screenshots, PDF extracts) — not for redistribution
 design-refs/
 .hold-api-during-export/

@@ -13,7 +13,8 @@
     "eval": "tsx scripts/eval.ts",
     "tamper": "tsx scripts/tamper-demo.ts",
     "export:seed": "tsx scripts/export-seed-events.ts",
-    "build:static": "npm run export:seed && node scripts/build-static.mjs"
+    "build:static": "npm run export:seed && node scripts/build-static.mjs",
+    "aihub:load": "tsx scripts/load-aihub.ts"
   },
   "dependencies": {
     "better-sqlite3": "^12.4.1",
