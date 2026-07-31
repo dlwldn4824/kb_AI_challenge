@@ -56,6 +56,13 @@ npx vitest run  # 불변조건 4 + 승인 게이트 2
 전부 `tests/invariants.test.ts` 에서 route handler 를 직접 호출해 검증합니다.
 UI 를 거치지 않아도 같은 결과가 나온다는 것이 요점입니다.
 
+실행 결과 그대로 남긴 기록:
+
+| 무엇 | 파일 |
+|---|---|
+| 불변조건 4 + 승인 게이트 · 해시 동등성 12건 통과 | [`docs/evidence-invariants-green.png`](docs/evidence-invariants-green.png) |
+| `npm run tamper` — 변조 문안이 409 로 차단되는 전 과정 | [`docs/evidence-tamper-demo.gif`](docs/evidence-tamper-demo.gif) |
+
 ## 구조
 
 ```
