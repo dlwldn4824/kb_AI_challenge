@@ -17,7 +17,8 @@ export function QueueScreen({ data }: { data: QueueView }) {
   const { kpi } = data;
 
   return (
-    <main className="stage-scroll flex flex-col bg-page">
+    <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-page">
+      <div className="shrink-0">
       <Chrome
         screen="발행 대기"
         tabs={[
@@ -35,18 +36,16 @@ export function QueueScreen({ data }: { data: QueueView }) {
           </span>,
         ]}
       />
-
-      <Shell className="flex min-h-0 flex-1 flex-col">
-        <header className="pt-[24px]">
-          <h1 className="text-[28px] font-bold leading-[1.25] tracking-[-0.02em] text-ink">
-            검토 대기
-          </h1>
-          <p className="ko mt-[6px] text-[14px] leading-[1.7] text-muted">
+      </div>
+      <Shell className="flex min-h-0 flex-1 flex-col pb-[20px]">
+        <header className="shrink-0 pt-[24px]">
+          <h1 className="type-title text-[32px] leading-[1.2] text-ink">검토 대기</h1>
+          <p className="ko mt-[8px] max-w-[42rem] text-[16px] leading-[1.7] text-muted">
             시스템이 먼저 확인이 필요한 AI 상담 답변을 골라 보여줍니다.
           </p>
         </header>
 
-        <div className="flex gap-[14px] pb-[20px] pt-[18px]">
+        <div className="flex shrink-0 gap-[14px] pb-[20px] pt-[18px]">
           <KpiCard
             icon={<DocumentIcon />}
             tone="neutral"
@@ -116,15 +115,15 @@ function KpiCard({
           {icon}
         </span>
         <div className="min-w-0">
-          <p className="ko text-[13px] leading-[1.4] text-muted">{label}</p>
+          <p className="ko text-[14px] leading-[1.4] text-muted">{label}</p>
           <p className="mt-[6px] flex items-baseline gap-[5px]">
-            <span className="tabular text-[30px] font-bold leading-[1.05] tracking-[-0.02em] text-ink">
+            <span className="type-title tabular text-[32px] leading-[1.05] text-ink">
               {value}
             </span>
-            <span className="text-[13px] leading-[1.5] text-muted">건</span>
-            {note && <span className="text-[12px] leading-[1.5] text-faint">{note}</span>}
+            <span className="text-[14px] leading-[1.5] text-muted">건</span>
+            {note && <span className="text-[13px] leading-[1.5] text-faint">{note}</span>}
           </p>
-          <p className="ko mt-[6px] flex items-center gap-[4px] text-[12px] leading-[1.5] text-muted">
+          <p className="ko mt-[6px] flex items-center gap-[4px] text-[13px] leading-[1.5] text-muted">
             전일 대비
             <span className="tabular font-semibold text-ink-soft">
               {up ? '+' : ''}

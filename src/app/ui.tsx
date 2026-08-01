@@ -12,7 +12,7 @@ import type { CaseStatus } from '@/lib/projection';
 
 export function Shell({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`mx-auto w-full max-w-[1720px] px-10 pb-[28px] ${className}`}>{children}</div>
+    <div className={`mx-auto w-full max-w-[1520px] px-8 pb-[32px] ${className}`}>{children}</div>
   );
 }
 
@@ -143,8 +143,8 @@ export function SectionHead({
 }) {
   return (
     <div className="flex min-h-[28px] items-center">
-      <h2 className="text-[16px] font-bold leading-[1.35] tracking-[-0.01em] text-ink">{title}</h2>
-      {note && <span className="ko ml-[12px] text-[13px] leading-[1.6] text-muted">{note}</span>}
+      <h2 className="type-subtitle text-[17px] leading-[1.35] text-ink">{title}</h2>
+      {note && <span className="ko ml-[12px] text-[14px] leading-[1.6] text-muted">{note}</span>}
       {right && <div className="ml-auto flex items-center gap-3">{right}</div>}
     </div>
   );
@@ -166,16 +166,16 @@ export function KpiCell({
 }) {
   return (
     <div>
-      <div className="text-[13px] leading-[1.35] text-muted">{label}</div>
+      <div className="text-[14px] leading-[1.35] text-muted">{label}</div>
       <div className="mt-[10px] flex items-baseline gap-[6px]">
         <span
-          className={`tabular font-bold leading-[1.05] tracking-[-0.02em] ${
-            size === 'lg' ? 'text-[34px]' : 'text-[28px]'
+          className={`type-title tabular leading-[1.05] ${
+            size === 'lg' ? 'text-[36px]' : 'text-[30px]'
           } ${accent ? 'text-danger' : 'text-ink'}`}
         >
           {value}
         </span>
-        {unit && <span className="text-[13px] leading-[1.5] text-muted">{unit}</span>}
+        {unit && <span className="text-[14px] leading-[1.5] text-muted">{unit}</span>}
       </div>
     </div>
   );

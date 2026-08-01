@@ -42,7 +42,7 @@ function tsLabel(iso: string): string {
 export function SealedBanner({ sealedAt }: { sealedAt: string | null }) {
   return (
     <section className="shrink-0 border-b border-line bg-head">
-      <div className="mx-auto flex w-full max-w-[1720px] items-center gap-[14px] px-10 py-[12px]">
+      <div className="mx-auto flex w-full max-w-[1520px] items-center gap-[14px] px-8 py-[12px]">
         <LockIcon className="h-[18px] w-[18px] shrink-0 text-ink-soft" />
         <div className="min-w-0">
           <p className="text-[14px] font-bold leading-[1.4] text-ink">발행 완료 · 읽기 전용</p>
@@ -112,7 +112,7 @@ export function SealedBlockModal({
       >
         <div className="flex items-start gap-[12px] border-b border-line px-[20px] py-[16px]">
           <LockIcon className="mt-[2px] h-[18px] w-[18px] shrink-0 text-ink-soft" />
-          <h2 id="sealed-block-title" className="text-[16px] font-bold leading-[1.35] text-ink">
+          <h2 id="sealed-block-title" className="type-subtitle text-[16px] leading-[1.35] text-ink">
             이미 발행된 등기입니다
           </h2>
         </div>
