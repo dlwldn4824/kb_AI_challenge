@@ -11,6 +11,9 @@ KB AI Challenge 2026 출품작 · 팀 삼삼오오
 > 평가에 쓴 AI Hub 데이터는 원본을 포함하지 않고 파생 수치만 담았습니다.
 > 외부 API·LLM 호출 없이 로컬에서만 동작합니다.
 
+**먼저 보실 것** — `START_HERE.html` 을 브라우저로 열면(더블클릭) 실행 없이 전체 흐름을
+실제 화면 캡처와 함께 5분 안에 볼 수 있습니다. 외부 요청 없는 단일 파일입니다.
+
 ```bash
 npm install          # 의존성 설치
 npm run dev          # predev 로 seed 실행 → http://localhost:3000
