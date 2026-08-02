@@ -45,13 +45,13 @@ export function IPhoneFrame({
         height: outerHeight,
         padding: bezel,
         borderRadius: pt(55) + bezel,
-        boxShadow: '0 0 0 1px rgba(138,138,142,.4), 0 2px 12px rgba(38,40,44,.10)',
+        boxShadow: '0 0 0 1px rgba(0,0,0,.18)',
         transform: `scale(${scale})`,
         transformOrigin: 'top left',
       }}
     >
       <div
-        className="relative flex h-full w-full flex-col overflow-hidden"
+        className="relative flex h-full w-full flex-col overflow-hidden bg-black"
         style={{ borderRadius: pt(55) }}
       >
         {children}
@@ -88,10 +88,10 @@ export function IPhoneFrame({
           </div>
         </div>
 
-        {/* 다이내믹 아일랜드 */}
+        {/* 노치 — 다이나믹 아일랜드보다 단순한 형태로 시선 분산을 줄인다 */}
         <div
           className="pointer-events-none absolute left-1/2 z-30 -translate-x-1/2 bg-black"
-          style={{ top: pt(11), width: pt(126), height: pt(37), borderRadius: pt(37) / 2 }}
+          style={{ top: pt(11), width: pt(118), height: pt(34), borderRadius: pt(20) }}
         />
 
         {/* 홈 인디케이터 */}

@@ -48,7 +48,7 @@ export function RegistryTimeline({
       >
         <div className="flex items-start border-b border-line px-[20px] py-[16px]">
           <div className="min-w-0">
-            <h2 className="text-[16px] font-bold leading-[1.35] text-ink">등기 조회</h2>
+            <h2 className="type-subtitle text-[16px] leading-[1.35] text-ink">등기 조회</h2>
             <p className="ko mt-[4px] text-[13px] leading-[1.6] text-muted">
               <span className="font-mono">{replay.caseId}</span>
               <span className="px-[8px] text-faint">·</span>
@@ -130,7 +130,7 @@ function describe(event: AnyStoredEvent): Row {
         time,
         label:
           event.payload.signals.length > 0
-            ? `위험 신호 ${event.payload.signals.length}건 감지 · R ${event.payload.r}`
+            ? `위험 신호 ${event.payload.signals.length}건 감지 · 개입 필요도 ${event.payload.r}`
             : '위험 신호 없음 · 무작위 표본 선정',
         detail: event.payload.signals.map((signal) => signal.tier).join(' · ') || undefined,
         tone: brand,

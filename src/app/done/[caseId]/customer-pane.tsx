@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { IPHONE_PT, IPhoneFrame } from './iphone-frame';
+import { PhoneShell } from './phone-shell';
 import { RegistryTimeline, type RegistryReplay } from './registry-timeline';
-import { SectionHead, Spinner } from '../../ui';
+import { Spinner } from '../../ui';
 import { api } from '@/lib/api-client';
 import { asset } from '@/lib/asset-path';
 
@@ -14,30 +14,18 @@ export interface CustomerPaneProps {
   answerAt: string;
   answerParagraphs: string[];
   delivered: boolean;
-  /** 폰 상태바 시각. 케이스의 마지막 관련 이벤트에서 도출한다. */
   statusTime: string;
-  model: string;
-  modelVersion: string;
-  r: number;
-  verdictSummary: string;
-  reviewDuration: string;
-  lookups: number;
 }
 
 /**
- * 고객 수신 화면 목업 + 등기 조회 패널 (스펙 §4.3).
- *
- * 폰은 iPhone 15 Pro 논리 해상도(393×852pt) 1:1 렌더다. 안쪽 내용은
- * pdf-ref-08 기반 KB 챗 상담 화면(종료된 상담 헤더 · 베이지 배경 · 옐로 CTA)을 유지한다.
- * `등기 확인`은 장식이 아니라 GET /api/registry/[caseId] 를 실제로 호출한다.
+ * 고객 수신 미리보기 — 폰만. 타임라인 CTA 는 왼쪽 컬럼에 있다.
+ * 폰 안 `등기 확인`은 고객 화면 목업용으로 그대로 둔다.
  */
 export function CustomerPane(props: CustomerPaneProps) {
   const [replay, setReplay] = useState<RegistryReplay | null>(null);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [failed, setFailed] = useState(false);
 
-  /** 등기번호로 이벤트를 재생해 온다. 결과는 타임라인 모달의 원천이다. */
   async function confirmRegistry() {
     if (busy) return;
     if (replay) {
@@ -45,114 +33,104 @@ export function CustomerPane(props: CustomerPaneProps) {
       return;
     }
     setBusy(true);
-    setFailed(false);
     try {
       const registry = await api.getRegistry(props.caseId);
       if (!registry) throw new Error('lookup failed');
       setReplay(registry as unknown as RegistryReplay);
       setOpen(true);
     } catch {
-      setFailed(true);
+      /* 폰 목업 버튼 — 실패는 조용히 */
     }
     setBusy(false);
   }
 
   return (
     <>
-      <div className="border-b border-line pb-[12px]">
-        <SectionHead title="고객 수신 화면" note="KB 상담 채널 발송 결과" />
-      </div>
-
       {!props.delivered && (
-        <p className="ko mt-[16px] border-l-[3px] border-danger pl-[14px] text-[13px] leading-[1.6] text-ink">
-          고객 채널에는 아무것도 전달되지 않았습니다. 아래는 고객이 실제로 본 화면입니다.
+        <p className="ko mb-[12px] text-[13px] leading-[1.6] text-danger">
+          고객 채널에 전달되지 않았습니다.
         </p>
       )}
 
-      <div className="flex items-start gap-[20px] pt-[16px]">
-        <IPhoneFrame
-          scale={props.delivered ? 0.88 : 0.82}
-          homeIndicatorTone="dark"
-          time={props.statusTime}
-        >
-          {/* 상단: 상태바 영역(54pt)만큼 띄운 다크브라운 헤더 */}
-          <div className="shrink-0 bg-chat-header" style={{ paddingTop: 54 }}>
-            <div className="flex h-[48px] items-center px-[16px] text-white">
-              <span className="text-[17px] leading-[1.2] text-white/70" aria-hidden>
-                ‹
+      <PhoneShell time={props.statusTime}>
+          <div className="shrink-0 bg-chat-header pt-[34px]">
+            <div className="flex h-[44px] items-center px-[6px]">
+              <span className="flex h-[40px] w-[40px] items-center justify-center" aria-hidden>
+                <ChevronLeft />
               </span>
-              <span className="mx-auto text-[15px] font-semibold leading-[1.4]">종료된 상담</span>
-              <span className="text-[14px] leading-[1.2] text-white/70" aria-hidden>
-                ✕
+              <span className="flex-1 text-center text-[15px] font-semibold text-white">
+                종료된 상담
+              </span>
+              <span className="flex h-[40px] w-[40px] items-center justify-center" aria-hidden>
+                <CloseIcon />
               </span>
             </div>
           </div>
 
-          {/* 대화 */}
-          <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto bg-chat-bg px-[16px] pb-[12px] pt-[12px]">
-            <p className="tabular text-right text-[11px] leading-[1.5] text-muted">
+          <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-[12px] py-[12px]">
+            <p className="tabular mb-[8px] text-center text-[11px] text-[#8a8278]">
               {props.questionAt}
             </p>
-            <div className="mt-[6px] flex justify-end">
-              <p className="ko max-w-[250px] rounded-[16px] rounded-tr-[5px] bg-chat-bubble px-[14px] py-[10px] text-[13px] leading-[1.6] text-ink">
+
+            <div className="flex justify-end">
+              <p className="ko max-w-[86%] rounded-[14px] rounded-br-[4px] bg-chat-bubble px-[12px] py-[9px] text-[13px] leading-[1.55] text-ink">
                 {props.question}
               </p>
             </div>
 
             {props.delivered && (
               <>
-                <div className="mt-[14px] flex items-center gap-[8px]">
+                <div className="mt-[14px] flex items-start gap-[8px]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={asset("/brand/kb-starbanking-icon.png")}
+                    src={asset('/brand/kb-starbanking-icon.png')}
                     alt=""
                     width={26}
                     height={26}
-                    className="h-[26px] w-[26px] rounded-[7px]"
+                    className="mt-[2px] h-[26px] w-[26px] shrink-0 rounded-[7px]"
                   />
-                  <span className="text-[12px] font-bold leading-[1.4] text-ink">
-                    KB국민은행 상담원
-                  </span>
-                  <span className="tabular ml-auto text-[11px] leading-[1.5] text-muted">
-                    {props.answerAt}
-                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-[4px] flex items-baseline gap-[6px]">
+                      <span className="text-[12px] font-bold text-ink">KB국민은행 상담원</span>
+                      <span className="tabular text-[11px] text-[#8a8278]">{props.answerAt}</span>
+                    </div>
+                    <div className="rounded-[14px] rounded-tl-[4px] bg-white px-[12px] py-[10px]">
+                      {props.answerParagraphs.map((paragraph, index) => (
+                        <p
+                          key={index}
+                          className={`ko text-[13px] leading-[1.55] text-ink ${
+                            index > 0 ? 'mt-[8px]' : ''
+                          }`}
+                        >
+                          {paragraph}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="ml-[34px] mt-[7px] rounded-[16px] rounded-tl-[5px] border border-line-soft bg-white px-[14px] py-[11px]">
-                  {props.answerParagraphs.map((paragraph, index) => (
-                    <p
-                      key={index}
-                      className={`ko text-[13px] leading-[1.6] text-ink ${index > 0 ? 'mt-[8px]' : ''}`}
-                    >
-                      {paragraph}
-                    </p>
-                  ))}
-                </div>
-
-                <div className="ml-[34px] mt-[8px] rounded-[16px] border border-line-soft bg-white px-[14px] py-[12px]">
-                  <div className="flex items-center gap-[8px]">
-                    <span className="inline-flex h-[20px] items-center rounded-[4px] bg-kb px-[8px] text-[11px] font-bold text-ink">
+                <div className="ml-[34px] mt-[8px] rounded-[12px] bg-white px-[12px] py-[12px]">
+                  <div className="flex items-center gap-[6px]">
+                    <span className="inline-flex h-[18px] items-center bg-kb px-[6px] text-[10px] font-bold text-ink">
                       등기
                     </span>
-                    <span className="ko text-[13px] font-bold leading-[1.4] text-ink">
-                      답변등기로 발행되었습니다
-                    </span>
+                    <span className="text-[12px] font-bold text-ink">답변등기로 발행되었습니다</span>
                   </div>
 
-                  <p className="mt-[10px] text-[11px] leading-[1.5] text-muted">등기번호</p>
-                  <p className="mt-[2px] font-mono text-[14px] font-bold leading-[1.4] text-ink">
+                  <p className="mt-[10px] text-[11px] text-[#8a8278]">등기번호</p>
+                  <p className="mt-[1px] font-mono text-[14px] font-bold tracking-[-0.02em] text-ink">
                     {props.caseId}
                   </p>
 
-                  <p className="ko mt-[9px] border-t border-line-soft pt-[9px] text-[11px] leading-[1.6] text-muted">
-                    상담직원이 확인하고 승인한 답변입니다. 등기번호로 발행 사실을 확인하실 수
-                    있습니다.
+                  <p className="ko mt-[8px] border-t border-[#eeeae4] pt-[8px] text-[11px] leading-[1.55] text-[#6f6961]">
+                    상담직원이 확인하고 승인한 답변입니다. 등기번호로 확인할 수 있습니다.
                   </p>
+
                   <button
                     type="button"
                     onClick={confirmRegistry}
                     disabled={busy}
-                    className="mt-[10px] flex h-[34px] w-full items-center justify-center gap-[8px] rounded-[6px] border border-ink bg-white text-[12px] font-bold text-ink transition-colors duration-[120ms] hover:bg-paper disabled:text-faint"
+                    className="mt-[10px] flex h-[34px] w-full items-center justify-center gap-[6px] rounded-[8px] border border-ink bg-white text-[12px] font-bold text-ink hover:bg-[#f7f5f1] disabled:opacity-40"
                   >
                     {busy && <Spinner />}
                     등기 확인
@@ -162,92 +140,43 @@ export function CustomerPane(props: CustomerPaneProps) {
             )}
           </div>
 
-          {/* 하단 CTA — 홈 인디케이터 자리를 비워 둔다 */}
           <button
             type="button"
-            className="shrink-0 bg-kb text-[15px] font-bold text-ink transition-colors duration-[120ms] hover:bg-kb-dark"
-            style={{ height: 76, paddingBottom: 22 }}
+            className="shrink-0 bg-kb text-[15px] font-bold text-ink hover:bg-kb-dark"
+            style={{ height: 56, paddingBottom: 10 }}
           >
             챗봇 상담하기
           </button>
-        </IPhoneFrame>
-
-        {/* ── 등기 조회 패널 ─────────────────────────────── */}
-        <div className="min-w-0 flex-1">
-          <p className="text-[13px] leading-[1.35] text-muted">발행 등기</p>
-          <p className="mt-[5px] font-mono text-[16px] font-bold leading-[1.35] text-ink">
-            {props.caseId}
-          </p>
-
-          <dl className="mt-[12px] border-t border-line pt-[12px]">
-            <LookupRow label="모델 · 버전" value={`${props.model} / ${props.modelVersion}`} mono />
-            <LookupRow label="개입 필요도" value={`R ${props.r}`} mono />
-            <LookupRow label="판단" value={props.verdictSummary} />
-            <LookupRow label="검토 소요" value={props.reviewDuration} mono />
-            <LookupRow label="조회 이력" value={`${props.lookups}회`} last />
-          </dl>
-
-          {replay && (
-            <button
-              type="button"
-              onClick={() => setOpen(true)}
-              className="ko mt-[16px] block w-full rounded-[6px] border-l-[3px] border-ok bg-ok-bg px-[13px] py-[10px] text-left text-[13px] leading-[1.6] text-ink transition-colors duration-[120ms] hover:bg-ok-bg/70"
-            >
-              이벤트 {replay.eventCount}건 재생 완료 · 원문 {replay.originalSentences.length}문장 ·
-              수정 {replay.edits.length}건 복원
-              <span className="mt-[2px] block text-[12px] text-muted">타임라인 보기 →</span>
-            </button>
-          )}
-
-          {failed && (
-            <p className="ko mt-[16px] rounded-[6px] border-l-[3px] border-danger bg-danger-bg px-[13px] py-[10px] text-[13px] leading-[1.6] text-ink">
-              등기를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
-            </p>
-          )}
-
-          {!replay && !props.delivered && (
-            <button
-              type="button"
-              onClick={confirmRegistry}
-              disabled={busy}
-              className="mt-[16px] flex h-[36px] w-full items-center justify-center gap-[8px] rounded-[6px] border border-line bg-card text-[13px] font-bold text-ink transition-colors duration-[120ms] hover:bg-paper disabled:text-faint"
-            >
-              {busy && <Spinner />}
-              등기 조회 · 이벤트 재생
-            </button>
-          )}
-        </div>
-      </div>
+        </PhoneShell>
 
       {open && replay && <RegistryTimeline replay={replay} onClose={() => setOpen(false)} />}
     </>
   );
 }
 
-/** 라벨·값을 한 줄에 붙인 컴팩트 리스트. 항목은 하나도 빼지 않는다. */
-function LookupRow({
-  label,
-  value,
-  mono,
-  last,
-}: {
-  label: string;
-  value: string;
-  mono?: boolean;
-  last?: boolean;
-}) {
+function ChevronLeft() {
   return (
-    <div className={`flex items-baseline gap-[12px] ${last ? 'border-b border-line pb-[10px]' : 'pb-[10px]'}`}>
-      <dt className="w-[86px] shrink-0 text-[13px] leading-[1.6] text-muted">{label}</dt>
-      <dd
-        className={`ko min-w-0 flex-1 text-[13px] font-semibold leading-[1.6] text-ink ${
-          mono ? 'tabular font-mono' : 'tabular'
-        }`}
-      >
-        {value}
-      </dd>
-    </div>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M15 6 9 12l6 6"
+        stroke="rgba(255,255,255,0.9)"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 
-export const PHONE_LOGICAL = IPHONE_PT;
+function CloseIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M6 6l12 12M18 6 6 18"
+        stroke="rgba(255,255,255,0.9)"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}

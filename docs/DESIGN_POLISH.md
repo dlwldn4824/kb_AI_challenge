@@ -40,7 +40,9 @@
 
 ## 3. 타이포그래피
 
-- KB금융 전용서체(KB금융 제목체/본문체)는 공식 다운로드 링크가 없어 번들 불가 → **Pretendard**를 npm(`pretendard`)으로 설치해 로컬 번들(외부 CDN 금지). `font-family: 'Pretendard Variable', Pretendard, ...`.
+- 제목: **GFC Red Spirit Black** (`type-title`)
+- 소제목: **GFC Red Spirit Bold** (`type-subtitle`)
+- 본문·UI: **Pretendard Variable** (`font-sans`, 외부 CDN 금지)
 - 위계: UI_MENTOR_NOTES §2 [11]의 6단 스케일을 따른다(본문 14/1.7, 밀집 13/1.6, 캡션 12/1.5, KPI 34/1.05 tabular).
 - **한국어 조판 (v1.1)**: ① 본문에 `word-break: keep-all; overflow-wrap: break-word;` 필수(mono 값 제외). ② **한글에 monospace 금지** — mono 허용 목록: 등기번호/sha256·HMAC/HH:MM/`R n`/`×점수`. 자릿수 정렬은 `tabular-nums`로. ③ 한글에 `line-height: 1` 금지(본문 1.7·밀집 1.6 두 값만). ④ 본문 하한 14px(폰 목업 내부만 예외).
 
