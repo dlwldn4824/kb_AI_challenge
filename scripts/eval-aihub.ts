@@ -20,6 +20,7 @@
  * 계산은 일부러 각자 갖고 있다.
  */
 
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -131,7 +132,7 @@ const numberToken = () => new RegExp(NUMBER_TOKEN_SOURCE, 'g');
  *  - conditions: 비워 둔다. 조건절의 claim/qualifier 짝은 상품 지식이 있어야
  *              만들 수 있어서 일반화된 규칙으로 뽑지 않았다(한계로 기록).
  */
-function referenceFor(canonical: string): ProductFacts {
+function basicReference(canonical: string): ProductFacts {
   const numbers: ProductFacts['numbers'] = [];
   const seen = new Set<string>();
 
@@ -171,6 +172,79 @@ function referenceFor(canonical: string): ProductFacts {
           ]
         : [],
   };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// rule-v2.1 — 보강 레퍼런스 (T16 3차 실험, 평가 트랙 전용)
+//
+// v2 는 수치 슬롯과 "정본에 있던 신호 유형" 두 가지만 레퍼런스로 썼고 conditions 는
+// 비워 두었다. v2.1 은 모범답변에서 조건절·기한을 규칙으로 더 뽑아 conditions 에 넣는다.
+// 제품 감지기(src/lib/scoring.ts)와 DETECTOR_VERSION 은 건드리지 않는다 — 판정 로직은
+// 그대로 두고 "무엇을 정본으로 주느냐"만 바꾸는 실험이다.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** 조건절 표지. 이 구절이 사라지면 조건 없이 단정한 문장이 된다. */
+const CONDITION_MARKERS = [
+  /[^,.]{2,20}?(?:하시는|하신|하는|이신|인)\s*경우/,
+  /[^,.]{2,20}?의\s*경우/,
+  /[^,.]{2,20}?에\s*한하[여어]/,
+  /[^,.]{2,20}?에\s*한해/,
+  /단,\s*/,
+];
+
+/** 기한 표지. 언제까지·언제부터가 빠지면 안내가 무기한이 된다. */
+const DEADLINE_MARKERS = [
+  /[0-9][0-9,]*\s*(?:영업일|일|개월|년|주|시간)\s*이내/,
+  /[0-9][0-9,]*\s*(?:영업일|일|개월|년|주|시간)\s*이후/,
+  /[0-9]{1,2}\s*월\s*[0-9]{1,2}\s*일부터/,
+  /[가-힣]{2,10}일?부터/,
+  /[가-힣]{2,10}까지/,
+];
+
+/**
+ * 표지 뒤에 남는 본문에서 앵커를 뽑는다.
+ *
+ * 앵커는 "조건절을 지워도 살아남는 부분"이어야 한다. 문장 끝(어미)은 무해 변주의
+ * 어미 치환에 걸릴 수 있으므로 표지 직후 앞쪽에서 가져온다.
+ */
+function anchorAfter(sentence: string, markerEnd: number): string | null {
+  const rest = sentence.slice(markerEnd).replace(/^[\s,.]+/, '');
+  const anchor = rest.slice(0, 12).trim();
+  return anchor.length >= 6 ? anchor : null;
+}
+
+function enrichedReference(canonical: string): ProductFacts {
+  const base = basicReference(canonical);
+  const conditions: ProductFacts['conditions'] = [];
+  const seen = new Set<string>();
+
+  const collect = (markers: RegExp[], type: SignalType, label: string) => {
+    for (const sentence of splitSentences(canonical)) {
+      for (const marker of markers) {
+        const match = marker.exec(sentence);
+        if (!match) continue;
+        const anchor = anchorAfter(sentence, match.index + match[0].length);
+        if (!anchor) continue;
+        const key = `${type}|${anchor}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        conditions.push({
+          key: `cond_${conditions.length}`,
+          label: `${label} — "${match[0].trim()}"`,
+          // 본문은 남아 있는데 표지가 사라졌으면 조건이 빠진 것이다.
+          claim: new RegExp(escapeRe(anchor)),
+          qualifier: new RegExp(escapeRe(match[0].trim())),
+          type,
+        });
+        break; // 한 문장당 한 표지만 잡는다
+      }
+    }
+  };
+
+  collect(CONDITION_MARKERS, 'exemption_condition', '조건절');
+  collect(DEADLINE_MARKERS, 'deadline_eligibility', '기한');
+
+  return { ...base, conditions };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -315,10 +389,16 @@ interface Item {
   positive: boolean;
   topic: string;
   sentences: string[];
-  r: number;
-  confirmedHits: number;
+  /** 이 건이 나온 모범답변. 레퍼런스는 여기서만 만든다. */
+  canonical: string;
   editDistance: number;
   receivedAt: string;
+}
+
+/** 레퍼런스를 갈아 끼우며 같은 시험지를 다시 채점한 결과. */
+interface Scored extends Item {
+  r: number;
+  confirmedHits: number;
 }
 
 interface Metrics {
@@ -327,7 +407,7 @@ interface Metrics {
   precision: number;
 }
 
-function evaluate(items: Item[], order: number[], positives: number): Metrics {
+function evaluate(items: Array<{ positive: boolean }>, order: number[], positives: number): Metrics {
   const hits = order.slice(0, K).filter((index) => items[index].positive).length;
   return { hits, recall: hits / positives, precision: hits / K };
 }
@@ -367,20 +447,17 @@ export function runAihubEval(): void {
       used.add(entry.item.meta.qaId);
       picked += 1;
 
-      const facts = referenceFor(entry.item.canonicalAnswer);
       const source = entry.sentences.join('\n');
       const topic = entry.item.topic.consulting;
 
       const push = (sentences: string[], positive: boolean, suffix: string) => {
-        const detected = detectDraftWithFacts(sentences, facts);
         items.push({
           id: `${entry.item.meta.qaId}-${type}-${suffix}`,
           errorType: type,
           positive,
           topic,
           sentences,
-          r: detected.r,
-          confirmedHits: detected.confirmedHits,
+          canonical: entry.item.canonicalAnswer,
           editDistance: levenshtein(source, sentences.join('\n')),
           receivedAt: '',
         });
@@ -407,17 +484,93 @@ export function runAihubEval(): void {
     items[itemIndex].receivedAt = new Date(ARRIVAL_BASE_MS + position * 60_000).toISOString();
   });
 
-  const rOrder = items.map((_, i) => i).sort((a, b) => compareRank(items[a], items[b]));
-  const pureROrder = items
-    .map((_, i) => i)
-    .sort((a, b) => compareRank({ ...items[a], confirmedHits: 0 }, { ...items[b], confirmedHits: 0 }));
+  // ── 같은 시험지를 레퍼런스만 갈아 끼워 두 번 채점한다 ─────────────────────
+  // items 는 한 번만 만들어졌으므로 두 실행이 문자 그대로 같은 문장을 본다.
+  // 시험지 지문(아래 corpusDigest)을 결과에 실어 그 사실을 남긴다.
+  const corpusDigest = crypto
+    .createHash('sha256')
+    .update(items.map((item) => `${item.id}\u0000${item.sentences.join('\n')}`).join('\u0001'))
+    .digest('hex')
+    .slice(0, 16);
+
+  const scoreWith = (build: (canonical: string) => ProductFacts): Scored[] => {
+    const cache = new Map<string, ProductFacts>();
+    return items.map((item) => {
+      let facts = cache.get(item.canonical);
+      if (!facts) {
+        facts = build(item.canonical);
+        cache.set(item.canonical, facts);
+      }
+      const detected = detectDraftWithFacts(item.sentences, facts);
+      return { ...item, r: detected.r, confirmedHits: detected.confirmedHits };
+    });
+  };
+
+  const hitsByType = (scored: Scored[], order: number[]) => {
+    const top = new Set(order.slice(0, K));
+    const counts: Record<string, number> = {};
+    for (const type of ERROR_TYPES) counts[ERROR_TYPE_KEY[type]] = 0;
+    scored.forEach((item, index) => {
+      if (item.positive && top.has(index)) counts[ERROR_TYPE_KEY[item.errorType]] += 1;
+    });
+    return counts;
+  };
+
+  interface Analysis {
+    label: string;
+    rMetrics: Metrics;
+    pureRMetrics: Metrics;
+    rByType: Record<string, number>;
+    pureByType: Record<string, number>;
+    confirmedPositives: number;
+    confirmedNegatives: number;
+    /** 오류 유형별로 확증이 붙은 양성 수. 랭킹과 별개로 "감지 자체"를 본다. */
+    confirmedByType: Record<string, number>;
+  }
+
+  const analyse = (label: string, scored: Scored[]): Analysis => {
+    const rOrder = scored.map((_, i) => i).sort((a, b) => compareRank(scored[a], scored[b]));
+    const pureROrder = scored
+      .map((_, i) => i)
+      .sort((a, b) => compareRank({ ...scored[a], confirmedHits: 0 }, { ...scored[b], confirmedHits: 0 }));
+    return {
+      label,
+      rMetrics: evaluate(scored, rOrder, positives),
+      pureRMetrics: evaluate(scored, pureROrder, positives),
+      rByType: hitsByType(scored, rOrder),
+      pureByType: hitsByType(scored, pureROrder),
+      confirmedPositives: scored.filter((item) => item.positive && item.confirmedHits > 0).length,
+      confirmedNegatives: scored.filter((item) => !item.positive && item.confirmedHits > 0).length,
+      confirmedByType: Object.fromEntries(
+        ERROR_TYPES.map((type) => [
+          ERROR_TYPE_KEY[type],
+          scored.filter((item) => item.positive && item.errorType === type && item.confirmedHits > 0).length,
+        ]),
+      ),
+    };
+  };
+
+  const v2 = analyse('rule-v2 (basic reference)', scoreWith(basicReference));
+  const v21 = analyse('rule-v2.1 (enriched reference)', scoreWith(enrichedReference));
+
+  // 보강 레퍼런스가 실제로 몇 개나 뽑혔는지. 0 에 가까우면 규칙이 안 걸린 것이고,
+  // 많은데도 적중이 안 늘면 구조적 한계다 — 둘을 구분해야 해석이 된다.
+  const canonicals = [...new Set(items.map((item) => item.canonical))];
+  const conditionCounts = canonicals.map((text) => enrichedReference(text).conditions.length);
+  const numberCounts = canonicals.map((text) => basicReference(text).numbers.length);
+  const referenceScale = {
+    canonicals: canonicals.length,
+    number_slots_total: numberCounts.reduce((sum, n) => sum + n, 0),
+    condition_slots_total: conditionCounts.reduce((sum, n) => sum + n, 0),
+    canonicals_with_condition_slot: conditionCounts.filter((n) => n > 0).length,
+  };
+
+  // 편집거리·무작위는 레퍼런스와 무관하다 (문장과 양성 위치만 본다).
   const editOrder = items
     .map((_, i) => i)
     .sort((a, b) => items[b].editDistance - items[a].editDistance || tieKey[a] - tieKey[b]);
-
-  const rMetrics = evaluate(items, rOrder, positives);
-  const pureRMetrics = evaluate(items, pureROrder, positives);
   const editMetrics = evaluate(items, editOrder, positives);
+  const editByType = hitsByType(items as Scored[], editOrder);
 
   const randomRand = mulberry32(SEED + 2);
   let randomHits = 0;
@@ -427,18 +580,6 @@ export function runAihubEval(): void {
   }
   randomHits /= RANDOM_TRIALS;
 
-  const hitsByType = (order: number[]) => {
-    const top = new Set(order.slice(0, K));
-    const counts: Record<string, number> = {};
-    for (const type of ERROR_TYPES) counts[ERROR_TYPE_KEY[type]] = 0;
-    items.forEach((item, index) => {
-      if (item.positive && top.has(index)) counts[ERROR_TYPE_KEY[item.errorType]] += 1;
-    });
-    return counts;
-  };
-
-  const confirmedPositives = items.filter((item) => item.positive && item.confirmedHits > 0).length;
-  const confirmedNegatives = items.filter((item) => !item.positive && item.confirmedHits > 0).length;
   const maxRecall = Math.min(K, positives) / positives;
 
   // ── 출력 ──────────────────────────────────────────────────────────────────
@@ -450,27 +591,61 @@ export function runAihubEval(): void {
   if (shortage.length > 0) console.log(`       주입기 미달: ${shortage.join(' · ')}`);
   console.log();
 
+  console.log(`       시험지 지문 sha256:${corpusDigest} — 아래 두 run 은 이 시험지를 공유한다\n`);
+
   console.log('| 방법 | Recall@39 | Precision@39 | 적중 |');
   console.log('| --- | ---: | ---: | ---: |');
-  console.log(`| R 랭킹 (v2 + 확증) | ${pct(rMetrics.recall)} | ${pct(rMetrics.precision)} | ${rMetrics.hits}/${positives} |`);
-  console.log(`| R 랭킹 (순수 R) | ${pct(pureRMetrics.recall)} | ${pct(pureRMetrics.precision)} | ${pureRMetrics.hits}/${positives} |`);
+  console.log(
+    `| R 랭킹 (v2.1 보강 레퍼런스 + 확증) | ${pct(v21.rMetrics.recall)} | ${pct(v21.rMetrics.precision)} | ${v21.rMetrics.hits}/${positives} |`,
+  );
+  console.log(
+    `| R 랭킹 (v2 기본 레퍼런스 + 확증) | ${pct(v2.rMetrics.recall)} | ${pct(v2.rMetrics.precision)} | ${v2.rMetrics.hits}/${positives} |`,
+  );
+  console.log(
+    `| R 랭킹 (순수 R · 레퍼런스 무관) | ${pct(v2.pureRMetrics.recall)} | ${pct(v2.pureRMetrics.precision)} | ${v2.pureRMetrics.hits}/${positives} |`,
+  );
   console.log(`| 편집거리 baseline | ${pct(editMetrics.recall)} | ${pct(editMetrics.precision)} | ${editMetrics.hits}/${positives} |`);
   console.log(
     `| 무작위 (${RANDOM_TRIALS}회 평균) | ${pct(randomHits / positives)} | ${pct(randomHits / K)} | ${randomHits.toFixed(2)}/${positives} |`,
   );
 
-  console.log(`\n| 오류 유형 | v2 + 확증 | 순수 R | 편집거리 |`);
-  console.log('| --- | ---: | ---: | ---: |');
-  const rByType = hitsByType(rOrder);
-  const pureByType = hitsByType(pureROrder);
-  const editByType = hitsByType(editOrder);
+  console.log(`\n| 오류 유형 | v2.1 | v2 | 순수 R | 편집거리 |`);
+  console.log('| --- | ---: | ---: | ---: | ---: |');
   for (const type of ERROR_TYPES) {
     const key = ERROR_TYPE_KEY[type];
-    console.log(`| ${ERROR_TYPE_LABEL[type]} | ${rByType[key]} | ${pureByType[key]} | ${editByType[key]} |`);
+    console.log(
+      `| ${ERROR_TYPE_LABEL[type]} | ${v21.rByType[key]} | ${v2.rByType[key]} | ${v2.pureByType[key]} | ${editByType[key]} |`,
+    );
+  }
+
+  console.log(`\n| 오류 유형 | v2.1 확증 | v2 확증 |`);
+  console.log('| --- | ---: | ---: |');
+  for (const type of ERROR_TYPES) {
+    const key = ERROR_TYPE_KEY[type];
+    console.log(
+      `| ${ERROR_TYPE_LABEL[type]} | ${v21.confirmedByType[key]}/${POSITIVES_PER_TYPE} | ${v2.confirmedByType[key]}/${POSITIVES_PER_TYPE} |`,
+    );
   }
 
   console.log(
-    `\n확증이 붙은 건: 양성 ${confirmedPositives}/${positives} · 음성 ${confirmedNegatives}/${items.length - positives}`,
+    `\n확증이 붙은 건  v2.1: 양성 ${v21.confirmedPositives}/${positives} · 음성 ${v21.confirmedNegatives}/${items.length - positives}`,
+  );
+  console.log(
+    `                v2  : 양성 ${v2.confirmedPositives}/${positives} · 음성 ${v2.confirmedNegatives}/${items.length - positives}`,
+  );
+  console.log(
+    `보강 레퍼런스 규모  정본 ${referenceScale.canonicals}건 · 수치 슬롯 ${referenceScale.number_slots_total}개 · ` +
+      `조건 슬롯 ${referenceScale.condition_slots_total}개 (조건 슬롯이 하나라도 있는 정본 ${referenceScale.canonicals_with_condition_slot}건)`,
+  );
+  const delta = v21.rMetrics.hits - v2.rMetrics.hits;
+  console.log(
+    `\n해석   보강 레퍼런스(v2.1)는 조건 슬롯 ${referenceScale.condition_slots_total}개를 더 넣었지만 상위 ${K} 적중은 ` +
+      `${delta >= 0 ? '+' : ''}${delta}건(${v2.rMetrics.hits} → ${v21.rMetrics.hits})이다. ` +
+      `확증은 ${v2.confirmedPositives} → ${v21.confirmedPositives}건으로 늘었으나 랭킹까지 가지 못했다.`,
+  );
+  console.log(
+    `       삭제형 오류(자격 요건·불이익 문구)는 문장이 통째로 사라져 claim 앵커와 조건 표지가 함께 없어진다. ` +
+      `문장 단위 조건 대조로는 구조적으로 잡을 수 없고, 남은 경로는 신호 "유형"이 통째로 사라졌는지 보는 것뿐이다.`,
   );
   console.log(
     `주의   레퍼런스가 그 건의 모범답변 자체다. 오류 주입기와 감지기가 같은 문서를 참조하므로 이 수치는 성능이 아니라 상한이다.`,
@@ -508,26 +683,41 @@ export function runAihubEval(): void {
       kind: 'per-case canonical answer',
       numbers: '모범답변의 수치 토큰(앞 문맥 포함)을 슬롯으로',
       required: '모범답변이 담고 있던 신호 유형이 초안에서 사라지면 누락으로',
-      conditions: '비움 — 조건절 claim/qualifier 짝은 상품 지식이 필요해 일반화하지 않음',
+      conditions_v2: '비움 — 조건절 claim/qualifier 짝을 일반화하지 않았다',
+      conditions_v2_1: '모범답변의 조건절 표지(~의 경우 / 단, / ~에 한하여)와 기한 표지(~이내 / ~부터 / ~까지)를 규칙으로 뽑아 claim=표지 뒤 본문 앵커, qualifier=표지 자체로 편입',
       caveat:
         '오류 주입기와 감지기가 같은 문서(모범답변)를 레퍼런스로 공유한다. 따라서 이 수치는 성능이 아니라 상한으로 읽어야 한다. 합성 평가(docs/eval-results.json)와 같은 한계다.',
     },
+    /** 같은 시험지(corpus_digest)를 레퍼런스만 바꿔 채점한 결과. 기존 run 은 그대로 둔다. */
+    corpus_digest: corpusDigest,
     runs: [
       {
         detector: 'v2',
+        reference: 'basic (numbers + canonical signal types)',
         ranking: 'R+confirmedHits',
-        recall_at_39: round(rMetrics.recall),
-        precision_at_39: round(rMetrics.precision),
-        hits: rMetrics.hits,
-        by_error_type: rByType,
+        recall_at_39: round(v2.rMetrics.recall),
+        precision_at_39: round(v2.rMetrics.precision),
+        hits: v2.rMetrics.hits,
+        by_error_type: v2.rByType,
+      },
+      {
+        detector: 'v2.1 enriched-reference',
+        reference: 'enriched (basic + 조건절·기한 표지를 conditions 로)',
+        ranking: 'R+confirmedHits',
+        recall_at_39: round(v21.rMetrics.recall),
+        precision_at_39: round(v21.rMetrics.precision),
+        hits: v21.rMetrics.hits,
+        by_error_type: v21.rByType,
+        note: '제품 감지기(DETECTOR_VERSION rule-v2)는 불변. 레퍼런스만 바꾼 3차 실험(T16).',
       },
       {
         detector: 'v2',
+        reference: 'basic',
         ranking: 'R',
-        recall_at_39: round(pureRMetrics.recall),
-        precision_at_39: round(pureRMetrics.precision),
-        hits: pureRMetrics.hits,
-        by_error_type: pureByType,
+        recall_at_39: round(v2.pureRMetrics.recall),
+        precision_at_39: round(v2.pureRMetrics.precision),
+        hits: v2.pureRMetrics.hits,
+        by_error_type: v2.pureByType,
       },
       {
         detector: '—',
@@ -545,9 +735,17 @@ export function runAihubEval(): void {
         hits: round(randomHits, 2),
       },
     ],
+    reference_scale: referenceScale,
+    confirmed_hits_by_type: { v2: v2.confirmedByType, 'v2.1': v21.confirmedByType },
     confirmed_hits: {
-      positives_with_confirmation: confirmedPositives,
-      negatives_with_confirmation: confirmedNegatives,
+      v2: {
+        positives_with_confirmation: v2.confirmedPositives,
+        negatives_with_confirmation: v2.confirmedNegatives,
+      },
+      'v2.1': {
+        positives_with_confirmation: v21.confirmedPositives,
+        negatives_with_confirmation: v21.confirmedNegatives,
+      },
     },
   };
 

@@ -29,12 +29,15 @@
     "kind": "per-case canonical answer",
     "numbers": "모범답변의 수치 토큰(앞 문맥 포함)을 슬롯으로",
     "required": "모범답변이 담고 있던 신호 유형이 초안에서 사라지면 누락으로",
-    "conditions": "비움 — 조건절 claim/qualifier 짝은 상품 지식이 필요해 일반화하지 않음",
+    "conditions_v2": "비움 — 조건절 claim/qualifier 짝을 일반화하지 않았다",
+    "conditions_v2_1": "모범답변의 조건절 표지(~의 경우 / 단, / ~에 한하여)와 기한 표지(~이내 / ~부터 / ~까지)를 규칙으로 뽑아 claim=표지 뒤 본문 앵커, qualifier=표지 자체로 편입",
     "caveat": "오류 주입기와 감지기가 같은 문서(모범답변)를 레퍼런스로 공유한다. 따라서 이 수치는 성능이 아니라 상한으로 읽어야 한다. 합성 평가(docs/eval-results.json)와 같은 한계다."
   },
+  "corpus_digest": "e0434a29d82e23a1",
   "runs": [
     {
       "detector": "v2",
+      "reference": "basic (numbers + canonical signal types)",
       "ranking": "R+confirmedHits",
       "recall_at_39": 0.25,
       "precision_at_39": 0.3077,
@@ -49,7 +52,25 @@
       }
     },
     {
+      "detector": "v2.1 enriched-reference",
+      "reference": "enriched (basic + 조건절·기한 표지를 conditions 로)",
+      "ranking": "R+confirmedHits",
+      "recall_at_39": 0.25,
+      "precision_at_39": 0.3077,
+      "hits": 12,
+      "by_error_type": {
+        "수치바꿔치기": 4,
+        "조건삭제": 1,
+        "단정삽입": 3,
+        "자격요건삭제": 0,
+        "불이익누락": 1,
+        "서류절차왜곡": 3
+      },
+      "note": "제품 감지기(DETECTOR_VERSION rule-v2)는 불변. 레퍼런스만 바꾼 3차 실험(T16)."
+    },
+    {
       "detector": "v2",
+      "reference": "basic",
       "ranking": "R",
       "recall_at_39": 0.2292,
       "precision_at_39": 0.2821,
@@ -86,8 +107,38 @@
       "hits": 7.79
     }
   ],
+  "reference_scale": {
+    "canonicals": 48,
+    "number_slots_total": 25,
+    "condition_slots_total": 18,
+    "canonicals_with_condition_slot": 16
+  },
+  "confirmed_hits_by_type": {
+    "v2": {
+      "수치바꿔치기": 5,
+      "조건삭제": 0,
+      "단정삽입": 0,
+      "자격요건삭제": 1,
+      "불이익누락": 2,
+      "서류절차왜곡": 0
+    },
+    "v2.1": {
+      "수치바꿔치기": 5,
+      "조건삭제": 1,
+      "단정삽입": 0,
+      "자격요건삭제": 1,
+      "불이익누락": 2,
+      "서류절차왜곡": 0
+    }
+  },
   "confirmed_hits": {
-    "positives_with_confirmation": 8,
-    "negatives_with_confirmation": 0
+    "v2": {
+      "positives_with_confirmation": 8,
+      "negatives_with_confirmation": 0
+    },
+    "v2.1": {
+      "positives_with_confirmation": 9,
+      "negatives_with_confirmation": 0
+    }
   }
 }
