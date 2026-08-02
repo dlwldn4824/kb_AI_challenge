@@ -1,11 +1,12 @@
 @import 'tailwindcss';
 
 /**
- * Pretendard 로컬 번들 (docs/DESIGN_POLISH.md §3).
- * KB금융 전용서체는 공식 배포 링크가 없어 번들할 수 없으므로 Pretendard 로 대체한다.
- * npm 패키지의 woff2 를 public/fonts 로 복사해 서빙한다 — 런타임 외부 요청 없음.
+ * PROJECT KIT — Typography
+ *   Display  GFC Red Spirit Black(제목) / Bold(소제목)
+ *   Body     Pretendard Variable
+ * 런타임 외부 CDN 없음. next/font/local + public/fonts.
  */
-/* Pretendard 는 next/font/local 로 로드한다 (layout.tsx). basePath 가 자동 반영된다. */
+/* 폰트는 layout.tsx 의 next/font/local 로 로드한다. */
 
 /**
  * 브랜드 토큰. 근사값이 아니라 에셋에서 직접 샘플링한 값이다.
@@ -25,9 +26,9 @@
 
   /* ── 텍스트 · 면 ───────────────────────────── */
   --color-ink: #26282c;
-  --color-ink-soft: #4a4d52;
-  --color-muted: #776c61;
-  --color-faint: #a9a29a;
+  --color-ink-soft: #3f4349;
+  --color-muted: #5f5850;
+  --color-faint: #7a736a;
 
   --color-line: #e6e3de;
   --color-line-soft: #f0eeeb;
@@ -61,6 +62,9 @@
   --font-sans:
     var(--font-pretendard), -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo',
     'Segoe UI', sans-serif;
+  --font-display:
+    var(--font-red-spirit), var(--font-pretendard), -apple-system, BlinkMacSystemFont,
+    'Apple SD Gothic Neo', sans-serif;
   --font-mono:
     ui-monospace, 'SF Mono', SFMono-Regular, Menlo, 'D2Coding', Consolas, monospace;
 
@@ -76,6 +80,19 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+/* Display: 제목 Black · 소제목 Bold · 본문은 Pretendard(font-sans) */
+.type-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.type-subtitle {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 /* 표·KPI 의 숫자 자리가 흔들리지 않게 한다. */
@@ -105,37 +122,36 @@ body {
 }
 
 /* ──────────────────────────────────────────────────────────────
- * 16:10 스테이지 (1920×1200)
- * 제출물 이미지가 이 비율로 캡처되므로 캔버스를 고정하고,
- * 뷰포트가 더 작으면 transform scale 로 줄여 맞춘다(내부는 그대로 인터랙티브).
+ * 뷰포트 전체 스테이지 — 레터박스/scale 없이 화면을 채운다.
+ * 스크롤은 .stage-scroll 에서만 한다.
  * ────────────────────────────────────────────────────────────── */
 .stage-root {
   position: fixed;
   inset: 0;
   overflow: hidden;
-  background: radial-gradient(120% 90% at 50% 0%, #23252a 0%, var(--color-stage) 68%);
+  background: var(--color-page);
 }
 
 .stage-frame {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 1920px;
-  height: 1200px;
-  transform-origin: center center;
+  inset: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   background: var(--color-page);
-  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5);
 }
 
-/* 스테이지 안에서만 스크롤한다. 프레임 자체는 항상 16:10 을 유지한다. */
+.stage-frame > * {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 .stage-scroll {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: contain;
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -177,4 +193,16 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* 고지문 푸터 (T19) — 스테이지 하단 상시 노출. flex 규칙보다 뒤에 두어 flex:1 을 덮는다. */
+.stage-frame > .stage-disclaimer {
+  flex: 0 0 auto;
+  padding: 6px 24px 8px;
+  border-top: 1px solid var(--color-line);
+  background: var(--color-card);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  text-align: center;
 }

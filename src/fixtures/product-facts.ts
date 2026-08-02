@@ -44,6 +44,8 @@ export interface RequiredElement {
 
 export interface ProductFacts {
   product: string;
+  /** 정본 출처 표기 (UI 노출용). 공시 확인일 포함. */
+  source?: string;
   numbers: NumericFact[];
   conditions: ConditionFact[];
   required: RequiredElement[];
@@ -57,6 +59,19 @@ export function normalizeNumber(raw: string): string {
 export const PRODUCT_FACTS: ProductFacts[] = [
   {
     product: 'KB장병내일준비적금',
+    // ── 정본 출처 (T16-b) ─────────────────────────────────────────
+    // KB 상품설명서 공시 확인: 2026-08-02
+    //  - 상품공시 페이지: https://obank1.kbstar.com/quics?page=C016613 (웹상품코드 DP000939)
+    //  - KB 공식 안내: https://kbthink.com/main/asset-management/wealth-manage-tip/kbthink-original/202411/soldiers-tomorrow.html
+    // 아래 기존 6개 팩트는 전부 공시와 일치 확인됨:
+    //  은행별 월 최고 30만원 · 고객별(합산) 월 55만원(2025-01-02부터) · 한도변경 1회
+    //  (2025-01-01 이전 가입 계좌, 5만원 단위) · 가입자격 확인서 발급일로부터 3개월 이내.
+    // 공시에서 추가 확인했으나 감지 슬롯으로 배선하지 않은 팩트(정본 케이스 R=11 불변 보호):
+    //  가입대상 현역병·상근예비역·의무경찰·사회복무요원·대체복무요원(잔여 복무 1개월 이상) ·
+    //  계약기간 1~24개월(만기=전역예정일) · 기본금리 연 4.0~5.0% + 우대 최고 4.5%p ·
+    //  비과세는 2026-12-31까지 가입분 한정, 중도해지 시 비과세·1% 이자지원 상실 ·
+    //  매칭지원금 2024년 이후 납입분 원금의 100%(만기 해지 시) · 1인 1계좌, 만기해지 후 재가입 불가.
+    source: 'KB 상품설명서 공시 (kbstar.com 상품공시 DP000939 · 확인일 2026-08-02)',
     numbers: [
       {
         key: 'monthly_limit',

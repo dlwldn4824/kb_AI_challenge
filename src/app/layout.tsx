@@ -3,12 +3,33 @@ import localFont from 'next/font/local';
 import './globals.css';
 import { Stage } from './stage';
 
-/** 로컬 번들 폰트 — 런타임 외부 요청 없음, basePath 도 Next 가 처리한다. */
+/** 본문 — Pretendard Variable */
 const pretendard = localFont({
   src: '../../public/fonts/PretendardVariable.woff2',
   weight: '45 920',
   display: 'block',
   variable: '--font-pretendard',
+});
+
+/**
+ * 제목·소제목 — GFC Red Spirit
+ *   Black(900) = 제목 / Bold(700) = 소제목
+ */
+const redSpirit = localFont({
+  src: [
+    {
+      path: '../../public/fonts/GFCRedSpirit-Bold.ttf',
+      weight: '700',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/GFCRedSpirit-Black.ttf',
+      weight: '900',
+      style: 'normal',
+    },
+  ],
+  display: 'block',
+  variable: '--font-red-spirit',
 });
 
 export const metadata: Metadata = {
@@ -18,8 +39,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko" className={pretendard.variable}>
-      <body className="bg-stage text-ink">
+    <html lang="ko" className={`${pretendard.variable} ${redSpirit.variable}`}>
+      <body className="bg-stage font-sans text-ink antialiased">
         <Stage>{children}</Stage>
       </body>
     </html>

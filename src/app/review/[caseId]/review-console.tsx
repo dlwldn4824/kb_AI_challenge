@@ -28,6 +28,8 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
   const [sending, setSending] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [blockModalOpen, setBlockModalOpen] = useState(false);
+  /** 사유를 고른 뒤에는 접고, '다시 고르기' 로만 연다. */
+  const [reasonPickerOpen, setReasonPickerOpen] = useState<Set<number>>(() => new Set());
 
   /**
    * 판정 요청은 한 줄로 세운다.
@@ -166,6 +168,7 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
     if (!claim(idx, `edited:${newText}`)) return;
 
     setEditing(null);
+    setSelected(idx);
     setView(optimisticVerdict(view, idx, 'edited', newText));
     await mutate(
       `${idx + 1}번 구절 수정 문안`,
@@ -175,20 +178,33 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
     );
   }
 
-  async function pickReason(reason: Reason) {
-    if (!current) return;
-    const idx = current.idx;
+  async function pickReason(idx: number, reason: Reason) {
+    const sentence = sentences.find((item) => item.idx === idx);
+    if (!sentence || sentence.verdict !== 'edited') return;
     // 같은 사유가 이미 검사까지 끝나 있으면 다시 보내지 않는다.
-    if (current.reason === reason && current.coherence) return;
+    if (sentence.reason === reason && sentence.coherence) {
+      setReasonPickerOpen((prev) => {
+        const next = new Set(prev);
+        next.delete(idx);
+        return next;
+      });
+      return;
+    }
     if (!claim(-idx - 1, `reason:${reason}`)) return;
 
+    setSelected(idx);
+    setReasonPickerOpen((prev) => {
+      const next = new Set(prev);
+      next.delete(idx);
+      return next;
+    });
     setView(optimisticReason(view, idx, reason));
     await mutate(
       '수정 사유',
       () => api.reason(view.caseId, idx, reason),
       (fresh) => {
-        const sentence = fresh.sentences.find((item) => item.idx === idx);
-        return sentence?.reason === reason && sentence.coherence !== null;
+        const next = fresh.sentences.find((item) => item.idx === idx);
+        return next?.reason === reason && next.coherence !== null;
       },
       -idx - 1,
     );
@@ -226,10 +242,11 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
     });
   }
 
-  const editedNow = current?.verdict === 'edited';
   const coherence = current?.coherence ?? null;
   const dispatched = view.status === '발행 완료';
-  // 정합성 불일치는 검사 박스가 이미 설명하므로 CTA 아래에서 한 번 더 말하지 않는다.
+  // 선택 구절이 유지여도 수정 문안이 비지 않도록, 수정된 구절 전체를 항상 보여준다.
+  const editedSentences = sentences.filter((s) => s.verdict === 'edited');
+  // 정합성 불일치는 문장 아래 검사 박스가 이미 설명하므로 CTA 아래에서 한 번 더 말하지 않는다.
   const mismatchShown = coherence?.result === 'mismatch';
   const blockLabel = dispatched
     ? '이미 발행된 등기입니다. 발송문은 승인문으로 고정되어 있습니다.'
@@ -245,8 +262,8 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
           <span key="id" className="font-mono">
             {view.caseId}
           </span>,
-          <span key="r" className="tabular font-mono">
-            R {view.r}
+          <span key="r" className="tabular">
+            개입 필요도 <span className="font-mono">{view.r}</span>
           </span>,
           view.product,
           <Elapsed key="elapsed" />,
@@ -255,8 +272,8 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
 
       {dispatched && <SealedBanner sealedAt={view.approval?.sealedAt ?? null} />}
 
-      <Shell className="flex min-h-0 flex-1 flex-col">
-        <div className="flex min-h-0 flex-1 items-stretch pt-[20px]">
+      <Shell className="flex flex-col">
+        <div className="flex items-start gap-0 pt-[20px] pb-[8px]">
           {/* ── 좌: AI 초안 구절 리스트 ─────────────────────────────── */}
           <section className="min-w-0 flex-1 pr-[24px]">
             <div className="border-b border-line pb-[12px]">
@@ -321,7 +338,6 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
                             label="유지"
                             testId={`keep-${sentence.idx}`}
                             active={sentence.verdict === 'kept'}
-                            tone="soft"
                             disabled={busy || dispatched}
                             onClick={() => keep(sentence.idx)}
                           />
@@ -329,7 +345,6 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
                             label="수정"
                             testId={`edit-${sentence.idx}`}
                             active={sentence.verdict === 'edited'}
-                            tone="strong"
                             disabled={busy}
                             locked={dispatched}
                             onClick={() =>
@@ -381,6 +396,111 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
                         </div>
                       </div>
                     )}
+
+                    {/* 수정 적용 후 — 사유 선택 / 요약 */}
+                    {!isEditing && sentence.verdict === 'edited' && !dispatched && (
+                      <div
+                        className="animate-panel border-t border-line-soft pb-[14px] pl-[36px] pt-[12px]"
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        {(!sentence.reason || reasonPickerOpen.has(sentence.idx)) && (
+                          <>
+                            <p className="type-subtitle mb-[8px] text-[14px] leading-[1.4] text-ink">
+                              수정 사유 설명
+                            </p>
+                            <div className="grid grid-cols-3 gap-[6px]">
+                              {REASONS.map((reason) => {
+                                const active = sentence.reason === reason;
+                                return (
+                                  <button
+                                    key={reason}
+                                    type="button"
+                                    data-testid={
+                                      isSelected
+                                        ? `reason-${REASONS.indexOf(reason)}`
+                                        : undefined
+                                    }
+                                    aria-pressed={active}
+                                    disabled={busy}
+                                    onClick={() => void pickReason(sentence.idx, reason)}
+                                    className={`ko flex h-[36px] items-center justify-center rounded-[6px] border text-[13px] font-semibold leading-[1.4] transition-colors duration-[120ms] ${
+                                      active
+                                        ? 'border-ink bg-ink text-white'
+                                        : 'border-line bg-card text-ink hover:border-ink/40 hover:bg-paper'
+                                    }`}
+                                  >
+                                    {reason}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                            {!sentence.reason && (
+                              <p className="ko mt-[8px] text-[13px] leading-[1.55] text-warn">
+                                이 문장의 수정 사유를 선택해 주세요.
+                              </p>
+                            )}
+                          </>
+                        )}
+
+                        {sentence.reason && !reasonPickerOpen.has(sentence.idx) && (
+                          <div className="flex flex-wrap items-center gap-[10px]">
+                            <span className="inline-flex h-[28px] items-center gap-[6px] rounded-[4px] bg-kb-tint px-[10px] text-[13px] font-semibold text-ink">
+                              <span className="text-[11px] font-medium text-muted">사유</span>
+                              {sentence.reason}
+                            </span>
+                            <button
+                              type="button"
+                              disabled={busy}
+                              onClick={() =>
+                                setReasonPickerOpen((prev) => new Set(prev).add(sentence.idx))
+                              }
+                              className="text-[13px] font-medium text-muted underline underline-offset-2 transition-colors duration-[120ms] hover:text-ink disabled:text-faint"
+                            >
+                              다시 고르기
+                            </button>
+                          </div>
+                        )}
+
+                        {sentence.reason && (
+                          <div className="mt-[12px]">
+                            {sentence.coherence ? (
+                              <CoherenceCard
+                                reason={sentence.reason}
+                                result={sentence.coherence.result}
+                                detail={sentence.coherence.detail}
+                              />
+                            ) : (
+                              <p className="ko flex min-h-[44px] items-center rounded-[8px] border border-line bg-paper px-[14px] text-[13px] leading-[1.6] text-ink-soft">
+                                적합성 검사 중…
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {!isEditing &&
+                      sentence.verdict === 'edited' &&
+                      sentence.reason &&
+                      sentence.coherence &&
+                      dispatched && (
+                      <div
+                        className="border-t border-line-soft pb-[14px] pl-[36px] pt-[12px]"
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        <div className="mb-[10px] flex flex-wrap items-center gap-[10px]">
+                          <span className="inline-flex h-[28px] items-center gap-[6px] rounded-[4px] bg-kb-tint px-[10px] text-[13px] font-semibold text-ink">
+                            <span className="text-[11px] font-medium text-muted">사유</span>
+                            {sentence.reason}
+                          </span>
+                        </div>
+                        <CoherenceCard
+                          reason={sentence.reason}
+                          result={sentence.coherence.result}
+                          detail={sentence.coherence.detail}
+                        />
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -398,75 +518,88 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
               </span>
             </div>
 
-            <h3 className="mt-[20px] text-[14px] font-bold leading-[1.4] text-ink">수정 문안</h3>
-            {current && current.verdict === 'edited' ? (
-              <div className="mt-[8px]">
-                <div className="flex min-h-[40px] items-center rounded-[6px] bg-paper px-[16px] py-[9px]">
-                  <span className="w-[18px] shrink-0 text-[13px] text-muted">−</span>
-                  <span className="ko text-[13px] leading-[1.6] text-muted line-through">
-                    {current.originalText}
-                  </span>
-                </div>
-                <div className="mt-[6px] flex min-h-[56px] items-center rounded-[6px] border-l-[4px] border-line bg-paper px-[16px] py-[11px]">
-                  <span className="w-[18px] shrink-0 text-[13px] font-bold text-ink">+</span>
-                  <span className="ko text-[14px] font-semibold leading-[1.7] text-ink">
-                    {current.currentText}
-                  </span>
-                </div>
-              </div>
-            ) : (
-              <p className="ko mt-[8px] flex min-h-[40px] items-center text-[13px] leading-[1.6] text-muted">
-                수정하면 여기에 원문과 수정문이 대조됩니다.
-              </p>
-            )}
-
-            <div className="mt-[20px] flex items-baseline gap-[12px]">
-              <h3 className="text-[14px] font-bold leading-[1.4] text-ink">
-                {dispatched ? '봉인된 발송문' : '발송 문안'}
-              </h3>
-              <span className="text-[13px] leading-[1.6] text-muted">
-                {dispatched ? (
-                  '읽기 전용'
-                ) : view.approval?.valid ? (
-                  <>
-                    승인 완료 · 봉인 <span className="font-mono">{view.approval.versionId}</span>
-                  </>
-                ) : (
-                  '승인 대기'
-                )}
-              </span>
-            </div>
-            <div className="ko mt-[8px] whitespace-pre-line rounded-[6px] border-l-[2px] border-line bg-paper px-[16px] py-[14px] text-[14px] leading-[1.7] text-ink">
-              {dispatched ? (view.approvedContent ?? view.currentContent) : view.currentContent}
-            </div>
+            {/* 수정 문안 — 좌측, 초안과 같은 흐름에서 원문↔수정 대조 */}
+            <section className="mt-[20px] border-t border-line pt-[20px] pb-[8px]">
+              <h3 className="type-subtitle text-[16px] leading-[1.35] text-ink">수정 문안</h3>
+              {editedSentences.length === 0 ? (
+                <p className="ko mt-[10px] text-[14px] leading-[1.7] text-muted">
+                  수정하면 여기에 원문과 수정문이 대조됩니다.
+                </p>
+              ) : (
+                <ul className="mt-[12px] space-y-[14px]">
+                  {editedSentences.map((sentence) => (
+                    <li key={sentence.idx}>
+                      <div className="mb-[8px] flex flex-wrap items-center gap-[8px]">
+                        <button
+                          type="button"
+                          onClick={() => setSelected(sentence.idx)}
+                          className={`text-[13px] font-semibold ${
+                            sentence.idx === selected ? 'text-ink' : 'text-muted hover:text-ink'
+                          }`}
+                        >
+                          {sentence.idx + 1}번 구절
+                        </button>
+                        {sentence.reason ? (
+                          <span className="inline-flex h-[24px] items-center gap-[5px] rounded-[4px] bg-kb-tint px-[8px] text-[12px] font-semibold text-ink">
+                            <span className="text-[11px] font-medium text-muted">사유</span>
+                            {sentence.reason}
+                          </span>
+                        ) : (
+                          <span className="text-[12px] font-medium text-warn">사유 미선택</span>
+                        )}
+                      </div>
+                      <div className="flex min-h-[40px] items-start gap-[12px] rounded-[6px] bg-paper px-[14px] py-[9px]">
+                        <span className="w-[18px] shrink-0 text-[14px] leading-[1.7] text-muted">
+                          −
+                        </span>
+                        <span className="ko min-w-0 flex-1 text-[14px] leading-[1.7] text-muted line-through">
+                          {sentence.originalText}
+                        </span>
+                      </div>
+                      <div className="mt-[6px] flex min-h-[48px] items-start gap-[12px] rounded-[6px] border-l-[4px] border-kb bg-kb-tint/40 px-[14px] py-[10px]">
+                        <span className="w-[18px] shrink-0 text-[14px] font-bold leading-[1.7] text-ink">
+                          +
+                        </span>
+                        <span className="ko min-w-0 flex-1 text-[14px] leading-[1.7] text-ink">
+                          {sentence.currentText}
+                        </span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
           </section>
 
-          {/* ── 우: 판단하기 ────────────────────────────────────────── */}
-          <aside className="w-[560px] shrink-0 self-stretch border-l border-line pl-[24px]">
+          {/* ── 우: 판단하기 + 발송 문안 ─────────────────────────────── */}
+          <aside className="w-[min(42%,640px)] min-w-[440px] shrink-0 self-start border-l border-line pl-[24px]">
             <div className="border-b border-line pb-[12px]">
               <SectionHead title="판단하기" />
+              <p className="ko mt-[6px] text-[13px] leading-[1.55] text-muted">
+                선택한 구절이 왜 위험으로 잡혔는지 보는 칸입니다.
+              </p>
             </div>
 
             <div className="pt-[16px]">
               {current?.signal ? (
-                <div className="flex min-h-[60px] items-center gap-[14px] rounded-[6px] bg-paper px-[16px] py-[12px]">
+                <div className="flex min-h-[60px] items-center gap-[14px] rounded-[8px] border border-line bg-card px-[16px] py-[14px]">
                   <span className="flex shrink-0 items-center gap-[10px]">
                     <TierChip tier={current.signal.tier} size="md" />
-                    <span className="tabular font-mono text-[13px] leading-[1.6] text-ink">
+                    <span className="tabular font-mono text-[13px] font-semibold leading-[1.6] text-ink">
                       ×{current.signal.score}
                     </span>
                   </span>
                   <span className="ko min-w-0">
-                    <span className="block text-[14px] font-bold leading-[1.4] text-ink">
+                    <span className="type-subtitle block text-[14px] leading-[1.4] text-ink">
                       {current.signal.label} · {current.signal.evidence}
                     </span>
-                    <span className="mt-[4px] block text-[13px] leading-[1.6] text-muted">
+                    <span className="mt-[5px] block text-[13px] leading-[1.65] text-ink-soft">
                       {SIGNAL_NOTE[current.signal.type]}
                     </span>
                   </span>
                 </div>
               ) : (
-                <p className="ko flex min-h-[60px] items-center text-[13px] leading-[1.6] text-muted">
+                <p className="ko flex min-h-[60px] items-center text-[14px] leading-[1.65] text-ink-soft">
                   이 구절에서는 위험 신호가 발화하지 않았습니다. 판정 대상이 아닙니다.
                 </p>
               )}
@@ -477,171 +610,161 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
                   신호 카드 바로 아래에 두는 것은 읽는 순서를 근거 → 판단 → 행동으로
                   맞추기 위해서다. CTA 아래에 있으면 근거가 행동보다 뒤에 오고
                   1080p 에서 접힌다. */}
-              <section className="mt-[20px]">
-                <h3 className="text-[14px] font-bold leading-[1.4] text-ink">정본 대조</h3>
+              <section className="mt-[22px]">
+                <h3 className="type-subtitle text-[16px] leading-[1.35] text-ink">정본 대조</h3>
+                <p className="ko mt-[6px] text-[13px] leading-[1.55] text-muted">
+                  초안 내용을 공식 상품 조건·법 기준과 맞춰 보는 칸입니다.
+                </p>
 
-                <p className="ko mt-[12px] text-[12px] leading-[1.5] text-faint">
+                <p className="ko mt-[14px] text-[13px] font-medium leading-[1.5] text-ink-soft">
                   법 근거 (티어 {current?.signal?.tier ?? '—'} · 금소법 위계 — 고정)
                 </p>
                 {current?.signal ? (
-                  <div className="mt-[8px] flex items-start gap-[10px] rounded-[6px] bg-paper px-[16px] py-[12px]">
+                  <div className="mt-[8px] flex items-start gap-[10px] rounded-[8px] border border-line bg-card px-[16px] py-[14px]">
                     <TierChip tier={current.signal.tier} size="md" />
-                    <span className="ko min-w-0 text-[13px] leading-[1.6] text-ink">
+                    <span className="ko min-w-0 text-[14px] font-medium leading-[1.65] text-ink">
                       {TIER_BASIS[current.signal.tier]}
                     </span>
                   </div>
                 ) : (
-                  <p className="ko mt-[8px] text-[13px] leading-[1.6] text-muted">
+                  <p className="ko mt-[8px] text-[14px] leading-[1.65] text-ink-soft">
                     이 구절에는 티어가 부여되지 않았습니다.
                   </p>
                 )}
 
-                <p className="ko mt-[20px] text-[12px] leading-[1.5] text-faint">
-                  감지 근거 (정본 대조 — 학습 가능)
+                <p className="ko mt-[20px] text-[13px] font-medium leading-[1.5] text-ink-soft">
+                  수치·조건 맞춰보기
+                </p>
+                <p className="ko mt-[4px] text-[12px] leading-[1.5] text-muted">
+                  상품에 적힌 숫자와 AI가 쓴 숫자가 같은지 확인합니다.
                 </p>
                 {comparisons.length > 0 ? (
-                  <ul className="mt-[8px]">
+                  <ul className="mt-[8px] overflow-hidden rounded-[8px] border border-line bg-card">
                     {comparisons.map((comparison) => (
                       <li
                         key={comparison.key}
-                        className="flex items-baseline gap-[12px] border-b border-line-soft py-[10px] last:border-b-0"
+                        className="flex flex-col gap-[6px] border-b border-line px-[16px] py-[12px] last:border-b-0 sm:flex-row sm:items-baseline sm:gap-[12px]"
                       >
-                        <span className="ko min-w-0 flex-1 text-[13px] leading-[1.6] text-ink">
+                        <span className="ko min-w-0 flex-1 text-[14px] font-medium leading-[1.6] text-ink">
                           {comparison.label}
                         </span>
                         {comparison.kind === 'number' ? (
-                          <span className="tabular shrink-0 font-mono text-[13px] leading-[1.6]">
-                            <span className="text-muted">정본 {comparison.canonical}</span>
-                            <span className="px-[6px] text-faint">·</span>
-                            <span className={comparison.matches ? 'text-ink' : 'font-bold text-danger'}>
-                              초안 {comparison.draft}
+                          <span className="tabular shrink-0 text-[13px] leading-[1.6]">
+                            <span className="text-ink-soft">
+                              상품 조건{' '}
+                              <span className="font-mono font-semibold text-ink">
+                                {comparison.canonical}
+                              </span>
+                            </span>
+                            <span className="px-[6px] text-muted">/</span>
+                            <span
+                              className={
+                                comparison.matches ? 'text-ink-soft' : 'text-danger'
+                              }
+                            >
+                              AI 초안{' '}
+                              <span
+                                className={`font-mono ${
+                                  comparison.matches
+                                    ? 'font-semibold text-ink'
+                                    : 'font-bold text-danger'
+                                }`}
+                              >
+                                {comparison.draft}
+                              </span>
                             </span>
                           </span>
                         ) : (
-                          <span className="ko shrink-0 text-[13px] leading-[1.6] text-muted">
-                            {comparison.matches ? '조건 명시됨' : '조건 없음'}
+                          <span className="ko shrink-0 text-[13px] font-medium leading-[1.6] text-ink-soft">
+                            {comparison.matches
+                              ? '제한 조건이 초안에 있음'
+                              : '제한 조건이 초안에 없음'}
                           </span>
                         )}
                         <span
-                          className={`shrink-0 text-[12px] leading-[1.5] ${
+                          className={`shrink-0 text-[13px] font-semibold leading-[1.5] ${
                             comparison.matches ? 'text-ok' : 'text-danger'
                           }`}
                         >
-                          {comparison.matches ? '일치' : '불일치'}
+                          {comparison.matches ? '같음' : '다름'}
                         </span>
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="ko mt-[8px] text-[13px] leading-[1.6] text-muted">
-                    이 구절에 대조할 정본 팩트가 없습니다.
+                  <p className="ko mt-[8px] text-[14px] leading-[1.65] text-ink-soft">
+                    이 구절에서 맞춰볼 숫자·조건이 없습니다.
+                  </p>
+                )}
+                {productFacts?.source && (
+                  <p className="ko mt-[10px] text-[12px] leading-[1.5] text-muted">
+                    정본 출처: {productFacts.source}
                   </p>
                 )}
               </section>
 
-              <h3 className="mt-[20px] text-[14px] font-bold leading-[1.4] text-ink">
-                수정 사유 설명
-              </h3>
-              <div className="mt-[12px] grid grid-cols-2 gap-[8px]">
-                {REASONS.map((reason) => {
-                  const active = current?.reason === reason && editedNow;
-                  return (
-                    <button
-                      key={reason}
-                      type="button"
-                      data-testid={`reason-${REASONS.indexOf(reason)}`}
-                      aria-pressed={active}
-                      disabled={!editedNow || busy}
-                      onClick={() => pickReason(reason)}
-                      className={`ko h-[38px] rounded-[6px] border text-[13px] leading-[1.6] transition-colors duration-[120ms] ${
-                        active
-                          ? 'border-ink bg-ink font-bold text-white'
-                          : editedNow
-                            ? 'border-line bg-card text-ink hover:bg-paper'
-                            : 'cursor-not-allowed border-transparent bg-transparent text-faint'
-                      }`}
-                    >
-                      {reason}
-                    </button>
-                  );
-                })}
-              </div>
+              {/* 발송 문안 + CTA — 우측, 승인 직전 전체 확인 */}
+              <section className="mt-[22px] border-t border-line pt-[20px] pb-[8px]">
+                <div className="flex items-baseline gap-[12px]">
+                  <h3 className="type-subtitle text-[16px] leading-[1.35] text-ink">
+                    {dispatched ? '봉인된 발송문' : '발송 문안'}
+                  </h3>
+                  <span className="text-[13px] leading-[1.6] text-muted">
+                    {dispatched ? (
+                      '읽기 전용'
+                    ) : view.approval?.valid ? (
+                      <>
+                        승인 완료 · 봉인{' '}
+                        <span className="font-mono">{view.approval.versionId}</span>
+                      </>
+                    ) : (
+                      '승인 대기'
+                    )}
+                  </span>
+                </div>
+                <div className="ko mt-[12px] whitespace-pre-line rounded-[6px] border border-line bg-card px-[14px] py-[12px] text-[14px] leading-[1.7] text-ink">
+                  {dispatched
+                    ? (view.approvedContent ?? view.currentContent)
+                    : view.currentContent}
+                </div>
 
-              <h3 className="mt-[20px] text-[14px] font-bold leading-[1.4] text-ink">
-                사유 ↔ 실제 수정 적합성 검사
-              </h3>
-              <div className="mt-[12px]">
-                {coherence && current?.reason ? (
-                  <div
-                    key={`${current.reason}-${coherence.result}`}
-                    className={`animate-panel flex min-h-[48px] items-start rounded-[6px] border-l-[3px] px-[16px] py-[10px] ${
-                      coherence.result === 'pass'
-                        ? 'border-ok bg-ok-bg'
-                        : 'border-danger bg-transparent'
-                    }`}
-                  >
-                    <span
-                      className={`mr-[12px] shrink-0 text-[15px] font-bold leading-[1.4] ${
-                        coherence.result === 'pass' ? 'text-ok' : 'text-danger'
-                      }`}
+                <div className="mt-[20px] flex items-stretch gap-[10px]">
+                  {dispatched ? (
+                    <button
+                      type="button"
+                      onClick={() => router.push(`/done/${view.caseId}`)}
+                      className="type-subtitle flex h-[52px] flex-1 items-center justify-center rounded-[6px] bg-kb text-[16px] text-ink transition-colors duration-[120ms] hover:bg-kb-dark"
                     >
-                      {coherence.result === 'pass' ? '✓' : '!'}
-                    </span>
-                    <span className="ko min-w-0">
-                      <span className="block text-[14px] font-bold leading-[1.4] text-ink">
-                        {coherence.result === 'pass'
-                          ? `적합 · ${current.reason}`
-                          : `불일치 · ${current.reason} · 사유 재선택`}
-                      </span>
-                      <span className="mt-[3px] block text-[13px] leading-[1.6] text-muted">
-                        {coherence.detail}
-                        {coherence.result !== 'pass' && ' 이 사유로는 승인할 수 없습니다.'}
-                      </span>
-                    </span>
-                  </div>
-                ) : (
-                  <p className="ko flex min-h-[56px] items-center text-[13px] leading-[1.6] text-muted">
-                    수정한 구절에만 적용됩니다. 유지 판정에는 사유가 필요하지 않습니다.
+                      발행 완료 화면 보기
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      data-testid="approve"
+                      disabled={!view.canApprove || busy}
+                      onClick={approveAndDispatch}
+                      className="type-subtitle flex h-[52px] flex-1 items-center justify-center gap-[10px] rounded-[6px] bg-kb text-[16px] text-ink transition-colors duration-[120ms] hover:bg-kb-dark disabled:cursor-not-allowed disabled:bg-kb/45 disabled:text-ink/55"
+                    >
+                      {sending && <Spinner />}
+                      {sending ? '발송 중' : '승인하고 발송'}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => router.push('/')}
+                    className="h-[52px] w-[120px] rounded-[6px] text-[15px] font-semibold text-ink-soft underline-offset-4 transition-colors duration-[120ms] hover:bg-head hover:text-ink disabled:cursor-not-allowed disabled:text-muted"
+                  >
+                    보류
+                  </button>
+                </div>
+
+                {blockLabel && (
+                  <p className="ko mt-[10px] text-[13px] font-medium leading-[1.6] text-muted">
+                    {blockLabel}
                   </p>
                 )}
-              </div>
-
-              <div className="mt-[28px] flex gap-[12px]">
-                {dispatched ? (
-                  <button
-                    type="button"
-                    onClick={() => router.push(`/done/${view.caseId}`)}
-                    className="h-[48px] flex-1 rounded-[6px] border border-line bg-card text-[15px] font-bold text-ink transition-colors duration-[120ms] hover:bg-paper"
-                  >
-                    발행 완료 화면 보기
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    data-testid="approve"
-                    disabled={!view.canApprove || busy}
-                    onClick={approveAndDispatch}
-                    className="flex h-[48px] flex-1 items-center justify-center gap-[10px] rounded-[6px] bg-kb text-[15px] font-bold text-ink transition-colors duration-[120ms] hover:bg-kb-dark disabled:cursor-not-allowed disabled:bg-head disabled:text-faint"
-                  >
-                    {sending && <Spinner />}
-                    {sending ? '발송 중' : '승인하고 발송'}
-                  </button>
-                )}
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={() => router.push('/')}
-                  className="h-[48px] w-[140px] rounded-[6px] border border-line bg-card text-[15px] text-ink transition-colors duration-[120ms] hover:bg-paper disabled:cursor-not-allowed disabled:text-faint"
-                >
-                  보류
-                </button>
-              </div>
-
-              {blockLabel && (
-                <p className="ko mt-[12px] text-center text-[13px] leading-[1.6] text-muted">
-                  {blockLabel}
-                </p>
-              )}
+              </section>
             </div>
           </aside>
         </div>
@@ -661,11 +784,48 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
   );
 }
 
+function CoherenceCard({
+  reason,
+  result,
+  detail,
+}: {
+  reason: string;
+  result: 'pass' | 'mismatch';
+  detail: string;
+}) {
+  const pass = result === 'pass';
+  return (
+    <div
+      className={`animate-panel flex min-h-[48px] items-start rounded-[8px] border border-l-[4px] px-[14px] py-[11px] ${
+        pass
+          ? 'border-ok/30 border-l-ok bg-ok-bg'
+          : 'border-danger/25 border-l-danger bg-danger-bg'
+      }`}
+    >
+      <span
+        className={`mr-[10px] shrink-0 text-[15px] font-bold leading-[1.4] ${
+          pass ? 'text-ok' : 'text-danger'
+        }`}
+      >
+        {pass ? '✓' : '!'}
+      </span>
+      <span className="ko min-w-0">
+        <span className="type-subtitle block text-[14px] leading-[1.4] text-ink">
+          {pass ? `적합 · ${reason}` : `불일치 · ${reason} · 사유 재선택`}
+        </span>
+        <span className="mt-[4px] block text-[13px] leading-[1.65] text-ink-soft">
+          {detail}
+          {!pass && ' 이 사유로는 승인할 수 없습니다.'}
+        </span>
+      </span>
+    </div>
+  );
+}
+
 function VerdictButton({
   label,
   testId,
   active,
-  tone,
   disabled,
   locked,
   onClick,
@@ -673,16 +833,11 @@ function VerdictButton({
   label: string;
   testId: string;
   active: boolean;
-  tone: 'soft' | 'strong';
   disabled: boolean;
   /** 발행 완료 케이스에서 잠긴 상태. 실제 disabled 는 아니다 — 눌러야 차단 모달이 뜬다. */
   locked?: boolean;
   onClick: () => void;
 }) {
-  // 옐로는 화면당 CTA 하나뿐이라(멘토 [7]) 선택 상태는 그레이/잉크 필로 구분한다.
-  const activeClass =
-    tone === 'strong' ? 'border-ink bg-ink font-bold text-white' : 'border-line bg-head font-bold text-ink';
-
   return (
     <button
       type="button"
@@ -696,10 +851,14 @@ function VerdictButton({
         event.stopPropagation();
         onClick();
       }}
-      className={`flex h-[26px] shrink-0 items-center justify-center gap-[3px] rounded-[6px] border text-[12px] leading-[1.5] transition-colors duration-100 disabled:cursor-not-allowed disabled:text-faint ${
-        locked ? 'w-[62px] px-[4px] text-faint' : 'w-[48px]'
+      className={`flex h-[30px] shrink-0 items-center justify-center gap-[4px] rounded-[6px] border text-[13px] font-semibold leading-[1.4] transition-colors duration-100 disabled:cursor-not-allowed disabled:border-line disabled:bg-paper disabled:text-ink-soft ${
+        locked ? 'w-[68px] px-[6px]' : 'w-[52px]'
       } ${
-        active && !locked ? activeClass : 'border-transparent bg-transparent text-muted hover:bg-paper'
+        locked
+          ? 'border-line bg-paper text-ink-soft'
+          : active
+            ? 'border-ink bg-ink font-bold text-white'
+            : 'border-line bg-card text-ink shadow-[inset_0_0_0_1px_rgba(38,40,44,0.04)] hover:border-ink/35 hover:bg-paper'
       }`}
     >
       {locked && <LockIcon className="h-[10px] w-[10px] shrink-0" />}

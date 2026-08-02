@@ -38,7 +38,7 @@ export function QueueConsole({ data }: { data: QueueView }) {
   return (
     <div className="flex min-h-0 flex-1 items-stretch gap-[20px]">
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <div className="flex items-center gap-[8px] pb-[12px]">
+        <div className="flex shrink-0 items-center gap-[8px] pb-[12px]">
           {FILTERS.map((option) => {
             const active = option.tier === filter;
             return (
@@ -69,65 +69,67 @@ export function QueueConsole({ data }: { data: QueueView }) {
         </div>
 
         <Sheet className="flex min-h-0 flex-1 flex-col overflow-hidden" padded={false}>
-          <table className="w-full table-fixed border-collapse">
-            <colgroup>
-              <col className="w-[5%]" />
-              <col className="w-[19%]" />
-              <col className="w-[14%]" />
-              <col className="w-[9%]" />
-              <col className="w-[16%]" />
-              <col className="w-[25%]" />
-              <col className="w-[12%]" />
-            </colgroup>
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+            <table className="w-full table-fixed border-collapse">
+              <colgroup>
+                <col className="w-[10%]" />
+                <col className="w-[17%]" />
+                <col className="w-[14%]" />
+                <col className="w-[9%]" />
+                <col className="w-[15%]" />
+                <col className="w-[23%]" />
+                <col className="w-[12%]" />
+              </colgroup>
 
-            <thead>
-              <tr className="h-[38px] border-b border-line bg-head text-[12px] leading-[1.5] text-muted">
-                <th className="pl-[20px] text-left font-semibold">R</th>
-                <th className="text-left font-semibold">감지 신호</th>
-                <th className="text-left font-semibold">등기번호</th>
-                <th className="text-left font-semibold">접수</th>
-                <th className="text-left font-semibold">상품</th>
-                <th className="text-left font-semibold">문의 요지</th>
-                <th className="pr-[20px] text-right font-semibold">상태</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {queue.map((row) => (
-                <Row
-                  key={row.caseId}
-                  row={row}
-                  selected={row.caseId === selected?.caseId}
-                  onSelect={() => setSelectedId(row.caseId)}
-                />
-              ))}
-
-              {samples.length > 0 && (
-                <tr className="bg-paper">
-                  <td colSpan={7} className="border-y border-line px-[20px] py-[10px]">
-                    <div className="flex items-baseline">
-                      <span className="text-[13px] font-bold leading-[1.6] text-ink">
-                        저위험 무작위 표본
-                      </span>
-                      <span className="ko ml-[16px] text-[12px] leading-[1.5] text-muted">
-                        R = 0 이라도 일정 비율을 무작위로 검토 대상에 넣습니다. 시스템이 놓친 유형을
-                        발견하기 위한 장치입니다.
-                      </span>
-                    </div>
-                  </td>
+              <thead className="sticky top-0 z-10">
+                <tr className="h-[40px] border-b border-line bg-head text-[13px] leading-[1.5] text-muted">
+                  <th className="bg-head pl-[20px] text-left font-semibold">개입 필요도</th>
+                  <th className="bg-head text-left font-semibold">감지 신호</th>
+                  <th className="bg-head text-left font-semibold">등기번호</th>
+                  <th className="bg-head text-left font-semibold">접수</th>
+                  <th className="bg-head text-left font-semibold">상품</th>
+                  <th className="bg-head text-left font-semibold">문의 요지</th>
+                  <th className="bg-head pr-[20px] text-right font-semibold">상태</th>
                 </tr>
-              )}
+              </thead>
 
-              {samples.map((row) => (
-                <Row
-                  key={row.caseId}
-                  row={row}
-                  selected={row.caseId === selected?.caseId}
-                  onSelect={() => setSelectedId(row.caseId)}
-                />
-              ))}
-            </tbody>
-          </table>
+              <tbody>
+                {queue.map((row) => (
+                  <Row
+                    key={row.caseId}
+                    row={row}
+                    selected={row.caseId === selected?.caseId}
+                    onSelect={() => setSelectedId(row.caseId)}
+                  />
+                ))}
+
+                {samples.length > 0 && (
+                  <tr className="bg-paper">
+                    <td colSpan={7} className="border-y border-line px-[20px] py-[10px]">
+                      <div className="flex items-baseline">
+                        <span className="text-[13px] font-bold leading-[1.6] text-ink">
+                          저위험 무작위 표본
+                        </span>
+                        <span className="ko ml-[16px] text-[12px] leading-[1.5] text-muted">
+                          개입 필요도가 0이어도 일정 비율을 무작위로 검토합니다. 시스템이
+                          놓친 유형을 찾기 위한 장치입니다.
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+
+                {samples.map((row) => (
+                  <Row
+                    key={row.caseId}
+                    row={row}
+                    selected={row.caseId === selected?.caseId}
+                    onSelect={() => setSelectedId(row.caseId)}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
         </Sheet>
       </div>
 
@@ -229,7 +231,7 @@ function Row({
   );
 }
 
-/** 고른 행의 R 이 어떻게 나온 값인지 늘 보여 주는 패널. */
+/** 고른 행의 개입 필요도가 어떻게 나온 값인지 늘 보여 주는 패널. */
 function AnalysisPanel({
   row,
   kpi,
@@ -242,8 +244,8 @@ function AnalysisPanel({
   const humanReviewed = kpi.interventionNeeded + kpi.randomSamples;
 
   return (
-    <Sheet className="h-fit w-[360px] shrink-0">
-      <h2 className="text-[16px] font-bold leading-[1.35] tracking-[-0.01em] text-ink">
+    <Sheet className="flex h-full max-h-full w-[360px] shrink-0 flex-col overflow-y-auto">
+      <h2 className="type-subtitle text-[17px] leading-[1.35] text-ink">
         개입 필요도 분석
       </h2>
 
@@ -265,8 +267,11 @@ function AnalysisPanel({
             {row.receivedAgo}
           </p>
 
-          <p className="tabular mt-[16px] text-[30px] font-bold leading-[1.05] tracking-[-0.02em] text-ink">
-            R = {row.r}
+          <p className="mt-[16px] flex items-baseline gap-[8px]">
+            <span className="text-[14px] font-semibold leading-[1.4] text-muted">개입 필요도</span>
+            <span className="tabular text-[30px] font-bold leading-[1.05] tracking-[-0.02em] text-ink">
+              {row.r}
+            </span>
           </p>
 
           <ul className="mt-[14px] border-t border-line pt-[12px]">
@@ -293,7 +298,7 @@ function AnalysisPanel({
           </ul>
 
           <p className="ko border-t border-line pt-[10px] text-[12px] leading-[1.5] text-muted">
-            R = 발화한 신호 유형별 티어 점수의 합
+            위험 신호(S·A·B) 점수를 더한 값입니다. 높을수록 먼저 검토합니다.
           </p>
 
           <button

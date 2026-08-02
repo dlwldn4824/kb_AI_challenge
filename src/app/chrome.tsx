@@ -31,34 +31,43 @@ export function Chrome({
     <header className="sticky top-0 z-30 shrink-0">
       <div className="h-[3px] bg-kb" />
       <div className="border-b border-line bg-card">
-        <div className="mx-auto flex h-[52px] w-full max-w-[1720px] items-center px-10">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={asset("/brand/kb-logo.svg")}
-            alt="KB국민은행"
-            width={61}
-            height={20}
-            className="h-[20px] w-auto"
-          />
+        <div className="mx-auto flex h-[56px] w-full max-w-[1520px] items-center px-8">
+          <Link
+            href="/"
+            className="flex shrink-0 items-center transition-opacity duration-[120ms] hover:opacity-80"
+            aria-label="홈으로 이동"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={asset("/brand/kb-logo.svg")}
+              alt="KB국민은행"
+              width={61}
+              height={20}
+              className="h-[22px] w-auto"
+            />
+          </Link>
           <span className="mx-[14px] h-[16px] w-px bg-line" />
-          <h1 className="text-[15px] font-bold leading-[1.3] tracking-[-0.01em] text-ink">
+          <Link
+            href="/"
+            className="type-title text-[18px] leading-[1.3] text-ink transition-opacity duration-[120ms] hover:opacity-80"
+          >
             답변등기
-            {tabs.length === 0 && (
-              <>
-                <span className="px-[3px] font-normal text-faint">·</span>
-                {screen}
-              </>
-            )}
-          </h1>
+          </Link>
+          {tabs.length === 0 && (
+            <span className="type-subtitle text-[16px] leading-[1.3] text-ink">
+              <span className="px-[3px] font-sans font-normal text-faint">·</span>
+              {screen}
+            </span>
+          )}
 
           {tabs.length > 0 && (
-            <nav className="ml-[20px] flex h-[52px] items-stretch gap-[4px]">
+            <nav className="ml-[20px] flex h-[56px] items-stretch gap-[4px]">
               {tabs.map((tab) => (
                 <Link
                   key={tab.href}
                   href={tab.href}
                   aria-current={tab.active ? 'page' : undefined}
-                  className={`flex items-center border-b-[2px] px-[12px] text-[14px] leading-[1.4] transition-colors duration-[120ms] ${
+                  className={`flex items-center border-b-[2px] px-[12px] text-[15px] leading-[1.4] transition-colors duration-[120ms] ${
                     tab.active
                       ? 'border-kb font-bold text-ink'
                       : 'border-transparent text-muted hover:text-ink'
@@ -70,14 +79,14 @@ export function Chrome({
             </nav>
           )}
 
-          <div className="ml-auto flex items-center gap-[12px] text-[13px] leading-[1.5] text-muted">
+          <div className="ml-auto flex items-center gap-[12px] text-[14px] leading-[1.5] text-muted">
             {meta.map((item, index) => (
               <span key={index} className="flex items-center gap-[12px]">
                 {index > 0 && <span className="text-line">|</span>}
                 {item}
               </span>
             ))}
-            <span className="ml-[4px] inline-flex h-[24px] items-center rounded-[4px] border border-line bg-card px-[10px] text-[12px] font-medium leading-[1.5] text-muted">
+            <span className="ml-[4px] inline-flex h-[26px] items-center rounded-[4px] border border-line bg-card px-[10px] text-[13px] font-medium leading-[1.5] text-muted">
               {SYNTHETIC_BADGE}
             </span>
           </div>
