@@ -109,7 +109,7 @@ npm install && npm run dev   # predev 로 seed 가 먼저 돌아갑니다. http:
 
 | 감지기 · 랭킹 | Recall@39 | Precision@39 |
 |---|---|---|
-| v2 · R+confirmedHits | **25.0% (무작위의 1.9배)** | 30.8% |
+| v2 · R+confirmedHits | **25.0% (무작위의 1.5배)** | 30.8% |
 | 무작위 (1,000회 평균) | 16.2% | 20.0% |
 
 이 격차에서 세 가지가 확인됩니다.
