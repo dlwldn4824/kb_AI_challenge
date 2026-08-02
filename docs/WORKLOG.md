@@ -282,12 +282,12 @@ v2 는 `conditions` 를 비워 두고 수치 슬롯 + "정본에 있던 신호 �
 - 정적 데모 고지문: 번들(layout chunk) 내 존재 확인, Pages 배포 [ok], 라이브 반영(클라이언트 렌더).
 
 ## [T20] 제출 정리 — 2026-08-02
-- **T20-a 배포 흔적 제거**: `.github/`(deploy-pages.yml 포함) 삭제. README "라이브 데모" 절 → "정적 데모(오프라인)"(`npm run build:static && npx serve out`, mock 없음·curl 차단은 서버 모드 담당 표기 유지). `build-static.mjs`·`asset-path.ts`·`next.config.ts`의 basePath 기본값을 빈 문자열로 정리(로직 불변 — 경로 상수·주석만). grep(`dlwldn4824`·`github.io`·`kb_AI_challenge`·"라이브 데모") **0건**. build·build:static 모두 exit 0, 정적 산출물이 루트 경로로 빌드됨을 확인.
+- **T20-a 배포 흔적 제거**: `.github/`(deploy-pages.yml 포함) 삭제. README "라이브 데모" 절 → "정적 데모(오프라인)"(`npm run build:static && npx serve out`, mock 없음·curl 차단은 서버 모드 담당 표기 유지). `build-static.mjs`·`asset-path.ts`·`next.config.ts`의 basePath 기본값을 빈 문자열로 정리(로직 불변 — 경로 상수·주석만). grep(배포 도메인·계정·저장소명·"라이브 데모") **0건**. build·build:static 모두 exit 0, 정적 산출물이 루트 경로로 빌드됨을 확인.
 - **T20-b docs 분리**: 심사용 7종(BUILD_SPEC·WORKLOG·eval-results 3종·evidence 2종)만 `docs/` 에 남기고 내부 메모 5종을 `docs/notes/` 로 이동(삭제 아님) + `docs/notes/README.md` 안내. 코드 주석의 문서 경로(`ui.tsx`) 갱신, 깨진 링크 0건.
 - **T20-c README 최종**: 고지문 4항목 완비(KB 상표 시연 표현 / 상담·인물 합성 / 상품 정본 수치는 KB 공시 / **AI Hub 원본 미포함·파생 수치만**). 실행 4줄(install·dev·vitest·tamper)을 상단으로 이동하고 6막 섹션의 중복 블록 제거. "감지기의 현재와 다음" 문단 추가 — 규칙 기반이며 의미 모델 자리는 M1·M3, 그 자리가 코드에 열려 있음(DETECTOR_VERSION·detectDraftWithFacts·eval 벤치마크). verify-shots 이미지 경로 전부 유효, v2-*·live-* 참조 0건.
 - **T20-d 파일 정리**: `verify-shots/v2-*.png`(8)·`live-*.png`(4) 삭제 → 제출 캡처 12종만 유지. `.env.local`·`data/*.db`·`.next`·`out`·`*.tsbuildinfo` gitignore 확인, `.env.example`(데모 상수 문서)만 유지.
 - **BUILD_SPEC 갱신**: §7 테스트 절을 현재 구성(6파일 60건: invariants 8·scoring-regression 36·learning-signal 5·reason-retry 4·sealed-case 3·hash-parity 4)으로 정정.
-- **T20-e 최종 패키징**: 클린 재현(git archive → install 131pkg → **vitest 60 passed** → eval 81.3%/100% → seed → tamper **409** → dev 라우트 3종 200). zip 재생성 `answer-registry-submission.zip` — **144 files / 7.1MB**. 제외 grep(node_modules·.next·out·data/aihub·*.db·.env.local·.DS_Store·v2-*·live-*·.github) **0건**, zip 압축 해제 후 `github.io`·`dlwldn4824`·`kb_AI_challenge` 문자열 **0건**.
+- **T20-e 최종 패키징**: 클린 재현(git archive → install 131pkg → **vitest 60 passed** → eval 81.3%/100% → seed → tamper **409** → dev 라우트 3종 200). zip 재생성 `answer-registry-submission.zip` — **144 files / 7.1MB**. 제외 grep(node_modules·.next·out·data/aihub·*.db·.env.local·.DS_Store·v2-*·live-*·.github) **0건**, zip 압축 해제 후 배포 도메인·계정·저장소명 문자열 **0건**.
 - 로직 불변: `src/lib` 검증·봉인·게이트 수정 0건, 정본 RG-2026-081-0142 R=11 회귀 green.
 
 ## [T21] 제출 진입점 — START_HERE.html — 2026-08-02
@@ -298,3 +298,4 @@ v2 는 `conditions` 를 비워 두고 수치 슬롯 + "정본에 있던 신호 �
 - zip 구조 정리: `.gitattributes` 에 `docs/notes/ export-ignore` — 내부 메모 5종은 저장소에 보존하되 제출 zip 에서 자동 제외. 루트 md 는 README 하나.
 - 재패키징: **139 files / 8.3MB**. 금지물 grep(node_modules·.next·out·data/aihub·*.db·.env.local·.DS_Store·v2-*·live-*·.github·docs/notes) **0건**.
 - 테스트: vitest 60 passed / 로직 수정 0건
+- 부기: WORKLOG 내 배포 관련 검색어 나열 2곳은 링크가 아닌 검증 기록이나, 계정 식별자 노출을 피하려 일반화 표현으로 바꿨다(사실·의미 불변, 기록 삭제 아님).
