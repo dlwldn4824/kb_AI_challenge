@@ -37,8 +37,8 @@
 
 | 파일 | 사유 |
 |---|---|
-| `verify-shots/v2-*.png` | 구버전 디자인 (폐기 대상) |
-| `verify-shots/live-*.png` | 브라우저 URL 노출 (내부 증거용) |
+| `verify-shots/v2-*.png` | 구버전 디자인 — **T20 에서 삭제됨** |
+| `verify-shots/live-*.png` | 배포 URL 노출 — **T20 에서 삭제됨** |
 | `verify-shots/shot-*·kb-*·final-*` (있는 경우) | 중간 이터레이션 |
 
 ## 파일 존재 확인 (2026-08-02)

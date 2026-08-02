@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next';
 
 /**
- * 정적 데모 모드(GitHub Pages)는 빌드 타임 플래그로만 갈린다.
+ * 정적 데모 모드(오프라인 단독 실행)는 빌드 타임 플래그로만 갈린다.
  * 서버 모드(SQLite + API 라우트)는 아무것도 바뀌지 않는다.
  */
 const STATIC_DEMO = process.env.NEXT_PUBLIC_STATIC_DEMO === '1';
