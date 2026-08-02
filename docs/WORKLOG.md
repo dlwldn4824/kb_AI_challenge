@@ -272,3 +272,11 @@ v2 는 `conditions` 를 비워 두고 수치 슬롯 + "정본에 있던 신호 �
 - 변경: `docs/DECK_ASSETS.md` 신규 — 덱 페이지→자산 파일→처리 지침 표, 17.5장 수치의 JSON 원 위치(경로→키) 명기, 사용 금지 자산 목록(v2-*·live-*), 파일 존재 확인 결과.
 - 원칙: 수치는 손으로 옮기지 않고 JSON 원 위치에서 복사(1.9배류 드리프트 재발 방지). 14장은 png 원본 직접 삽입(브라우저 재촬영 금지) 명시.
 - 증거: 참조 파일 11종 + evidence 2종 존재 확인 통과.
+
+## [T19] 최종 재패키징 — 2026-08-02 19:07
+- 클린 재현(새 임시 폴더, git archive HEAD): npm install(131pkg) → vitest **60 passed** → eval 합성(R+확증 81.3%/100%) → eval --aihub(데이터 미배치 안내 후 정상 종료 — 클린 재현 불변 확인) → seed → tamper **HTTP 409 + dispatch_blocked** → dev 기동, 6막 라우트 스팟체크(`/`·`/review/0142`·`/done/0135` 전부 200).
+- zip: `KBAICH/answer-registry-submission.zip` — **145 files / 11.0MB**. git archive 후 `verify-shots/v2-*`(8)·`verify-shots/live-*`(4) 제거.
+- 포함: 소스 전체(src·scripts·tests·public) / README / docs 15종(BUILD_SPEC·WORKPLAN_FINAL·WORKLOG·DECK_ASSETS·IMPACT_NARRATIVE·eval-results 3종·evidence 2종 등) / verify-shots 12종(deck-01~06 7장·gif 2·t3 2·m1 1) / .github 워크플로.
+- 제외 grep 검증: data/aihub·*.db·node_modules·.next·out·.env.local·.DS_Store·v2-*·live-* **0건**.
+- 판단: `.env.example`은 제외 패턴(.env*)에 걸리나 시크릿이 아닌 데모 상수 문서(파일 주석 명시)라 설치 편의를 위해 유지. 시크릿 실파일(.env.local)은 미추적으로 원천 배제.
+- 정적 데모 고지문: 번들(layout chunk) 내 존재 확인, Pages 배포 [ok], 라이브 반영(클라이언트 렌더).
