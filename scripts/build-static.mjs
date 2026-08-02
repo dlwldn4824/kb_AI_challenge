@@ -1,5 +1,5 @@
 /**
- * 정적 데모(GitHub Pages) 빌드.
+ * 정적 데모(오프라인 단독 실행) 빌드.
  *
  * output: 'export' 는 API 라우트(POST 핸들러)와 공존할 수 없다. 정적 모드에서는
  * 그 경로가 아예 필요 없으므로(브라우저 스토어가 대신한다), 빌드 동안만 옆으로
@@ -81,7 +81,7 @@ try {
     env: {
       ...process.env,
       NEXT_PUBLIC_STATIC_DEMO: '1',
-      NEXT_PUBLIC_BASE_PATH: process.env.NEXT_PUBLIC_BASE_PATH ?? '/kb_AI_challenge',
+      NEXT_PUBLIC_BASE_PATH: process.env.NEXT_PUBLIC_BASE_PATH ?? '',
     },
   });
 } finally {

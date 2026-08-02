@@ -34,7 +34,7 @@ R 산식 정의(확정): **R = Σ(발화한 "신호 유형"별 티어 점수)**.
 
 - Next.js 최신 stable (App Router) + TypeScript + Tailwind CSS
 - SQLite via **better-sqlite3** (route handler는 `export const runtime = 'nodejs'`)
-- 테스트: **vitest** (`tests/invariants.test.ts`), 스크립트 실행: **tsx**
+- 테스트: **vitest** (`tests/` 6개 파일 · 60건), 스크립트 실행: **tsx**
 - 외부 API 키·외부 LLM 호출 **금지**. 네트워크 호출 없음. 모든 데이터 합성(fixture).
 - 파일명 영문. UI 텍스트는 한국어. 모든 화면 상단에 배지 상시 노출: **"SYNTHETIC DEMO · 합성 예시 데이터"**
 - HMAC 시크릿: `.env.local`의 `SEAL_SECRET` (기본값 fallback `dev-seal-secret-synthetic-demo` — 외부 키 아님, 로컬 상수)
@@ -49,7 +49,7 @@ answer-registry/
   src/fixtures/             # 합성 상담 20건 원천 데이터 (ts 모듈)
   scripts/seed.ts           # DB 초기화 + 이벤트 시드
   scripts/tamper-demo.ts    # 차단 시연
-  tests/invariants.test.ts  # 불변조건 4
+  tests/                    # 불변조건 4 + 게이트·봉인·재선택·학습신호·감지기 회귀 (60건)
   design-refs/*.png         # Figma 픽셀 레퍼런스 (이미 존재)
   data/demo.db              # 생성물 (gitignore)
 ```
@@ -249,7 +249,7 @@ Figma 큐 행 그대로 포함(정렬은 R 내림차순으로 교정):
 
 ---
 
-## 7. 테스트 — `tests/invariants.test.ts` (전부 green이어야 완료)
+## 7. 테스트 — `tests/` (전부 green이어야 완료 · 현재 60건)
 
 vitest + 임시 DB(테스트별 격리). route handler 함수를 직접 import해 `Request`를 만들어 호출(“API 직접 호출” = UI 미경유 검증).
 
@@ -258,7 +258,10 @@ vitest + 임시 DB(테스트별 격리). route handler 함수를 직접 import�
 3. **발송문 ≠ 승인문이면 409 (API 직접 호출 포함)**: approve → 원문에서 1글자(또는 `30만원`→`50만원`) 바꾼 content로 dispatch → 409 + `dispatch_blocked{digest_mismatch}`; 동일 content NFC/CRLF 변형은 정규화로 **통과**해야 함(정규화 검증)
 4. **등기번호 하나로 이벤트 재생 → 복원 일치**: 정본 케이스 전체 플로우 실행 후 `GET /api/registry/RG-2026-081-0142` 결과의 원문 5문장·수정문·사유(자격 미확인)·승인자(EMP-4471)가 fixture와 일치
 
-추가(보너스, 시간 되면): 정합성 mismatch 시 approve 422, 미판정 존재 시 approve 422.
+추가로 구현된 테스트 (현재 60건 구성):
+- `invariants.test.ts` 8 — 위 불변조건 4 + 승인 게이트 2(정합성 mismatch·미판정 시 422) + 판정 중복·경합 2
+- `scoring-regression.test.ts` 36 — seed 20건의 R·신호 조합 스냅샷 (정본 R=11 불변 강제)
+- `learning-signal.test.ts` 5 · `reason-retry.test.ts` 4 · `sealed-case.test.ts` 3 · `hash-parity.test.ts` 4
 
 ## 8. `scripts/tamper-demo.ts`
 

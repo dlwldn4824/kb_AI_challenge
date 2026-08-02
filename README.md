@@ -8,10 +8,24 @@ KB AI Challenge 2026 출품작 · 팀 삼삼오오
 > 본 프로토타입은 제8회 KB Future Finance A.I. Challenge 출품용 데모입니다.
 > KB 로고·상표는 KB금융그룹의 자산이며 심사 목적의 시연 표현입니다.
 > 상담 시나리오·인물은 합성이나, 상품 정본 수치는 KB 공시 상품설명서 기준입니다.
+> 평가에 쓴 AI Hub 데이터는 원본을 포함하지 않고 파생 수치만 담았습니다.
 > 외부 API·LLM 호출 없이 로컬에서만 동작합니다.
 
-**라이브 데모**: https://dlwldn4824.github.io/kb_AI_challenge/
-(mock 없음 — 이벤트 로그·봉인·검증 로직을 브라우저 WebCrypto로 실제 실행합니다)
+```bash
+npm install          # 의존성 설치
+npm run dev          # predev 로 seed 실행 → http://localhost:3000
+npx vitest run       # 불변조건·게이트 테스트 60건
+npm run tamper       # 변조 발송 차단 시연 (409)
+```
+
+**정적 데모(오프라인)** — 서버 없이 열어볼 수 있습니다.
+
+```bash
+npm run build:static && npx serve out
+```
+
+mock 이 없습니다. 이벤트 로그·봉인·해시 검증을 브라우저 WebCrypto로 실제 실행합니다.
+다만 UI 를 거치지 않은 `curl` 차단 증명은 서버 모드의 테스트·`npm run tamper` 가 담당합니다.
 
 설계 원칙은 하나입니다.
 **되돌릴 수 있는 곳(감지·선별·설명)엔 AI를, 되돌릴 수 없는 곳(승인·발송)엔 결정론을.**
@@ -26,11 +40,7 @@ KB AI Challenge 2026 출품작 · 팀 삼삼오오
 
 ## 화면 흐름 — 데모 6막
 
-```bash
-npm install && npm run dev   # predev 로 seed 가 먼저 돌아갑니다. http://localhost:3000
-```
-
-정본 케이스는 `RG-2026-081-0142` 입니다.
+`npm run dev` 후 http://localhost:3000 · 정본 케이스는 `RG-2026-081-0142` 입니다.
 
 ### 1막 — 큐가 순서를 정한다
 
@@ -141,7 +151,7 @@ npm run seed -- --aihub                     # 실상담 재구성 케이스로 �
 src/app/            화면 3 (큐 · 검토 · 발행 완료) + 발행 후 재열람 잠금
 src/app/api/        route handlers — 승인·발송 게이트는 전부 서버
 src/lib/            digest · seal · scoring · coherence · projection
-src/lib/static-demo GitHub Pages 용 브라우저 단독 모드 (WebCrypto)
+src/lib/static-demo 오프라인 단독 실행 모드 (브라우저 WebCrypto)
 src/fixtures/       합성 상담 20건 + 상품 정본 팩트
 scripts/            seed · eval · tamper-demo · aihub 로더/통계
 tests/              불변조건 · 봉인 · 사유 재선택 · 학습 신호 · 감지기 회귀 (60건)
@@ -161,6 +171,14 @@ seal          = HMAC_SHA256(SEAL_SECRET,
 
 정규화 덕분에 줄바꿈·유니코드 형태가 달라도 같은 내용이면 통과하고,
 한 글자가 바뀌면 다이제스트가 달라져 차단됩니다.
+
+## 감지기의 현재와 다음
+
+감지기는 현재 규칙 기반이며, 의미 모델이 들어갈 자리는 M1·M3 입니다.
+그 자리는 코드에 이미 열려 있습니다 — 판정 이력을 남기는 `DETECTOR_VERSION` 상수,
+정본을 외부에서 주입받는 `detectDraftWithFacts()` 진입점, 그리고 어떤 감지기를 꽂아도
+같은 시험지로 채점하는 `npm run eval` 벤치마크입니다. 승인·발송 게이트는 이 교체와
+무관하게 결정론으로 남습니다.
 
 ## 만들지 않은 것
 

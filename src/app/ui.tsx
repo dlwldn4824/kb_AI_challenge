@@ -6,7 +6,7 @@ import type { CaseStatus } from '@/lib/projection';
  * 세 화면이 공유하는 UI 조각.
  *
  * 레이아웃 구조는 design-refs/screen-0X-*.png(Figma 정본),
- * 색·타이포·면 처리는 docs/UI_MENTOR_NOTES.md 를 따른다.
+ * 색·타이포·면 처리는 docs/notes/UI_MENTOR_NOTES.md 를 따른다.
  * 면은 헤어라인으로 나누고, 그림자는 "떠 있는 것" 둘(토스트·폰 목업)에만 쓴다.
  */
 
