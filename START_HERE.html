@@ -38,6 +38,15 @@ a{color:var(--ink)}
 :root{--ink:#e8eaed;--soft:#b6bac0;--muted:#8d929a;--line:#33363b;--bg:#17191c;--card:#1e2124}
 code{background:#2a2d31} pre{background:#0f1113}
 }
+
+/* 캡처는 1400px 원본을 912px 폭으로 줄여 싣는다. 그 상태로는 화면 속 한글이
+   읽히지 않으므로 눌러서 원본 크기로 펼쳐 볼 수 있게 한다. 외부 의존 없음. */
+figure img{cursor:zoom-in}
+.lb{position:fixed;inset:0;z-index:99;display:none;background:rgba(0,0,0,.88);overflow:auto;padding:56px 16px 24px}
+.lb.on{display:block}
+.lb img{display:block;margin:0 auto;max-width:none;background:#fff;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+.lb .hint{position:fixed;top:12px;left:50%;transform:translateX(-50%);color:#fff;background:rgba(0,0,0,.65);border-radius:6px;padding:6px 12px;font-size:13px}
+@media(max-width:700px){.lb img{max-width:100%}}
 </style></head><body>
 <div class="top"></div>
 <div class="wrap">
@@ -110,4 +119,25 @@ npm run tamper       <span class="c"># 변조 발송 차단 시연 (409)</span><
 <code>docs/notes/</code> 내부 메모.<br>
 KB AI Challenge 2026 · 팀 삼삼오오 · 이 페이지의 이미지는 실제 실행 화면 캡처입니다.
 </footer>
-</div></body></html>
+</div><script>
+(function(){
+  // 축소 표시로는 캡처 속 글씨가 안 읽힌다. 눌러서 원본(1400px)으로 본다.
+  var lb=document.createElement('div');
+  lb.className='lb';lb.tabIndex=-1;
+  lb.setAttribute('role','dialog');lb.setAttribute('aria-modal','true');lb.setAttribute('aria-label','캡처 원본 크기 보기');
+  var hint=document.createElement('div');hint.className='hint';hint.textContent='원본 크기 · 눌러서 닫기 (Esc)';
+  var big=document.createElement('img');
+  lb.appendChild(hint);lb.appendChild(big);document.body.appendChild(lb);
+  var last=null;
+  function open(im){last=im;big.src=im.src;big.alt=im.alt||'';lb.classList.add('on');document.body.style.overflow='hidden';lb.focus();}
+  function close(){lb.classList.remove('on');big.removeAttribute('src');document.body.style.overflow='';if(last)last.focus();}
+  Array.prototype.forEach.call(document.querySelectorAll('figure img'),function(im){
+    im.tabIndex=0;im.setAttribute('role','button');im.title='눌러서 원본 크기로 보기';
+    im.addEventListener('click',function(){open(im);});
+    im.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();open(im);}});
+  });
+  lb.addEventListener('click',close);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&lb.classList.contains('on'))close();});
+})();
+</script>
+</body></html>

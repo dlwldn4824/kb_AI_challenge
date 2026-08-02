@@ -289,3 +289,12 @@ v2 는 `conditions` 를 비워 두고 수치 슬롯 + "정본에 있던 신호 �
 - **BUILD_SPEC 갱신**: §7 테스트 절을 현재 구성(6파일 60건: invariants 8·scoring-regression 36·learning-signal 5·reason-retry 4·sealed-case 3·hash-parity 4)으로 정정.
 - **T20-e 최종 패키징**: 클린 재현(git archive → install 131pkg → **vitest 60 passed** → eval 81.3%/100% → seed → tamper **409** → dev 라우트 3종 200). zip 재생성 `answer-registry-submission.zip` — **144 files / 7.1MB**. 제외 grep(node_modules·.next·out·data/aihub·*.db·.env.local·.DS_Store·v2-*·live-*·.github) **0건**, zip 압축 해제 후 `github.io`·`dlwldn4824`·`kb_AI_challenge` 문자열 **0건**.
 - 로직 불변: `src/lib` 검증·봉인·게이트 수정 0건, 정본 RG-2026-081-0142 R=11 회귀 green.
+
+## [T21] 제출 진입점 — START_HERE.html — 2026-08-02
+- 추가: 프로젝트 루트에 `START_HERE.html`(1.79MB) — 실행 없이 전체 흐름을 보는 자기완결 단일 파일. 캡처 9종(6막 전부·정본 대조 크롭·GIF 2·테스트 실행)을 base64 내장, 외부 요청 0(URL은 안내용 localhost 하나뿐). 구성: 고지문 → 실행 4줄 → 세 개의 숫자 → 한 건의 여정(RG-2026-081-0142) → 불변조건 4 + 테스트 증거 → 숫자 정직하게(상한 캐비앗) → 감지기의 현재와 다음(M1·M3).
+- 이미지 확대(라이트박스) 추가: 전체 화면 캡처는 1920×1200 원본을 912px 폭으로 표시해(47.5%) 화면 속 한글이 안 읽힌다. 원인이 JPEG 품질이 아니라 표시 크기임을 원본 100% 크롭으로 확인했고(품질 82로도 판독 가능), 재인코딩 대신 클릭 시 원본 크기로 펼치는 오버레이를 넣었다(인라인 CSS+JS, +2KB, 이미지 바이트 불변). Esc·배경 클릭 닫기·포커스 복귀·스크롤 잠금 포함.
+- 검증(file:// 직접 열기): 이미지 9/9 표시 · GIF 2종 재생 · 콘솔 에러 0 · 네트워크 요청은 문서 자신 1건뿐 · 다크모드 대비 충분 · 모바일 390px 가로 넘침 0 · 한글 keep-all 정상. 확대 상태에서 사유 불일치 문구·정본 출처 캡션까지 판독 확인.
+- 미대응(우선순위 판단): 모바일 390px 에서 코드 블록이 가로 스크롤되고(정상 동작) 불변조건 표 첫 열이 좁게 줄바꿈된다. 심사 시나리오가 데스크톱 더블클릭이라 두었다.
+- zip 구조 정리: `.gitattributes` 에 `docs/notes/ export-ignore` — 내부 메모 5종은 저장소에 보존하되 제출 zip 에서 자동 제외. 루트 md 는 README 하나.
+- 재패키징: **139 files / 8.3MB**. 금지물 grep(node_modules·.next·out·data/aihub·*.db·.env.local·.DS_Store·v2-*·live-*·.github·docs/notes) **0건**.
+- 테스트: vitest 60 passed / 로직 수정 0건
