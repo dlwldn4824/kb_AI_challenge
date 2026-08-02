@@ -194,3 +194,15 @@ body {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* 고지문 푸터 (T19) — 스테이지 하단 상시 노출. flex 규칙보다 뒤에 두어 flex:1 을 덮는다. */
+.stage-frame > .stage-disclaimer {
+  flex: 0 0 auto;
+  padding: 6px 24px 8px;
+  border-top: 1px solid var(--color-line);
+  background: var(--color-card);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  text-align: center;
+}

@@ -696,6 +696,11 @@ export function ReviewConsole({ initial }: { initial: CaseView }) {
                     이 구절에서 맞춰볼 숫자·조건이 없습니다.
                   </p>
                 )}
+                {productFacts?.source && (
+                  <p className="ko mt-[10px] text-[12px] leading-[1.5] text-muted">
+                    정본 출처: {productFacts.source}
+                  </p>
+                )}
               </section>
 
               {/* 발송 문안 + CTA — 우측, 승인 직전 전체 확인 */}

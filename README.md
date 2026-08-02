@@ -5,7 +5,10 @@ AI 상담 초안을 위험 순으로 골라주고, 상담직원이 문장 단위
 
 KB AI Challenge 2026 출품작 · 팀 삼삼오오
 
-> SYNTHETIC DEMO — 상담 데이터는 전부 합성이며, 외부 API·LLM 호출 없이 로컬에서만 동작합니다.
+> 본 프로토타입은 제8회 KB Future Finance A.I. Challenge 출품용 데모입니다.
+> KB 로고·상표는 KB금융그룹의 자산이며 심사 목적의 시연 표현입니다.
+> 상담 시나리오·인물은 합성이나, 상품 정본 수치는 KB 공시 상품설명서 기준입니다.
+> 외부 API·LLM 호출 없이 로컬에서만 동작합니다.
 
 **라이브 데모**: https://dlwldn4824.github.io/kb_AI_challenge/
 (mock 없음 — 이벤트 로그·봉인·검증 로직을 브라우저 WebCrypto로 실제 실행합니다)

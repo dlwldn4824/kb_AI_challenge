@@ -15,6 +15,12 @@ export const MODEL_VERSION = 'v3.4.2';
 
 /** 화면 상단 chrome 바에 상시 노출되는 배지 (스펙 §1). */
 export const SYNTHETIC_BADGE = 'SYNTHETIC DEMO · 합성 예시 데이터';
+
+/** 화면 하단 상시 고지문 (T19). 제거·조건부 노출 금지. */
+export const DISCLAIMER =
+  '본 프로토타입은 제8회 KB Future Finance A.I. Challenge 출품용 데모입니다. '
+  + 'KB 로고·상표는 KB금융그룹의 자산이며 심사 목적의 시연 표현입니다. '
+  + '상담 시나리오·인물은 합성이며, 상품 정본 수치는 KB 공시 상품설명서 기준입니다.';
 /** seed --aihub 로 실상담 재구성 케이스를 넣었을 때만 쓴다. SYNTHETIC 표기는 유지한다. */
 export const AIHUB_BADGE = 'SYNTHETIC DEMO · AI Hub 실상담 기반 재구성';
 
